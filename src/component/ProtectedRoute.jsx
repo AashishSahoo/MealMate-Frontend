@@ -4,16 +4,23 @@ import { useSelector } from "react-redux";
 import Swal from "sweetalert2";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { user, token } = useSelector((state) => state.auth);
+  // const { user, token } = useSelector((state) => state.auth);
 
-  console.log("Role Comparison - User Role:", user);
-  console.log("Role Comparison - Allowed Roles:", allowedRoles);
-  console.log("Comparison Result:", allowedRoles.includes(user));
+  const userInfo = JSON.parse(localStorage.getItem("userInfo")) || {};
+
+  // Extract fields from userInfo
+  const email = userInfo.email;
+  const token = userInfo.token;
+  const user = userInfo.user;
+
+  // console.log("Role Comparison - User Role:", user);
+  // console.log("Role Comparison - Allowed Roles:", allowedRoles);
+  // console.log("Comparison Result:", allowedRoles.includes(user));
   console.log("User Role:", user);
   console.log("TOken:", token);
 
   // Debugging log to track state
-  console.log("ProtectedRoute - Auth State:", { user, token });
+  // console.log("ProtectedRoute - Auth State:", { user, token });
 
   if (!token) {
     Swal.fire({

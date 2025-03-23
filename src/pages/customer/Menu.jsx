@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Container,
@@ -37,6 +37,8 @@ import img16 from "../../assets/img16.jpg";
 import img18 from "../../assets/img18.jpg";
 import img19 from "../../assets/img19.jpg";
 import img20 from "../../assets/img20.jpg";
+import axios from "axios";
+import CloseIcon from "@mui/icons-material/Close";
 
 const StyledModal = styled(Modal)({
   display: "flex",
@@ -47,9 +49,18 @@ const StyledModal = styled(Modal)({
 const Menu = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [category, setCategory] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+
+  const userInfo = JSON.parse(localStorage.getItem("userInfo")) || {};
+
+  // Extract fields from userInfo
+  const email = userInfo.email;
+  const token = userInfo.token;
 
   const categories = [
     "All",
@@ -183,16 +194,60 @@ const Menu = () => {
     },
   ];
 
-  const filteredItems = mockFoodItems.filter((item) => {
-    const matchesSearch = item.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "all" ||
-      item.category.toLowerCase() === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const handleFilter = () => {
+    const filteredData = products.filter((item) => {
+      const matchesSearch = item.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        selectedCategory === "all" || item.category._id === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+    setFilteredProducts(filteredData);
+  };
+  const fetchAllCategory = async () => {
+    try {
+      const response = await axios.get(`/api/categories`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
+      if (response?.data?.resultCode === 0) {
+        // Filter out the "Uncategorized" category
+        const filteredCategories = response?.data?.resultData.filter(
+          (cat) => cat.name.toLowerCase() !== "uncategorized"
+        );
+        setCategory(filteredCategories || []);
+      }
+    } catch (error) {
+      console.log("Error fetching category list: ", error);
+    }
+  };
+
+  const fetchAllProducts = async () => {
+    try {
+      const response = await axios.get(`/api/food/get`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response?.data?.resultCode === 0) {
+        let data = response?.data?.resultData;
+        data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setProducts(data);
+        setFilteredProducts(data); // Initialize filteredProducts with all products
+      }
+    } catch (error) {
+      console.log("Error fetching the product details:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllCategory();
+    fetchAllProducts();
+  }, []);
+
+  useEffect(() => {
+    handleFilter();
+  }, [searchTerm, selectedCategory, products]);
   return (
     <Container maxWidth="xl" sx={{ py: 4, background: "#EEF1F0" }}>
       <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -202,7 +257,9 @@ const Menu = () => {
             variant="outlined"
             placeholder="Search foods..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value), handleFilter();
+            }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -245,9 +302,10 @@ const Menu = () => {
                 },
               }}
             >
-              {categories.map((cat) => (
-                <MenuItem key={cat} value={cat.toLowerCase()}>
-                  {cat}
+              <MenuItem value="all">All</MenuItem>
+              {category.map((cat) => (
+                <MenuItem key={cat._id} value={cat._id}>
+                  {cat.name}
                 </MenuItem>
               ))}
             </Select>
@@ -256,8 +314,8 @@ const Menu = () => {
       </Grid>
 
       <Grid container spacing={3}>
-        {filteredItems.map((item) => (
-          <Grid item xs={12} sm={6} md={3} key={item.id}>
+        {filteredProducts.map((item) => (
+          <Grid item xs={12} sm={6} md={3} key={item._id}>
             <Card
               sx={{
                 height: "100%",
@@ -269,22 +327,53 @@ const Menu = () => {
                 background: "white",
                 transition: "all 0.3s ease",
                 "&:hover": {
-                  transform: "translateY(-5px)",
-                  boxShadow: "0 8px 20px rgba(147, 112, 219, 0.2)",
+                  transform: item.available ? "translateY(-5px)" : "none",
+                  boxShadow: item.available
+                    ? "0 8px 20px rgba(147, 112, 219, 0.2)"
+                    : "none",
                 },
+                opacity: item.available ? 1 : 0.6, // Reduce opacity for unavailable items
+                pointerEvents: item.available ? "auto" : "none", // Disable interactions
               }}
             >
+              {/* "Sold Out" Overlay */}
+              {!item.available && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    zIndex: 1,
+                  }}
+                >
+                  <Typography
+                    variant="h5"
+                    sx={{ color: "white", fontWeight: "bold" }}
+                  >
+                    Sold Out
+                  </Typography>
+                </Box>
+              )}
+
               <CardMedia
                 component="img"
                 height="200"
-                image={item.image}
+                image={item.imageUrl}
                 alt={item.name}
                 onClick={() => {
-                  setSelectedItem(item);
-                  setShowModal(true);
+                  if (item.available) {
+                    setSelectedItem(item);
+                    setShowModal(true);
+                  }
                 }}
                 sx={{
-                  cursor: "pointer",
+                  cursor: item.available ? "pointer" : "default",
                   objectFit: "cover",
                 }}
               />
@@ -298,7 +387,7 @@ const Menu = () => {
                   variant="subtitle2"
                   sx={{ color: "#9370DB", mb: 1 }}
                 >
-                  {item.restaurant}
+                  {item.restaurantName}
                 </Typography>
                 <Typography
                   variant="h6"
@@ -343,9 +432,18 @@ const Menu = () => {
                         background:
                           "linear-gradient(135deg, #8A2BE2 0%, #9370DB 100%)",
                       },
+                      opacity: item.available ? 1 : 0.5, // Disable the button
+                      pointerEvents: item.available ? "auto" : "none", // Disable interactions
                     }}
                   >
-                    <ShoppingCart />
+                    <ShoppingCart
+                      onClick={() => {
+                        if (item.available) {
+                          setSelectedItem(item);
+                          setShowModal(true);
+                        }
+                      }}
+                    />
                   </IconButton>
                 </Box>
               </CardContent>
@@ -353,7 +451,6 @@ const Menu = () => {
           </Grid>
         ))}
       </Grid>
-
       <StyledModal open={showModal} onClose={() => setShowModal(false)}>
         <Box
           sx={{
@@ -368,16 +465,27 @@ const Menu = () => {
         >
           {selectedItem && (
             <>
-              <Typography variant="h4" gutterBottom fontWeight="600">
-                {selectedItem.name}
-              </Typography>
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                {" "}
+                <Typography variant="h4" gutterBottom fontWeight="600">
+                  {selectedItem.name}
+                </Typography>
+                <CloseIcon
+                  onClick={() => setShowModal(false)}
+                  sx={{
+                    cursor: "pointer",
+                    ":hover": { color: "red", transform: "scale(1.2)" },
+                  }}
+                />
+              </Box>
+
               <Typography variant="subtitle1" sx={{ color: "#9370DB", mb: 2 }}>
-                {selectedItem.restaurant}
+                {selectedItem.restaurantName}
               </Typography>
               <CardMedia
                 component="img"
                 height="300"
-                image={selectedItem.image}
+                image={selectedItem.imageUrl}
                 alt={selectedItem.name}
                 sx={{ borderRadius: 2, mb: 3 }}
               />
@@ -386,9 +494,9 @@ const Menu = () => {
               </Typography>
               <Box sx={{ mb: 3 }}>
                 <Typography variant="h6" gutterBottom fontWeight="600">
-                  Portion Size
+                  Price
                 </Typography>
-                <Typography>{selectedItem.portion}</Typography>
+                <Typography>₹{selectedItem.price}</Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                 <Box
@@ -401,6 +509,7 @@ const Menu = () => {
                 >
                   <IconButton
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    disabled={!selectedItem.available} // Disable if not available
                   >
                     <Remove />
                   </IconButton>
@@ -409,7 +518,10 @@ const Menu = () => {
                   >
                     {quantity}
                   </Typography>
-                  <IconButton onClick={() => setQuantity(quantity + 1)}>
+                  <IconButton
+                    onClick={() => setQuantity(quantity + 1)}
+                    disabled={!selectedItem.available} // Disable if not available
+                  >
                     <Add />
                   </IconButton>
                 </Box>
@@ -417,6 +529,7 @@ const Menu = () => {
                   variant="contained"
                   size="large"
                   fullWidth
+                  disabled={!selectedItem.available} // Disable if not available
                   sx={{
                     background:
                       "linear-gradient(135deg, #9370DB 0%, #8A2BE2 100%)",
@@ -424,9 +537,12 @@ const Menu = () => {
                       background:
                         "linear-gradient(135deg, #8A2BE2 0%, #9370DB 100%)",
                     },
+                    opacity: selectedItem.available ? 1 : 0.5, // Reduce opacity if not available
                   }}
                 >
-                  Add to Cart - ₹{selectedItem.price * quantity}
+                  {selectedItem.available
+                    ? `Add to Cart - ₹${selectedItem.price * quantity}`
+                    : "Not Available"}
                 </Button>
               </Box>
             </>

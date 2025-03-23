@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Tabs,
@@ -30,12 +30,24 @@ import {
   TablePagination,
   IconButton,
   FormHelperText,
+  Tooltip,
+  Avatar,
 } from "@mui/material";
+import {
+  Delete,
+  RestaurantMenu,
+  Warning,
+  CheckCircle,
+} from "@mui/icons-material";
+import axios from "axios";
+
 import { motion } from "framer-motion";
 import { styled } from "@mui/material/styles";
 import table1 from "/assets/table2.png";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
+import Skeleton from "@mui/material/Skeleton";
 
 const StyledTab = styled(Tab)(({ theme }) => ({
   fontWeight: 600,
@@ -49,7 +61,6 @@ const StyledTab = styled(Tab)(({ theme }) => ({
 }));
 
 const StyledTabs = styled(Tabs)({
-  // borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
   "& .MuiTabs-indicator": {
     backgroundColor: "#1a237e",
     height: 3,
@@ -67,23 +78,50 @@ const AnimatedCard = styled(motion(Card))({
 });
 
 function TableBookingManagement() {
+  const [openDialogForDelete, setOpenDialogForDelete] = useState(false);
+
+  const userInfo = JSON.parse(localStorage.getItem("userInfo")) || {};
+
+  // Extract fields from userInfo
+  const email = userInfo.email;
+  const token = userInfo.token;
+  const user = userInfo.user;
+
   const [activeTab, setActiveTab] = useState(0);
   const [tables, setTables] = useState([]);
   const [tableInput, setTableInput] = useState({
-    tableNo: "",
-    seats: "",
-    timeSlot: "",
+    tableNumber: "",
+    capacity: "",
+    timeslot: "",
+    status: "",
+    bookingCharges: "",
+    email: email,
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [editingTable, setEditingTable] = useState(null);
+  const [openSuccessDialog, setOpenSuccessDialog] = useState(false);
+  const [openSuccessDialogForUpdate, setOpenSuccessDialogForUpdate] =
+    useState(false);
+
+  const [rows, setRows] = useState([]);
+
+  const [tableListLoader, setTableListLoader] = useState(true);
+  const [tableToDelete, setTableToDelete] = useState("");
+  const [openSuccessDialogForDelete, setOpenSuccessDialogForDelete] =
+    useState(false);
+
+  // const { token, email } = useSelector((state) => state.auth);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };
 
-  const [loading, setLoading] = useState(false);
+  const handleCloseSuccessDialog = () => {
+    setOpenSuccessDialog(false);
+    // setOwnerToDelete(null);
+  };
 
   const handleInputChange = (field, value) => {
     setTableInput({ ...tableInput, [field]: value });
@@ -98,6 +136,14 @@ function TableBookingManagement() {
     setPage(0);
   };
 
+  const handleCloseDeleteDialog = () => {
+    setOpenDialogForDelete(false);
+  };
+
+  const handleCloseSuccessDeleteDialog = () => {
+    setOpenSuccessDialogForDelete(false);
+  };
+
   const availableTimeSlots = [
     "10:00 AM - 11:00 AM",
     "11:00 AM - 12:00 PM",
@@ -109,83 +155,179 @@ function TableBookingManagement() {
     "5:00 PM - 6:00 PM",
   ];
 
-  const handleAddTable = () => {
-    if (tableInput.tableNo && tableInput.seats && tableInput.timeSlot) {
-      if (tables.length < 6) {
+  // Updated handleAddTable function
+  const handleAddTable = async () => {
+    if (
+      tableInput.tableNumber &&
+      tableInput.capacity &&
+      tableInput.timeslot &&
+      tableInput.status
+    ) {
+      try {
         if (editingTable !== null) {
           // Update existing table
-          const updatedTables = [...tables];
-          updatedTables[editingTable] = {
-            tableNo: tableInput.tableNo,
-            seats: parseInt(tableInput.seats, 10),
-            timeSlot: tableInput.timeSlot,
-            status: "Empty",
-          };
-          setTables(updatedTables);
-          setEditingTable(null);
+          const response = await axios.put(
+            `/api/tables/updateTable/${editingTable}`,
+            tableInput,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+
+          if (response?.data?.resultCode === 0) {
+            setOpenSuccessDialog(true);
+            fetchAllTablesDetails();
+            setEditingTable(null);
+            setTableInput({
+              tableNumber: "",
+              capacity: "",
+              timeslot: "",
+              status: "",
+              bookingCharges: "",
+            });
+          }
         } else {
           // Add new table
-          setTables([
-            ...tables,
-            {
-              tableNo: tableInput.tableNo,
-              seats: parseInt(tableInput.seats, 10),
-              timeSlot: tableInput.timeSlot,
-              status: "Empty",
-            },
-          ]);
+          if (tables.length < 6) {
+            const response = await axios.post(
+              `/api/tables/addTable`,
+              tableInput,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            );
+
+            if (response?.data?.resultCode === 0) {
+              setOpenSuccessDialogForUpdate(true);
+              fetchAllTablesDetails();
+              setTableInput({
+                tableNumber: "",
+                capacity: "",
+                timeslot: "",
+                status: "",
+                bookingCharges: "",
+              });
+            }
+          } else {
+            setIsDialogOpen(true);
+          }
         }
-        setTableInput({ tableNo: "", seats: "", timeSlot: "" });
-      } else {
-        setIsDialogOpen(true);
+      } catch (error) {
+        console.log("Error saving table:", error);
       }
     }
   };
 
-  const handleEditTable = (index) => {
-    const table = tables[index];
-    setTableInput({
-      tableNo: table.tableNo,
-      seats: table.seats.toString(),
-      timeSlot: table.timeSlot,
-    });
-    setEditingTable(index);
+  const handleEditTable = (tableId) => {
+    const table = tables.find((table) => table._id === tableId);
+    if (table) {
+      setTableInput({
+        tableNumber: table.tableNumber,
+        capacity: table.capacity.toString(),
+        timeslot: table.timeslot,
+        status: table.status,
+        bookingCharges: table.bookingCharges || "",
+      });
+      setEditingTable(tableId);
+    }
+  };
+  const handleConfirmDelete = (id) => {
+    setTableToDelete(id);
+    setOpenDialogForDelete(true);
   };
 
-  const handleDeleteTable = (index) => {
-    const updatedTables = tables.filter((_, i) => i !== index);
-    setTables(updatedTables);
+  const handleDelete = async () => {
+    try {
+      const response = await axios.delete(
+        `/api/tables/deleteTable/${tableToDelete}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response?.data?.resultCode === 0) {
+        setOpenDialogForDelete(false);
+        setOpenSuccessDialogForDelete(true);
+        fetchAllTablesDetails();
+      }
+    } catch (error) {
+      console.log("Error deleting table details:", error);
+    }
   };
 
   const handleDialogClose = () => {
     setIsDialogOpen(false);
   };
 
-  const rows = [
-    {
-      id: 1,
-      bookingId: "B001",
-      tableNo: 5,
-      seats: 4,
-      customerName: "John Doe",
-      timeSlot: "10:00 AM - 11:00 AM",
-      date: "2024-12-27",
-    },
-    {
-      id: 2,
-      bookingId: "B002",
-      tableNo: 3,
-      seats: 2,
-      customerName: "Jane Smith",
-      timeSlot: "11:00 AM - 12:00 PM",
-      date: "2024-12-27",
-    },
-  ];
+  // const rows = [
+  //   {
+  //     id: 1,
+  //     bookingId: "B001",
+  //     tableNo: 5,
+  //     seats: 4,
+  //     customerName: "John Doe",
+  //     timeSlot: "10:00 AM - 11:00 AM",
+  //     date: "2024-12-27",
+  //   },
+  //   {
+  //     id: 2,
+  //     bookingId: "B002",
+  //     tableNo: 3,
+  //     seats: 2,
+  //     customerName: "Jane Smith",
+  //     timeSlot: "11:00 AM - 12:00 PM",
+  //     date: "2024-12-27",
+  //   },
+  // ];
 
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
   };
+
+  const fetchAllBookings = async () => {
+    try {
+      console.log("Fetching bookings...");
+      const response = await axios.get(`/api/tables/get-all-bookings`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { email: email }, // Pass the user's email as a query parameter
+      });
+
+      if (response?.data?.resultCode === 0) {
+        const bookings = response?.data?.resultData;
+        setRows(bookings);
+        console.log("Bookings fetched successfully:", bookings);
+        // Update state or display the bookings in your UI
+      }
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+    }
+  };
+
+  const fetchAllTablesDetails = async () => {
+    try {
+      const response = await axios.get(
+        `/api/tables/get-restaurant-tables`,
+        // email,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { email: email },
+        }
+      );
+
+      if (response?.data?.resultCode === 0) {
+        setTables(response.data.resultData);
+        setTableListLoader(false);
+      }
+    } catch (error) {
+      console.log("Error fetching all table details :", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllTablesDetails();
+    fetchAllBookings();
+  }, []);
 
   return (
     <Box sx={{ display: "flex", height: "85vh", backgroundColor: "#F5FDFE" }}>
@@ -200,35 +342,78 @@ function TableBookingManagement() {
             <Grid container spacing={4}>
               {/* Add/Edit Table Form */}
               <Grid item xs={12} md={4}>
-                <Card sx={{ borderRadius: "16px", p: 3, minHeight: "110%" }}>
-                  <Typography
-                    variant="h5"
+                <Card sx={{ borderRadius: "16px", p: 2, minHeight: "110%" }}>
+                  <Box
                     sx={{
-                      mb: 3,
-                      fontWeight: 600,
-                      color: "#1a237e",
-                      textAlign: "center",
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
                     }}
                   >
-                    {editingTable !== null ? "Edit Table" : "Add New Table"}
-                  </Typography>
-                  <FormHelperText
-                    sx={{ textAlign: "center", mb: 2, color: "text.secondary" }}
-                  >
-                    This table will be directly booked by the customer so make
-                    sure the table details are filled correctly
-                  </FormHelperText>
+                    <Typography
+                      variant="h5"
+                      sx={{
+                        mb: 1,
+                        fontWeight: 600,
+                        color: "#1a237e",
+                        textAlign: "center",
+                      }}
+                    >
+                      {editingTable !== null ? "Edit Table" : "Add New Table"}
+                    </Typography>
+                    <Tooltip
+                      title="Table details will be directly shared with customers. So make sure the table details are filled correctly"
+                      arrow
+                    >
+                      <Box
+                        sx={{
+                          width: 40,
+                          height: 40,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          borderRadius: "50%",
+                          cursor: "pointer",
+                          transition: "all 0.3s ease-in-out",
+                          "&:hover": {
+                            backgroundColor: "#FFF8D7",
+                            transform: "scale(1.1)",
+                          },
+                        }}
+                      >
+                        <TipsAndUpdatesIcon
+                          sx={{ color: "#FFBF00", fontSize: 24 }}
+                        />
+                      </Box>
+                    </Tooltip>
+                  </Box>
+
                   <Grid container spacing={3} sx={{ mt: 1 }}>
                     <Grid item xs={12}>
                       <TextField
+                        size="small"
                         label="Table Number"
+                        type="string"
+                        fullWidth
+                        sx={{ borderRadius: "12px" }}
+                        value={tableInput.tableNumber}
+                        onChange={(e) =>
+                          handleInputChange("tableNumber", e.target.value)
+                        }
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        size="small"
+                        label="Seats"
                         type="number"
                         fullWidth
-                        value={tableInput.tableNo}
+                        value={tableInput.capacity}
                         onChange={(e) => {
                           const value = e.target.value;
-                          if (value.length <= 2 && /^[0-9]{0,2}$/.test(value)) {
-                            handleInputChange("tableNo", value);
+                          const numValue = Number(value);
+                          if (numValue >= 0 && numValue <= 12) {
+                            handleInputChange("capacity", value);
                           }
                         }}
                         InputProps={{
@@ -238,28 +423,55 @@ function TableBookingManagement() {
                     </Grid>
                     <Grid item xs={12}>
                       <TextField
-                        label="Seats"
+                        size="small"
+                        label="Pre-Booking Charges"
                         type="number"
                         fullWidth
-                        value={tableInput.seats}
+                        value={tableInput.bookingCharges}
                         onChange={(e) => {
                           const value = e.target.value;
-                          if (value.length <= 1 && /^[0-9]{0,1}$/.test(value)) {
-                            handleInputChange("seats", value);
+                          const numValue = Number(value);
+
+                          if (
+                            value === "" ||
+                            (numValue >= 0 && numValue <= 1000)
+                          ) {
+                            handleInputChange("bookingCharges", value);
                           }
                         }}
                         InputProps={{
                           sx: { borderRadius: "12px" },
                         }}
                       />
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <FormControl fullWidth>
+                        <InputLabel>Status</InputLabel>
+                        <Select
+                          value={tableInput.status}
+                          onChange={(e) =>
+                            handleInputChange("status", e.target.value)
+                          }
+                          label="status"
+                          sx={{ borderRadius: "12px" }}
+                        >
+                          <MenuItem key="1" value="available">
+                            Available
+                          </MenuItem>
+                          <MenuItem key="2" value="booked">
+                            Booked
+                          </MenuItem>
+                        </Select>
+                      </FormControl>
                     </Grid>
                     <Grid item xs={12}>
                       <FormControl fullWidth>
                         <InputLabel>Time Slot</InputLabel>
                         <Select
-                          value={tableInput.timeSlot}
+                          value={tableInput.timeslot}
                           onChange={(e) =>
-                            handleInputChange("timeSlot", e.target.value)
+                            handleInputChange("timeslot", e.target.value)
                           }
                           label="Time Slot"
                           sx={{ borderRadius: "12px" }}
@@ -273,10 +485,13 @@ function TableBookingManagement() {
                       </FormControl>
                     </Grid>
                   </Grid>
+
                   <Box
                     sx={{ display: "flex", justifyContent: "center", mt: 4 }}
                   >
+                    {/* Submit Button */}
                     <Button
+                      size="small"
                       variant="contained"
                       onClick={handleAddTable}
                       sx={{
@@ -295,156 +510,205 @@ function TableBookingManagement() {
                     >
                       {editingTable !== null ? "Update Table" : "Add Table"}
                     </Button>
+
+                    {editingTable !== null && (
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={() => setEditingTable(null)}
+                        sx={{
+                          ml: 2, // Add spacing
+                          color: "#1a237e",
+                          borderColor: "#1a237e",
+                          px: 4,
+                          py: 1.5,
+                          borderRadius: "12px",
+                          fontSize: "1rem",
+                          textTransform: "none",
+                          "&:hover": {
+                            borderColor: "#0d47a1",
+                            color: "#0d47a1",
+                            backgroundColor: "#e3f2fd",
+                          },
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    )}
                   </Box>
                 </Card>
               </Grid>
 
               {/* Table List */}
               <Grid item xs={12} md={8}>
-                <Card sx={{ borderRadius: "16px", p: 3, minHeight: "110%" }}>
-                  <Typography
-                    variant="h5"
-                    sx={{
-                      mb: 3,
-                      fontWeight: 600,
-                      color: "#1a237e",
-                      textAlign: "center",
-                    }}
-                  >
-                    Current Tables
-                  </Typography>
-                  <Grid container spacing={3}>
-                    {tables.length === 0 ? (
-                      <Grid item xs={12}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            height: "200px",
-                            bgcolor: "rgba(0,0,0,0.03)",
-                            borderRadius: "12px",
-                          }}
-                        >
-                          <Typography
-                            variant="h6"
-                            sx={{ color: "rgba(0,0,0,0.5)" }}
-                          >
-                            No tables added yet
-                          </Typography>
-                        </Box>
-                      </Grid>
-                    ) : (
-                      tables.map((table, index) => (
-                        <Grid item xs={12} sm={6} md={4} key={index}>
-                          <motion.div
-                            initial="hidden"
-                            animate="visible"
-                            variants={cardVariants}
-                            transition={{ duration: 0.5, delay: index * 0.1 }}
-                          >
-                            <Card
+                {/* <Card sx={{ borderRadius: "16px", p: 3, minHeight: "110%" }}> */}
+                {tableListLoader ? (
+                  <Skeleton
+                    animation="wave"
+                    sx={{ width: "47rem", height: "30rem" }}
+                  />
+                ) : (
+                  <>
+                    <Card
+                      sx={{ borderRadius: "16px", p: 3, minHeight: "110%" }}
+                    >
+                      {" "}
+                      <Typography
+                        variant="h5"
+                        sx={{
+                          mb: 3,
+                          fontWeight: 600,
+                          color: "#1a237e",
+                          textAlign: "center",
+                        }}
+                      >
+                        Current Tables
+                      </Typography>
+                      <Grid container spacing={3}>
+                        {tables.length === 0 ? (
+                          <Grid item xs={12}>
+                            <Box
                               sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                height: "200px",
+                                bgcolor: "rgba(0,0,0,0.03)",
                                 borderRadius: "12px",
-                                position: "relative",
-                                overflow: "visible",
-                                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                                transform: "perspective(1000px)",
-                                transition: "all 0.3s ease",
-                                "&:hover": {
-                                  transform:
-                                    "perspective(1000px) rotateX(5deg) scale(1.05)",
-                                  boxShadow: "0 8px 24px rgba(26,35,126,0.2)",
-                                },
                               }}
                             >
-                              <Box
-                                sx={{
-                                  position: "absolute",
-                                  top: -10,
-                                  right: -10,
-                                  display: "flex",
-                                  gap: 1,
-                                  zIndex: 1,
+                              <Typography
+                                variant="h6"
+                                sx={{ color: "rgba(0,0,0,0.5)" }}
+                              >
+                                No tables added yet
+                              </Typography>
+                            </Box>
+                          </Grid>
+                        ) : (
+                          tables.map((table, index) => (
+                            <Grid item xs={12} sm={6} md={4} key={index}>
+                              <motion.div
+                                initial="hidden"
+                                animate="visible"
+                                variants={cardVariants}
+                                transition={{
+                                  duration: 0.5,
+                                  delay: index * 0.1,
                                 }}
                               >
-                                <IconButton
-                                  size="small"
-                                  onClick={() => handleEditTable(index)}
+                                <Card
                                   sx={{
-                                    bgcolor: "#1a237e",
-                                    color: "white",
-                                    "&:hover": { bgcolor: "#0d47a1" },
+                                    borderRadius: "12px",
+                                    position: "relative",
+                                    overflow: "visible",
+                                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                                    transform: "perspective(1000px)",
+                                    transition: "all 0.3s ease",
+                                    "&:hover": {
+                                      transform:
+                                        "perspective(1000px) rotateX(5deg) scale(1.05)",
+                                      boxShadow:
+                                        "0 8px 24px rgba(26,35,126,0.2)",
+                                    },
                                   }}
                                 >
-                                  <EditIcon fontSize="small" />
-                                </IconButton>
-                                <IconButton
-                                  size="small"
-                                  onClick={() => handleDeleteTable(index)}
-                                  sx={{
-                                    bgcolor: "#d32f2f",
-                                    color: "white",
-                                    "&:hover": { bgcolor: "#c62828" },
-                                  }}
-                                >
-                                  <DeleteIcon fontSize="small" />
-                                </IconButton>
-                              </Box>
-                              <CardContent>
-                                <Typography
-                                  variant="h6"
-                                  sx={{ textAlign: "center", color: "#1a237e" }}
-                                >
-                                  Table {table.tableNo}
-                                </Typography>
-                                <Divider sx={{ my: 1 }} />
-                                <Typography
-                                  sx={{
-                                    textAlign: "center",
-                                    color: "text.secondary",
-                                  }}
-                                >
-                                  {table.seats} Seats
-                                </Typography>
-                                <Typography
-                                  sx={{
-                                    textAlign: "center",
-                                    color: "text.secondary",
-                                    mt: 1,
-                                  }}
-                                >
-                                  {table.timeSlot}
-                                </Typography>
-                                <Box
-                                  sx={{
-                                    mt: 2,
-                                    p: 1,
-                                    borderRadius: "8px",
-                                    bgcolor:
-                                      table.status === "Empty"
-                                        ? "#4caf50"
-                                        : "#f44336",
-                                    textAlign: "center",
-                                  }}
-                                >
-                                  <Typography
+                                  <Box
                                     sx={{
-                                      color: "white",
-                                      fontSize: "0.875rem",
+                                      position: "absolute",
+                                      top: -10,
+                                      right: -10,
+                                      display: "flex",
+                                      gap: 1,
+                                      zIndex: 1,
                                     }}
                                   >
-                                    {table.status}
-                                  </Typography>
-                                </Box>
-                              </CardContent>
-                            </Card>
-                          </motion.div>
-                        </Grid>
-                      ))
-                    )}
-                  </Grid>
-                </Card>
+                                    <IconButton
+                                      size="small"
+                                      onClick={() => handleEditTable(table._id)}
+                                      sx={{
+                                        bgcolor: "#1a237e",
+                                        color: "white",
+                                        "&:hover": { bgcolor: "#0d47a1" },
+                                      }}
+                                    >
+                                      <EditIcon fontSize="small" />
+                                    </IconButton>
+                                    <IconButton
+                                      size="small"
+                                      onClick={() =>
+                                        handleConfirmDelete(table._id)
+                                      }
+                                      sx={{
+                                        bgcolor: "#d32f2f",
+                                        color: "white",
+                                        "&:hover": { bgcolor: "#c62828" },
+                                      }}
+                                    >
+                                      <DeleteIcon fontSize="small" />
+                                    </IconButton>
+                                  </Box>
+                                  <CardContent>
+                                    <Typography
+                                      variant="h6"
+                                      sx={{
+                                        textAlign: "center",
+                                        color: "#1a237e",
+                                      }}
+                                    >
+                                      Table {table.tableNumber}
+                                    </Typography>
+                                    <Divider sx={{ my: 1 }} />
+                                    <Typography
+                                      sx={{
+                                        textAlign: "center",
+                                        color: "text.secondary",
+                                        mt: 1,
+                                      }}
+                                    >
+                                      {table.timeslot}
+                                    </Typography>{" "}
+                                    <Typography
+                                      sx={{
+                                        textAlign: "center",
+                                        color: "text.secondary",
+                                      }}
+                                    >
+                                      {table.capacity} Seats (₹
+                                      {table.bookingCharges})
+                                    </Typography>
+                                    <Box
+                                      sx={{
+                                        mt: 2,
+                                        p: 1,
+                                        borderRadius: "8px",
+                                        bgcolor:
+                                          table.status === "available"
+                                            ? "#4caf50"
+                                            : "#f44336",
+                                        textAlign: "center",
+                                      }}
+                                    >
+                                      <Typography
+                                        sx={{
+                                          color: "white",
+                                          fontSize: "0.875rem",
+                                        }}
+                                      >
+                                        {table.status}{" "}
+                                      </Typography>
+                                    </Box>
+                                  </CardContent>
+                                </Card>
+                              </motion.div>
+                            </Grid>
+                          ))
+                        )}
+                      </Grid>
+                    </Card>
+                  </>
+                )}
+                {/* </Card> */}
               </Grid>
             </Grid>
           </Box>
@@ -524,6 +788,7 @@ function TableBookingManagement() {
         )}
       </Box>
 
+      {/* limit reached dailog box */}
       <Dialog
         open={isDialogOpen}
         onClose={handleDialogClose}
@@ -563,6 +828,223 @@ function TableBookingManagement() {
             Understood
           </Button>
         </DialogActions>
+      </Dialog>
+
+      {/* delete dialog box */}
+      <Dialog
+        open={openDialogForDelete}
+        onClose={handleCloseDeleteDialog}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
+            maxWidth: "400px",
+            width: "100%",
+          },
+        }}
+      >
+        <Box sx={{ textAlign: "center", pt: 3, px: 3 }}>
+          <Avatar
+            sx={{
+              margin: "0 auto",
+              bgcolor: "#ffebee",
+              width: 60,
+              height: 60,
+              mb: 2,
+            }}
+          >
+            <Warning sx={{ color: "#d32f2f", fontSize: 40 }} />
+          </Avatar>
+          <DialogTitle sx={{ pb: 1, fontSize: "1.5rem", fontWeight: 600 }}>
+            Delete Table Details
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText sx={{ color: "#546e7a" }}>
+              Are you sure you want to delete this table Details?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions sx={{ justifyContent: "center", pb: 3 }}>
+            <Button
+              onClick={handleCloseDeleteDialog}
+              variant="outlined"
+              sx={{
+                borderRadius: 2,
+                px: 3,
+                mr: 1,
+                textTransform: "none",
+                fontSize: "1rem",
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDelete}
+              variant="contained"
+              color="error"
+              sx={{
+                borderRadius: 2,
+                px: 3,
+                textTransform: "none",
+                fontSize: "1rem",
+              }}
+            >
+              Delete
+            </Button>
+          </DialogActions>
+        </Box>
+      </Dialog>
+
+      {/* success  for add*/}
+      <Dialog
+        open={openSuccessDialog}
+        onClose={handleCloseSuccessDialog}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
+            maxWidth: "400px",
+            width: "100%",
+          },
+        }}
+      >
+        <Box sx={{ textAlign: "center", pt: 3, px: 3 }}>
+          <Avatar
+            sx={{
+              margin: "0 auto",
+              bgcolor: "#e8f5e9",
+              width: 60,
+              height: 60,
+              mb: 2,
+            }}
+          >
+            <CheckCircle sx={{ color: "#2e7d32", fontSize: 40 }} />
+          </Avatar>
+          <DialogTitle sx={{ pb: 1, fontSize: "1.5rem", fontWeight: 600 }}>
+            Success!
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText sx={{ color: "#546e7a" }}>
+              New Table details added successfully.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions sx={{ justifyContent: "center", pb: 3 }}>
+            <Button
+              onClick={handleCloseSuccessDialog}
+              variant="contained"
+              color="success"
+              sx={{
+                borderRadius: 2,
+                px: 4,
+                textTransform: "none",
+                fontSize: "1rem",
+              }}
+            >
+              Done
+            </Button>
+          </DialogActions>
+        </Box>
+      </Dialog>
+
+      {/* success  for delete*/}
+      <Dialog
+        open={openSuccessDialogForDelete}
+        onClose={handleCloseSuccessDeleteDialog}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
+            maxWidth: "400px",
+            width: "100%",
+          },
+        }}
+      >
+        <Box sx={{ textAlign: "center", pt: 3, px: 3 }}>
+          <Avatar
+            sx={{
+              margin: "0 auto",
+              bgcolor: "#e8f5e9",
+              width: 60,
+              height: 60,
+              mb: 2,
+            }}
+          >
+            <CheckCircle sx={{ color: "#2e7d32", fontSize: 40 }} />
+          </Avatar>
+          <DialogTitle sx={{ pb: 1, fontSize: "1.5rem", fontWeight: 600 }}>
+            Success!
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText sx={{ color: "#546e7a" }}>
+              Table deleted successfully.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions sx={{ justifyContent: "center", pb: 3 }}>
+            <Button
+              onClick={() => setOpenSuccessDialogForDelete(false)}
+              variant="contained"
+              color="success"
+              sx={{
+                borderRadius: 2,
+                px: 4,
+                textTransform: "none",
+                fontSize: "1rem",
+              }}
+            >
+              Done
+            </Button>
+          </DialogActions>
+        </Box>
+      </Dialog>
+
+      {/* success  for update*/}
+      <Dialog
+        open={openSuccessDialogForUpdate}
+        onClose={() => setOpenSuccessDialogForUpdate(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
+            maxWidth: "400px",
+            width: "100%",
+          },
+        }}
+      >
+        <Box sx={{ textAlign: "center", pt: 3, px: 3 }}>
+          <Avatar
+            sx={{
+              margin: "0 auto",
+              bgcolor: "#e8f5e9",
+              width: 60,
+              height: 60,
+              mb: 2,
+            }}
+          >
+            <CheckCircle sx={{ color: "#2e7d32", fontSize: 40 }} />
+          </Avatar>
+          <DialogTitle sx={{ pb: 1, fontSize: "1.5rem", fontWeight: 600 }}>
+            Success!
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText sx={{ color: "#546e7a" }}>
+              Table details updated successfully.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions sx={{ justifyContent: "center", pb: 3 }}>
+            <Button
+              onClick={() => setOpenSuccessDialogForUpdate(false)}
+              variant="contained"
+              color="success"
+              sx={{
+                borderRadius: 2,
+                px: 4,
+                textTransform: "none",
+                fontSize: "1rem",
+              }}
+            >
+              Done
+            </Button>
+          </DialogActions>
+        </Box>
       </Dialog>
     </Box>
   );

@@ -34,8 +34,17 @@ import {
 import moment from "moment";
 
 import Swal from "sweetalert2";
-import { Edit, Delete } from "@mui/icons-material";
-import { PhotoCamera } from "@mui/icons-material";
+import {
+  Edit,
+  Delete,
+  PhotoCamera,
+  AddAPhoto,
+  EditNote,
+  SaveAs,
+  TipsAndUpdates,
+  CloudUpload,
+} from "@mui/icons-material";
+
 import ImageAspectRatioIcon from "@mui/icons-material/ImageAspectRatio";
 import img from "/assets/img.png";
 import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
@@ -50,9 +59,12 @@ import Switch from "@mui/material/Switch";
 import { AiFillAlert } from "react-icons/ai";
 import { SiTicktick } from "react-icons/si";
 import { CgUnavailable } from "react-icons/cg";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
+import Chip from "@mui/material/Chip";
 
 function Products() {
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(1);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [formData, setFormData] = useState({
@@ -61,6 +73,7 @@ function Products() {
     price: "",
     category: "",
     image: null,
+    available: true,
   });
   const [products, setProducts] = useState([]);
 
@@ -76,8 +89,16 @@ function Products() {
     price: "",
     category: "",
     image: null,
+    available: true,
   });
-  const { token, email } = useSelector((state) => state.auth);
+  // const { token, email } = useSelector((state) => state.auth);
+  const userInfo = JSON.parse(localStorage.getItem("userInfo")) || {};
+
+  // Extract fields from userInfo
+  const email = userInfo.email;
+  const token = userInfo.token;
+  const user = userInfo.user;
+
   const [hovered, setHovered] = useState(false);
   const label = { inputProps: { "aria-label": "Color switch demo" } };
 
@@ -158,23 +179,58 @@ function Products() {
     setEditDialogOpen(true);
   };
 
-  const handleDelete = (product) => {
+  const handleDelete = async (product) => {
     setSelectedProduct(product);
     setDeleteDialogOpen(true);
   };
 
-  const handleConfirmDelete = () => {
-    setProducts(products.filter((p) => p.id !== selectedProduct.id));
-    setDeleteDialogOpen(false);
-    Swal.fire("Deleted!", "Product has been deleted.", "success");
+  const handleConfirmDelete = async () => {
+    try {
+      const response = await axios.delete(
+        `/api/food/deleteItem/${selectedProduct._id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.data.resultCode === 0) {
+        Swal.fire("Deleted!", "Product has been deleted.", "success");
+        fetchAllProducts();
+        setDeleteDialogOpen(false);
+      }
+    } catch (error) {
+      console.log("Error while deleting the product");
+    }
   };
 
-  const handleSaveEdit = () => {
-    setProducts(
-      products.map((p) => (p.id === selectedProduct.id ? selectedProduct : p))
-    );
-    setEditDialogOpen(false);
-    Swal.fire("Updated!", "Product has been updated.", "success");
+  const handleSaveEdit = async () => {
+    const payload = new FormData();
+    payload.append("image", selectedProduct.image);
+    payload.append("name", selectedProduct.name);
+    payload.append("description", selectedProduct.description);
+    payload.append("price", selectedProduct.price);
+    // Send category ID instead of the object
+    payload.append("category", selectedProduct.category._id);
+    payload.append("available", selectedProduct.available);
+    payload.append("email", email);
+
+    try {
+      const response = await axios.put(
+        `/api/food/updateItem/${selectedProduct._id}`,
+        payload,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.data.resultCode === 0) {
+        Swal.fire("Updated!", "Product has been updated.", "success");
+        fetchAllProducts();
+        setEditDialogOpen(false);
+      }
+    } catch (error) {
+      console.log("Error Updating the food item");
+    }
   };
 
   const handleChangePage = (event, newPage) => {
@@ -193,7 +249,9 @@ function Products() {
       });
 
       if (response?.data?.resultCode === 0) {
-        setProducts(response?.data?.resultData);
+        let data = response?.data?.resultData;
+        data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setProducts(data);
         console.log(category, ",,,");
       }
     } catch (error) {
@@ -298,9 +356,43 @@ function Products() {
                         <Grid item xs={12} md={7}>
                           <Typography
                             variant="h5"
-                            sx={{ mb: 4, fontWeight: 600, color: "#1a237e" }}
+                            sx={{
+                              mb: 4,
+                              fontWeight: 700,
+                              color: "#1a237e",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                            }}
                           >
                             Add New Product
+                            <Tooltip
+                              title="By default, the product will be available. You can change its status in the Product History section"
+                              arrow
+                            >
+                              {" "}
+                              <Box
+                                sx={{
+                                  width: 40,
+                                  height: 40,
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  // backgroundColor: "#7b72da",
+                                  borderRadius: "50%",
+                                  cursor: "pointer",
+                                  transition: "all 0.3s ease-in-out",
+                                  "&:hover": {
+                                    backgroundColor: "#FFF8D7",
+                                    transform: "scale(1.1)",
+                                  },
+                                }}
+                              >
+                                <TipsAndUpdatesIcon
+                                  sx={{ color: "#FFBF00", fontSize: 24 }}
+                                />
+                              </Box>
+                            </Tooltip>
                           </Typography>
 
                           <form onSubmit={handleSubmit}>
@@ -407,7 +499,7 @@ function Products() {
                                       }}
                                     />
                                   ) : (
-                                    <AddAPhotoIcon
+                                    <CloudUploadIcon
                                       sx={{
                                         fontSize: "4rem",
                                         color: "#1a237e",
@@ -540,7 +632,7 @@ function Products() {
                               )
                               .map((product) => (
                                 <TableRow
-                                  key={product.id}
+                                  key={product._id}
                                   sx={{
                                     "&:hover": {
                                       background: "rgba(26, 35, 126, 0.05)",
@@ -579,24 +671,20 @@ function Products() {
                                   <TableCell alignItems="center">
                                     {product.available ? (
                                       <>
-                                        <Tooltip title="available">
-                                          <SiTicktick
-                                            style={{
-                                              color: "#2DE200",
-                                              fontSize: 20,
-                                            }}
-                                          />
-                                        </Tooltip>
+                                        <Chip
+                                          size="small"
+                                          label="Available"
+                                          variant="outlined"
+                                          color="success"
+                                        />
                                       </>
                                     ) : (
-                                      <Tooltip title="available">
-                                        <CgUnavailable
-                                          style={{
-                                            color: "#F82830",
-                                            fontSize: 20,
-                                          }}
-                                        />
-                                      </Tooltip>
+                                      <Chip
+                                        size="small"
+                                        label="Sold Out"
+                                        variant="outlined"
+                                        color="error"
+                                      />
                                     )}
                                   </TableCell>
 
@@ -676,7 +764,7 @@ function Products() {
             gap: 1,
           }}
         >
-          <EditNoteIcon sx={{ fontSize: "1.5rem" }} />
+          <EditNote sx={{ fontSize: "1.5rem" }} />
           Edit Product Details
         </DialogTitle>
         <DialogContent sx={{ pt: 3, mt: 3 }}>
@@ -694,9 +782,13 @@ function Products() {
                   justifyContent: "center",
                 }}
               >
-                {selectedProduct?.imageUrl ? (
+                {selectedProduct?.image ? (
                   <img
-                    src={selectedProduct.imageUrl}
+                    src={
+                      selectedProduct.image instanceof File
+                        ? URL.createObjectURL(selectedProduct.image)
+                        : selectedProduct.imageUrl
+                    }
                     alt="Product Preview"
                     style={{
                       maxWidth: "100%",
@@ -706,7 +798,7 @@ function Products() {
                     }}
                   />
                 ) : (
-                  <AddAPhotoIcon
+                  <AddAPhoto
                     sx={{ fontSize: "4rem", color: "#1a237e", opacity: 0.3 }}
                   />
                 )}
@@ -727,7 +819,7 @@ function Products() {
                     variant="outlined"
                     component="span"
                     size="small"
-                    startIcon={<SaveAsIcon />}
+                    startIcon={<SaveAs />}
                     sx={{
                       color: "#1a237e",
                       borderColor: "#1a237e",
@@ -799,7 +891,16 @@ function Products() {
                 }}
               >
                 <Typography>Is Available</Typography>
-                <Switch {...label} defaultChecked color="success" />
+                <Switch
+                  checked={selectedProduct?.available || false}
+                  onChange={(e) =>
+                    setSelectedProduct({
+                      ...selectedProduct,
+                      available: e.target.checked,
+                    })
+                  }
+                  color="success"
+                />
               </Box>
 
               <FormControl fullWidth>
@@ -810,6 +911,7 @@ function Products() {
                   onChange={(e) =>
                     setSelectedProduct({
                       ...selectedProduct,
+                      // Find the category object by selected ID
                       category: category.find((c) => c._id === e.target.value),
                     })
                   }
@@ -965,22 +1067,6 @@ function Products() {
             }}
           />
         </DialogContent>
-
-        {/* <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
-          <Button
-            onClick={() => setViewImageDialogOpen(false)}
-            variant="contained"
-            sx={{
-              background: "white",
-              color: "#1a237e",
-              "&:hover": {
-                background: "rgba(255, 255, 255, 0.9)",
-              },
-            }}
-          >
-            Close
-          </Button>
-        </DialogActions> */}
       </Dialog>
       );
     </Box>

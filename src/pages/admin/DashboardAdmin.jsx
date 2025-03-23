@@ -17,72 +17,87 @@ import TopRestaurantOwnersChart from "../../component/admin/TopRestaurantOwnersC
 import TrendingFoodItem from "../../component/admin/TrendingFoodItem";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import Groups3Icon from "@mui/icons-material/Groups3";
+import Groups2Icon from "@mui/icons-material/Groups2";
+import GroupsIcon from "@mui/icons-material/Groups";
+import CategoryIcon from "@mui/icons-material/Category";
+const StatCard = ({
+  title,
+  color,
+  data,
+  loading,
+  filter,
+  handleMenuOpen,
+  icon,
+}) => {
+  const IconComponent = icon;
 
-const StatCard = ({ title, color, data, loading, filter, handleMenuOpen }) => (
-  <Card
-    sx={{
-      background: color,
-      color: "white",
-      borderRadius: 2,
-      padding: 2,
-      display: "flex",
-      flexDirection: "row",
-      alignItems: "flex-start",
-      position: "relative",
-      transition: "transform 0.3s, box-shadow 0.3s",
-      "&:hover": {
-        transform: "scale(1.05)",
-        boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)",
-      },
-    }}
-  >
-    <Box
+  return (
+    <Card
       sx={{
-        position: "absolute",
-        top: 16,
-        right: 16,
-        backgroundColor: "rgba(255, 255, 255, 0.2)",
-        borderRadius: "50%",
-        width: 40,
-        height: 40,
+        background: color,
+        color: "white",
+        borderRadius: 2,
+        padding: 2,
         display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        flexDirection: "row",
+        alignItems: "flex-start",
+        position: "relative",
+        transition: "transform 0.3s, box-shadow 0.3s",
+        "&:hover": {
+          transform: "scale(1.05)",
+          boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)",
+        },
       }}
     >
-      <PersonIcon sx={{ color: "white" }} />
-    </Box>
-    <CardContent sx={{ padding: 0, paddingTop: 1 }}>
-      <Typography
-        variant="subtitle1"
-        component="div"
-        sx={{ fontWeight: "bold" }}
+      <Box
+        sx={{
+          position: "absolute",
+          top: 16,
+          right: 16,
+          backgroundColor: "rgba(255, 255, 255, 0.2)",
+          borderRadius: "50%",
+          width: 40,
+          height: 40,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
       >
-        {title}
-      </Typography>
-      {loading ? (
-        <CircularProgress sx={{ color: "white", marginTop: 1 }} />
-      ) : (
+        <IconComponent sx={{ color: "white" }} />
+      </Box>
+      <CardContent sx={{ padding: 0, paddingTop: 1 }}>
         <Typography
-          variant="h4"
+          variant="subtitle1"
           component="div"
-          sx={{ marginTop: 1, fontWeight: "bold" }}
+          sx={{ fontWeight: "bold" }}
         >
-          {data.totalUsers}
+          {title}
         </Typography>
-      )}
-      <Typography variant="body2" component="div" sx={{ marginTop: 1 }}>
-        {filter}
-      </Typography>
-    </CardContent>
-    <IconButton
-      sx={{ position: "absolute", bottom: 16, right: 16, color: "white" }}
-      onClick={handleMenuOpen}
-    >
-      <MoreVertIcon />
-    </IconButton>
-  </Card>
-);
+        {loading ? (
+          <CircularProgress sx={{ color: "white", marginTop: 1 }} />
+        ) : (
+          <Typography
+            variant="h4"
+            component="div"
+            sx={{ marginTop: 1, fontWeight: "bold" }}
+          >
+            {data.totalUsers}
+          </Typography>
+        )}
+        <Typography variant="body2" component="div" sx={{ marginTop: 1 }}>
+          {filter}
+        </Typography>
+      </CardContent>
+      <IconButton
+        sx={{ position: "absolute", bottom: 16, right: 16, color: "white" }}
+        onClick={handleMenuOpen}
+      >
+        <MoreVertIcon />
+      </IconButton>
+    </Card>
+  );
+};
 
 const DashboardAdmin = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -157,6 +172,7 @@ const DashboardAdmin = () => {
             loading={loading}
             filter={filter}
             handleMenuOpen={handleMenuOpen}
+            icon={Groups3Icon}
           />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
@@ -167,6 +183,7 @@ const DashboardAdmin = () => {
             loading={loading}
             filter={filter}
             handleMenuOpen={handleMenuOpen}
+            icon={Groups2Icon}
           />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
@@ -177,6 +194,7 @@ const DashboardAdmin = () => {
             loading={loading}
             filter={filter}
             handleMenuOpen={handleMenuOpen}
+            icon={CategoryIcon}
           />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
@@ -187,6 +205,7 @@ const DashboardAdmin = () => {
             loading={loading}
             filter={filter}
             handleMenuOpen={handleMenuOpen}
+            icon={GroupsIcon}
           />
         </Grid>
       </Grid>

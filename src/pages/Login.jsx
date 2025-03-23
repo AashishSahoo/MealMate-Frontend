@@ -24,10 +24,11 @@ import axios from "axios";
 const Login = () => {
   const [loading, setLoading] = useState(false); // Loading state
   const [formData, setFormData] = useState({
-    email: "pqr@gmail.com",
+    email: "abc@gmail.com",
     password: "Pass@123",
-    roleType: "restro-owner",
+    // roleType: "restro-owner",
     // roleType: "admin",
+    roleType: "customer",
   }); // Fixed incorrect initialization of formData
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -52,6 +53,14 @@ const Login = () => {
         console.log(data.token, "token");
         console.log(data.user.email, "email");
 
+        const userData = {
+          user: data.user.roleType,
+          token: data.token,
+          email: data.user.email,
+        };
+
+        localStorage.setItem("userInfo", JSON.stringify(userData));
+
         dispatch(
           login({
             user: data.user.roleType,
@@ -71,15 +80,15 @@ const Login = () => {
         console.log(redirectTo);
         navigate(redirectTo);
 
-        Swal.fire({
-          title: "Login successful",
-          icon: "success",
-        });
-      } else {
-        Swal.fire({
-          title: "Invalid Credentials",
-          icon: "error",
-        });
+        //   Swal.fire({
+        //     title: "Login successful",
+        //     icon: "success",
+        //   });
+        // } else {
+        //   Swal.fire({
+        //     title: "Invalid Credentials",
+        //     icon: "error",
+        //   });
       }
     } catch (error) {
       console.error("Error during login:", error);
@@ -96,6 +105,7 @@ const Login = () => {
   useEffect(() => {
     console.log("Redux state after login:", authState);
   }, [authState]);
+
   return (
     <Box
       sx={{

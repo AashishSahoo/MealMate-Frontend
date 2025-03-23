@@ -29,6 +29,7 @@ import {
 } from "@mui/icons-material";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import Groups3Icon from "@mui/icons-material/Groups3";
 
 // Columns definition
 const columns = [
@@ -140,7 +141,7 @@ export default function UserList() {
               gap: 2,
             }}
           >
-            <PersonOutline sx={{ fontSize: 35 }} />
+            <Groups3Icon sx={{ fontSize: 35 }} />
             User Management
           </Typography>
         </Box>

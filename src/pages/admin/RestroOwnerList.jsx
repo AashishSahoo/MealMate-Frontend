@@ -27,8 +27,10 @@ import {
   Warning,
   CheckCircle,
 } from "@mui/icons-material";
+
 import axios from "axios";
 import { useSelector } from "react-redux";
+import Groups2Icon from "@mui/icons-material/Groups2";
 
 // Columns definition
 const columns = [
@@ -141,7 +143,7 @@ export default function RestroOwnerList() {
               gap: 2,
             }}
           >
-            <RestaurantMenu sx={{ fontSize: 35 }} />
+            <Groups2Icon sx={{ fontSize: 35 }} />
             Restaurant Owner Management
           </Typography>
         </Box>
