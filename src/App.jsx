@@ -15,6 +15,7 @@ import Home1 from "./pages/Home1";
 import AdminRegister from "./pages/AdminRegister";
 import HomeAdmin from "./pages/admin/HomeAdmin";
 import HomeRestroOwner from "./pages/restuarantowner/HomeRestroOwner";
+import Payment from "./pages/customer/Payment";
 // import Home1 from "./pages/HomeRestroOwner";
 
 function App() {
@@ -64,8 +65,16 @@ function App() {
           >
             {/* Nested Routes for Orders and Reports */}
             {/* <Route path="orders" element={<OrdersPage />} /> */}
-            <Route path="reports" element={<ReportsPage />} />
+            <Route path="payment" element={<ReportsPage />} />
           </Route>
+          <Route
+            path="/payment"
+            element={
+              <ProtectedRoute allowedRoles={["customer"]}>
+                <Payment />
+              </ProtectedRoute>
+            }
+          ></Route>
         </Routes>
       </Router>
     </Provider>

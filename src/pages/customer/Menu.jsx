@@ -16,6 +16,12 @@ import {
   FormControl,
   InputLabel,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Avatar,
 } from "@mui/material";
 import {
   Search,
@@ -39,6 +45,9 @@ import img19 from "../../assets/img19.jpg";
 import img20 from "../../assets/img20.jpg";
 import axios from "axios";
 import CloseIcon from "@mui/icons-material/Close";
+import CircularProgress from "@mui/material/CircularProgress";
+import { AiFillAlert } from "react-icons/ai";
+import Skeleton from "@mui/material/Skeleton";
 
 const StyledModal = styled(Modal)({
   display: "flex",
@@ -51,10 +60,14 @@ const Menu = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [category, setCategory] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+
   const [selectedItem, setSelectedItem] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [addToCartLoader, setAddToCartLoader] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const userInfo = JSON.parse(localStorage.getItem("userInfo")) || {};
 
@@ -71,128 +84,11 @@ const Menu = () => {
     "Beverages",
   ];
 
-  const mockFoodItems = [
-    {
-      id: 1,
-      name: "Classic Burger",
-      price: 299,
-      portion: "Regular",
-      description: "Juicy beef patty with fresh vegetables and special sauce",
-      image: img6,
-      category: "Lunch",
-      restaurant: "The Burger House",
-    },
-    {
-      id: 2,
-      name: "Margherita Pizza",
-      price: 399,
-      portion: "12 inch",
-      description: "Fresh mozzarella, tomatoes, and basil on a crispy crust",
-      image: img7,
-      category: "Dinner",
-      restaurant: "Pizza Paradise",
-    },
-    {
-      id: 3,
-      name: "Caesar Salad",
-      price: 249,
-      portion: "Large Bowl",
-      description: "Crisp romaine lettuce with parmesan and caesar dressing",
-      image: img8,
-      category: "Lunch",
-      restaurant: "Green Bowl",
-    },
-    {
-      id: 4,
-      name: "Masala Dosa",
-      price: 149,
-      portion: "1 Piece",
-      description: "Crispy rice crepe filled with spiced potato mixture",
-      image: img9,
-      category: "Breakfast",
-      restaurant: "South Indian Delights",
-    },
-    {
-      id: 5,
-      name: "Mango Lassi",
-      price: 129,
-      portion: "300ml",
-      description: "Refreshing yogurt drink with fresh mango pulp",
-      image: img10,
-      category: "Beverages",
-      restaurant: "Lassi Corner",
-    },
-    {
-      id: 6,
-      name: "Samosa Platter",
-      price: 99,
-      portion: "2 Pieces",
-      description: "Crispy pastry filled with spiced potatoes and peas",
-      image: img13,
-      category: "Snacks",
-      restaurant: "Chaat House",
-    },
-    {
-      id: 7,
-      name: "Butter Chicken",
-      price: 349,
-      portion: "Full",
-      description: "Tender chicken in rich tomato-butter gravy",
-      image: img14,
-      category: "Dinner",
-      restaurant: "Punjab Grill",
-    },
-    {
-      id: 8,
-      name: "Cold Coffee",
-      price: 159,
-      portion: "400ml",
-      description: "Creamy cold coffee with ice cream",
-      image: img15,
-      category: "Beverages",
-      restaurant: "Cafe Coffee Day",
-    },
-    {
-      id: 9,
-      name: "Veg Biryani",
-      price: 249,
-      portion: "Full",
-      description: "Fragrant rice with mixed vegetables and spices",
-      image: img16,
-      category: "Lunch",
-      restaurant: "Biryani House",
-    },
-    {
-      id: 10,
-      name: "Masala Chai",
-      price: 49,
-      portion: "200ml",
-      description: "Indian spiced tea with milk",
-      image: img18,
-      category: "Beverages",
-      restaurant: "Tea Corner",
-    },
-    {
-      id: 11,
-      name: "Paneer Tikka",
-      price: 299,
-      portion: "8 Pieces",
-      description: "Grilled cottage cheese with spices",
-      image: img19,
-      category: "Snacks",
-      restaurant: "Tandoor Express",
-    },
-    {
-      id: 12,
-      name: "Idli Sambar",
-      price: 129,
-      portion: "4 Pieces",
-      description: "Steamed rice cakes with lentil soup",
-      image: img20,
-      category: "Breakfast",
-      restaurant: "South Indian Delights",
-    },
-  ];
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setSelectedItem(null);
+    setQuantity(1);
+  };
 
   const handleFilter = () => {
     const filteredData = products.filter((item) => {
@@ -225,7 +121,8 @@ const Menu = () => {
 
   const fetchAllProducts = async () => {
     try {
-      const response = await axios.get(`/api/food/get`, {
+      setLoading(true);
+      const response = await axios.get(`/api/food/getAllFoods`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -233,10 +130,44 @@ const Menu = () => {
         let data = response?.data?.resultData;
         data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setProducts(data);
-        setFilteredProducts(data); // Initialize filteredProducts with all products
+        setFilteredProducts(data);
       }
     } catch (error) {
       console.log("Error fetching the product details:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addToCart = async () => {
+    const payload = {
+      foodId: selectedItem._id,
+      quantity: quantity,
+      email: email,
+    };
+    try {
+      setAddToCartLoader(true);
+      const response = await axios.post(`/api/cart/addToCart`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Handle response codes FIRST
+      if (response?.data?.resultCode === 71) {
+        console.log("Eoor code 71");
+        setShowModal(false);
+
+        setOpenDialog(true);
+      } else if (response?.data?.resultCode === 0) {
+        setSelectedItem(null);
+        setQuantity(1);
+        setShowModal(false);
+      }
+
+      // THEN reset loader
+      setAddToCartLoader(false);
+    } catch (error) {
+      console.log("Error adding item to cart:", error);
+      setAddToCartLoader(false);
     }
   };
 
@@ -248,6 +179,7 @@ const Menu = () => {
   useEffect(() => {
     handleFilter();
   }, [searchTerm, selectedCategory, products]);
+
   return (
     <Container maxWidth="xl" sx={{ py: 4, background: "#EEF1F0" }}>
       <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -313,144 +245,208 @@ const Menu = () => {
         </Grid>
       </Grid>
 
-      <Grid container spacing={3}>
-        {filteredProducts.map((item) => (
-          <Grid item xs={12} sm={6} md={3} key={item._id}>
-            <Card
+      {loading ? (
+        <Grid container spacing={3} sx={{ width: "100%", margin: 0 }}>
+          {" "}
+          {/* Add this wrapper */}
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              md={3}
+              key={index}
               sx={{
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                position: "relative",
-                borderRadius: "16px",
-                overflow: "hidden",
-                background: "white",
-                transition: "all 0.3s ease",
-                "&:hover": {
-                  transform: item.available ? "translateY(-5px)" : "none",
-                  boxShadow: item.available
-                    ? "0 8px 20px rgba(147, 112, 219, 0.2)"
-                    : "none",
-                },
-                opacity: item.available ? 1 : 0.6, // Reduce opacity for unavailable items
-                pointerEvents: item.available ? "auto" : "none", // Disable interactions
+                // Add these styles to ensure proper spacing calculation
+                paddingTop: "24px !important",
+                paddingBottom: "24px !important",
               }}
             >
-              {/* "Sold Out" Overlay */}
-              {!item.available && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    backgroundColor: "rgba(0, 0, 0, 0.5)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    zIndex: 1,
-                  }}
-                >
-                  <Typography
-                    variant="h5"
-                    sx={{ color: "white", fontWeight: "bold" }}
-                  >
-                    Sold Out
-                  </Typography>
-                </Box>
-              )}
-
-              <CardMedia
-                component="img"
-                height="200"
-                image={item.imageUrl}
-                alt={item.name}
-                onClick={() => {
-                  if (item.available) {
-                    setSelectedItem(item);
-                    setShowModal(true);
-                  }
-                }}
+              <Card
                 sx={{
-                  cursor: item.available ? "pointer" : "default",
-                  objectFit: "cover",
-                }}
-              />
-              <CardContent
-                sx={{
-                  flexGrow: 1,
-                  p: 2,
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  position: "relative",
+                  borderRadius: "16px",
+                  overflow: "hidden",
+                  background: "white",
                 }}
               >
-                <Typography
-                  variant="subtitle2"
-                  sx={{ color: "#9370DB", mb: 1 }}
-                >
-                  {item.restaurantName}
-                </Typography>
-                <Typography
-                  variant="h6"
-                  gutterBottom
-                  fontWeight="600"
-                  sx={{ color: "#2c3e50" }}
-                >
-                  {item.name}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mb: 2, height: "40px", overflow: "hidden" }}
-                >
-                  {item.description}
-                </Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    mt: "auto",
-                  }}
-                >
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <CurrencyRupee
-                      sx={{ color: "#8A2BE2", fontSize: "1.2rem" }}
-                    />
-                    <Typography
-                      variant="h6"
-                      sx={{ color: "#8A2BE2", fontWeight: "600" }}
-                    >
-                      {item.price}
-                    </Typography>
-                  </Box>
-                  <IconButton
+                <Skeleton variant="rectangular" height={150} animation="wave" />
+                <CardContent sx={{ flexGrow: 1, p: 2 }}>
+                  <Skeleton variant="text" width="60%" height={30} />
+                  <Skeleton
+                    variant="text"
+                    width="20%"
+                    height={40}
+                    sx={{ mt: 1 }}
+                  />
+                  <Skeleton
+                    variant="text"
+                    width="100%"
+                    height={80}
+                    sx={{ mt: 1 }}
+                  />
+                  <Box
                     sx={{
-                      background:
-                        "linear-gradient(135deg, #9370DB 0%, #8A2BE2 100%)",
-                      color: "white",
-                      "&:hover": {
-                        background:
-                          "linear-gradient(135deg, #8A2BE2 0%, #9370DB 100%)",
-                      },
-                      opacity: item.available ? 1 : 0.5, // Disable the button
-                      pointerEvents: item.available ? "auto" : "none", // Disable interactions
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      mt: "auto",
                     }}
                   >
-                    <ShoppingCart
-                      onClick={() => {
-                        if (item.available) {
-                          setSelectedItem(item);
-                          setShowModal(true);
-                        }
+                    <Skeleton variant="text" width="40%" height={30} />
+                    <Skeleton variant="circular" width={40} height={40} />
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      ) : (
+        <>
+          <Grid container spacing={3}>
+            {filteredProducts.map((item) => (
+              <Grid item xs={12} sm={6} md={3} key={item._id}>
+                <Card
+                  sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    position: "relative",
+                    borderRadius: "16px",
+                    overflow: "hidden",
+                    background: "white",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      transform: item.available ? "translateY(-5px)" : "none",
+                      boxShadow: item.available
+                        ? "0 8px 20px rgba(147, 112, 219, 0.2)"
+                        : "none",
+                    },
+                    opacity: item.available ? 1 : 0.6, // Reduce opacity for unavailable items
+                    pointerEvents: item.available ? "auto" : "none", // Disable interactions
+                  }}
+                >
+                  {/* "Sold Out" Overlay */}
+                  {!item.available && (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 1,
                       }}
-                    />
-                  </IconButton>
-                </Box>
-              </CardContent>
-            </Card>
+                    >
+                      <Typography
+                        variant="h5"
+                        sx={{ color: "white", fontWeight: "bold" }}
+                      >
+                        Sold Out
+                      </Typography>
+                    </Box>
+                  )}
+
+                  <CardMedia
+                    component="img"
+                    height="200"
+                    image={item.imageUrl}
+                    alt={item.name}
+                    onClick={() => {
+                      if (item.available) {
+                        setSelectedItem(item);
+                        setShowModal(true);
+                      }
+                    }}
+                    sx={{
+                      cursor: item.available ? "pointer" : "default",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <CardContent
+                    sx={{
+                      flexGrow: 1,
+                      p: 2,
+                    }}
+                  >
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ color: "#9370DB", mb: 1 }}
+                    >
+                      {item.restaurantName}
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      gutterBottom
+                      fontWeight="600"
+                      sx={{ color: "#2c3e50" }}
+                    >
+                      {item.name}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ mb: 2, height: "40px", overflow: "hidden" }}
+                    >
+                      {item.description}
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        mt: "auto",
+                      }}
+                    >
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <CurrencyRupee
+                          sx={{ color: "#8A2BE2", fontSize: "1.2rem" }}
+                        />
+                        <Typography
+                          variant="h6"
+                          sx={{ color: "#8A2BE2", fontWeight: "600" }}
+                        >
+                          {item.price}
+                        </Typography>
+                      </Box>
+                      <IconButton
+                        sx={{
+                          background:
+                            "linear-gradient(135deg, #9370DB 0%, #8A2BE2 100%)",
+                          color: "white",
+                          "&:hover": {
+                            background:
+                              "linear-gradient(135deg, #8A2BE2 0%, #9370DB 100%)",
+                          },
+                          opacity: item.available ? 1 : 0.5,
+                          pointerEvents: item.available ? "auto" : "none",
+                        }}
+                      >
+                        <ShoppingCart
+                          onClick={() => {
+                            if (item.available) {
+                              setSelectedItem(item);
+                              setShowModal(true);
+                            }
+                          }}
+                        />
+                      </IconButton>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
           </Grid>
-        ))}
-      </Grid>
+        </>
+      )}
+
       <StyledModal open={showModal} onClose={() => setShowModal(false)}>
         <Box
           sx={{
@@ -466,7 +462,6 @@ const Menu = () => {
           {selectedItem && (
             <>
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                {" "}
                 <Typography variant="h4" gutterBottom fontWeight="600">
                   {selectedItem.name}
                 </Typography>
@@ -539,16 +534,95 @@ const Menu = () => {
                     },
                     opacity: selectedItem.available ? 1 : 0.5, // Reduce opacity if not available
                   }}
+                  onClick={() => {
+                    setAddToCartLoader(true);
+                    addToCart();
+                  }}
                 >
-                  {selectedItem.available
-                    ? `Add to Cart - ₹${selectedItem.price * quantity}`
-                    : "Not Available"}
+                  {addToCartLoader ? (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        height: "24px",
+                      }}
+                    >
+                      <CircularProgress size={24} color="#fff" />
+                    </Box>
+                  ) : selectedItem.available ? (
+                    `Add to Cart - ₹${selectedItem.price * quantity}`
+                  ) : (
+                    "Not Available"
+                  )}
                 </Button>
               </Box>
             </>
           )}
         </Box>
       </StyledModal>
+
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
+            maxWidth: "400px",
+            width: "100%",
+          },
+        }}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <Box sx={{ textAlign: "center", pt: 3, px: 3 }}>
+          <Avatar
+            sx={{
+              margin: "0 auto",
+              bgcolor: "#ffebee",
+              width: 60,
+              height: 60,
+              mb: 2,
+            }}
+          >
+            <AiFillAlert style={{ color: "#d32f2f", fontSize: 40 }} />
+          </Avatar>
+          <DialogTitle sx={{ pb: 1, fontSize: "1.5rem", fontWeight: 600 }}>
+            Multiple Restaurant Error
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText sx={{ color: "#546e7a" }}>
+              Cannot add items from different restaurants.
+              <strong> CLEAR CART FIRST</strong>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions sx={{ justifyContent: "center", pb: 3 }}>
+            <Button
+              onClick={handleCloseDialog}
+              variant="outlined"
+              sx={{
+                borderRadius: 2,
+                px: 3,
+                mr: 1,
+                textTransform: "none",
+                fontSize: "1rem",
+              }}
+            >
+              Close
+            </Button>
+            <Button
+              onClick={() => {
+                // Add cart clearing logic here
+                handleCloseDialog();
+              }}
+              variant="contained"
+              color="error"
+            >
+              Clear Cart
+            </Button>
+          </DialogActions>
+        </Box>
+      </Dialog>
     </Container>
   );
 };

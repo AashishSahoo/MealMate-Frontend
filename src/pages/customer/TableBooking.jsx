@@ -55,7 +55,7 @@ const TableBooking = () => {
   const [tables, setTables] = useState([]);
   const [filterTables, setFilterTables] = useState([]);
   const [restaurant, setRestaurant] = useState([]);
-
+  const [rows, setRows] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const userInfo = JSON.parse(localStorage.getItem("userInfo")) || {};
@@ -268,23 +268,18 @@ const TableBooking = () => {
         />
       );
     }
-    if (status === "Confirmed") {
+    if (status === "booked") {
       return (
         <Chip
-          icon={<CheckCircleOutlineIcon sx={{ fontSize: 16 }} />}
+          icon={<CheckCircleOutlineIcon />}
           label="Confirmed"
-          sx={{
-            backgroundColor: "rgba(138, 43, 226, 0.1)",
-            color: "#8A2BE2",
-            fontWeight: 600,
-            "& .MuiChip-icon": {
-              color: "#8A2BE2",
-            },
-          }}
+          color="success"
           size="small"
+          variant="outlined"
         />
       );
     }
+
     return null;
   };
 
@@ -310,6 +305,25 @@ const TableBooking = () => {
       }
     } catch (error) {
       console.log("Error booking new table :", error);
+    }
+  };
+
+  const fetchAllBookings = async () => {
+    try {
+      console.log("Fetching bookings...");
+      const response = await axios.get(`/api/tables/get-all-bookings`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { email: email }, // Pass the user's email as a query parameter
+      });
+
+      if (response?.data?.resultCode === 0) {
+        const bookings = response?.data?.resultData;
+        setRows(bookings);
+        console.log("Bookings fetched successfully:", bookings);
+        // Update state or display the bookings in your UI
+      }
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
     }
   };
 
@@ -368,6 +382,7 @@ const TableBooking = () => {
   useEffect(() => {
     fetchRestroOwners();
     fetchAllTablesDetails();
+    fetchAllBookings();
   }, []);
 
   return (
@@ -593,15 +608,17 @@ const TableBooking = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {bookingHistory
+                {rows
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((booking) => (
-                    <TableRow key={booking.id}>
-                      <TableCell>{booking.id}</TableCell>
-                      <TableCell>{booking.restaurantName}</TableCell>
+                    <TableRow key={booking._id}>
+                      <TableCell>{booking._id}</TableCell>
+                      <TableCell>
+                        {booking.restaurantId.restaurantName}
+                      </TableCell>
                       <TableCell>{booking.tableNumber}</TableCell>
-                      <TableCell>{booking.numberOfPersons}</TableCell>
-                      <TableCell>{booking.bookingTime}</TableCell>
+                      <TableCell>{booking.capacity}</TableCell>
+                      <TableCell>{booking.bookedAt}</TableCell>
                       <TableCell>{getStatusChip(booking.status)}</TableCell>
                     </TableRow>
                   ))}

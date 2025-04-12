@@ -11,6 +11,7 @@ import {
   FormControl,
   InputLabel,
   CircularProgress,
+  FormHelperText,
 } from "@mui/material";
 import logo3 from "/assets/logo3.png";
 import Slideshow from "../component/Slideshow";
@@ -20,15 +21,18 @@ import { login } from "../store/authslice";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import axios from "axios";
+import ErrorIcon from "@mui/icons-material/Error";
 
 const Login = () => {
+  const [openErrorMsg, setErrorMsg] = useState(false);
+
   const [loading, setLoading] = useState(false); // Loading state
   const [formData, setFormData] = useState({
-    email: "abc@gmail.com",
+    email: "ashishsahoo0013@gmail.com",
     password: "Pass@123",
-    // roleType: "restro-owner",
+    roleType: "restro-owner",
     // roleType: "admin",
-    roleType: "customer",
+    // roleType: "customer",
   }); // Fixed incorrect initialization of formData
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -57,6 +61,7 @@ const Login = () => {
           user: data.user.roleType,
           token: data.token,
           email: data.user.email,
+          userId: data.user.userId,
         };
 
         localStorage.setItem("userInfo", JSON.stringify(userData));
@@ -66,6 +71,7 @@ const Login = () => {
             user: data.user.roleType,
             token: data.token,
             email: data.user.email,
+            userId: data.user.userId,
           })
         );
         console.log("Login response:", data);
@@ -89,6 +95,10 @@ const Login = () => {
         //     title: "Invalid Credentials",
         //     icon: "error",
         //   });
+      }
+
+      if (response?.data?.resultCode === 71) {
+        setErrorMsg(true);
       }
     } catch (error) {
       console.error("Error during login:", error);
@@ -157,7 +167,7 @@ const Login = () => {
             </Typography>
 
             {/* Role Selection */}
-            <FormControl fullWidth sx={{ marginBottom: "20px" }}>
+            <FormControl fullWidth sx={{ marginBottom: "15px" }}>
               <InputLabel id="role-select-label">Select Role</InputLabel>
               <Select
                 size="small"
@@ -184,7 +194,7 @@ const Login = () => {
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
               }
-              sx={{ marginBottom: "20px" }}
+              sx={{ marginBottom: "15px" }}
             />
             <TextField
               size="small"
@@ -198,8 +208,16 @@ const Login = () => {
               onChange={(e) =>
                 setFormData({ ...formData, password: e.target.value })
               }
-              sx={{ marginBottom: "30px" }}
+              sx={{ marginBottom: "13px" }}
             />
+            {openErrorMsg && (
+              <FormHelperText
+                color="#E40006"
+                sx={{ mb: 0.5, color: "#E40006", textAlign: "center" }}
+              >
+                User not found{" "}
+              </FormHelperText>
+            )}
             <Button
               size="small"
               variant="contained"
@@ -275,6 +293,57 @@ const Login = () => {
       >
         <Slideshow />
       </Box>
+
+      {/* <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
+            maxWidth: "400px",
+            width: "100%",
+          },
+        }}
+      >
+        <Box sx={{ textAlign: "center", pt: 3, px: 3 }}>
+          <Avatar
+            sx={{
+              margin: "0 auto",
+              bgcolor: "#ffebee",
+              width: 60,
+              height: 60,
+              mb: 2,
+            }}
+          >
+            <ErrorIcon sx={{ color: "#d32f2f", fontSize: 40 }} />
+          </Avatar>
+          <DialogTitle sx={{ pb: 1, fontSize: "1.5rem", fontWeight: 600 }}>
+            User not found
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText sx={{ color: "#546e7a" }}>
+              Are you sure you want to delete this restaurant owner? This action
+              cannot be undone.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions sx={{ justifyContent: "center", pb: 3 }}>
+            <Button
+              onClick={handleCloseDialog}
+              variant="outlined"
+              sx={{
+                borderRadius: 2,
+                px: 3,
+                mr: 1,
+                textTransform: "none",
+                fontSize: "1rem",
+              }}
+            >
+              Close
+            </Button>
+          </DialogActions>
+        </Box>
+      </Dialog> */}
     </Box>
   );
 };

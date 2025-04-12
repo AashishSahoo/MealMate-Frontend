@@ -32,6 +32,7 @@ import {
   colors,
 } from "@mui/material";
 import moment from "moment";
+import Skeleton from "@mui/material/Skeleton";
 
 import Swal from "sweetalert2";
 import {
@@ -64,6 +65,7 @@ import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import Chip from "@mui/material/Chip";
 
 function Products() {
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(1);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -97,6 +99,7 @@ function Products() {
   // Extract fields from userInfo
   const email = userInfo.email;
   const token = userInfo.token;
+
   const user = userInfo.user;
 
   const [hovered, setHovered] = useState(false);
@@ -246,6 +249,7 @@ function Products() {
     try {
       const response = await axios.get(`/api/food/get`, {
         headers: { Authorization: `Bearer ${token}` },
+        params: { email: email },
       });
 
       if (response?.data?.resultCode === 0) {
@@ -256,6 +260,8 @@ function Products() {
       }
     } catch (error) {
       console.log("Error fetching the product details :", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -265,15 +271,21 @@ function Products() {
   }, []);
 
   return (
-    <Box sx={{ height: "85vh", overflow: "hidden", background: "#F5FDFE" }}>
+    <Box
+      sx={{
+        height: "100vh", // Use full viewport height
+        display: "flex",
+        flexDirection: "column",
+        background: "#F5FDFE",
+      }}
+    >
       <Fade in timeout={800}>
         <Paper
-          // elevation={0}
           sx={{
-            height: "calc(100vh - 32px)",
+            flex: 1,
             borderRadius: 4,
+            m: 2,
             overflow: "hidden",
-            background: "transparent",
             display: "flex",
             flexDirection: "column",
           }}
@@ -285,8 +297,9 @@ function Products() {
               elevation={4}
               sx={{
                 height: "100%",
-                // borderRadius: 4,
                 backgroundColor: "#F5FDFE",
+                display: "flex",
+                flexDirection: "column",
               }}
             >
               <Tabs
@@ -567,7 +580,6 @@ function Products() {
                 <Fade in timeout={600}>
                   <Box sx={{ p: 3 }}>
                     <Card
-                      // elevation={4}
                       sx={{
                         borderRadius: 4,
                         overflow: "hidden",
@@ -575,9 +587,17 @@ function Products() {
                         height: "100%",
                         display: "flex",
                         flexDirection: "column",
+                        flex: 1, // Add this to fill available space
                       }}
                     >
-                      <TableContainer sx={{ flexGrow: 1 }}>
+                      <TableContainer
+                        sx={{
+                          flex: 1, // This makes the table container grow to fill space
+                          minHeight: 0, // Important for flex children to scroll properly
+                          overflow: "auto", // Ensures scrolling works
+                          position: "relative", // Helps with sticky header
+                        }}
+                      >
                         <Table stickyHeader>
                           <TableHead>
                             <TableRow>
@@ -624,6 +644,59 @@ function Products() {
                               </TableCell>
                             </TableRow>
                           </TableHead>
+                          {loading && (
+                            <TableBody>
+                              {Array.from({ length: rowsPerPage }).map(
+                                (_, index) => (
+                                  <TableRow key={`skeleton-${index}`}>
+                                    <TableCell>
+                                      <Skeleton
+                                        variant="rectangular"
+                                        width={50}
+                                        height={50}
+                                      />
+                                    </TableCell>
+                                    <TableCell>
+                                      <Skeleton variant="text" width="80%" />
+                                    </TableCell>
+                                    <TableCell>
+                                      <Skeleton variant="text" width="60%" />
+                                    </TableCell>
+                                    <TableCell>
+                                      <Skeleton variant="text" width="40%" />
+                                    </TableCell>
+                                    <TableCell>
+                                      <Skeleton variant="text" width="90%" />
+                                    </TableCell>
+                                    <TableCell>
+                                      <Skeleton variant="text" width="70%" />
+                                    </TableCell>
+                                    <TableCell>
+                                      <Skeleton
+                                        variant="circular"
+                                        width={24}
+                                        height={24}
+                                      />
+                                    </TableCell>
+                                    <TableCell>
+                                      <Box sx={{ display: "flex", gap: 1 }}>
+                                        <Skeleton
+                                          variant="circular"
+                                          width={40}
+                                          height={40}
+                                        />
+                                        <Skeleton
+                                          variant="circular"
+                                          width={40}
+                                          height={40}
+                                        />
+                                      </Box>
+                                    </TableCell>
+                                  </TableRow>
+                                )
+                              )}
+                            </TableBody>
+                          )}
                           <TableBody>
                             {products
                               .slice(
@@ -659,10 +732,46 @@ function Products() {
                                       }
                                     />
                                   </TableCell>
-                                  <TableCell>{product.name}</TableCell>
-                                  <TableCell>{product.category.name}</TableCell>
+                                  <TableCell
+                                    sx={{
+                                      whiteSpace: "nowrap",
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                      maxWidth: "150px",
+                                    }}
+                                  >
+                                    <Tooltip arrow title={product.name}>
+                                      {product.name}
+                                    </Tooltip>
+                                  </TableCell>
+                                  <TableCell
+                                    sx={{
+                                      whiteSpace: "nowrap",
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                      maxWidth: "100px",
+                                    }}
+                                  >
+                                    <Tooltip
+                                      arrow
+                                      title={product.category.name}
+                                    >
+                                      {product.category.name}
+                                    </Tooltip>
+                                  </TableCell>
                                   <TableCell>₹{product.price}</TableCell>
-                                  <TableCell>{product.description}</TableCell>
+                                  <TableCell
+                                    sx={{
+                                      whiteSpace: "nowrap",
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                      maxWidth: "150px",
+                                    }}
+                                  >
+                                    <Tooltip arrow title={product.description}>
+                                      {product.description}
+                                    </Tooltip>
+                                  </TableCell>
                                   <TableCell>
                                     {moment(product.createdAt).format(
                                       "D/M/YYYY, HH:mm:ss"
@@ -724,7 +833,7 @@ function Products() {
                         </Table>
                       </TableContainer>
                       <TablePagination
-                        rowsPerPageOptions={[5, 10, 25]}
+                        rowsPerPageOptions={[5, 15, 25]}
                         component="div"
                         count={products.length}
                         rowsPerPage={rowsPerPage}
@@ -1068,7 +1177,6 @@ function Products() {
           />
         </DialogContent>
       </Dialog>
-      );
     </Box>
   );
 }

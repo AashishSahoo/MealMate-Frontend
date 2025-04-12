@@ -48,6 +48,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import Skeleton from "@mui/material/Skeleton";
+import moment from "moment";
 
 const StyledTab = styled(Tab)(({ theme }) => ({
   fontWeight: 600,
@@ -67,17 +68,13 @@ const StyledTabs = styled(Tabs)({
   },
 });
 
-const AnimatedCard = styled(motion(Card))({
-  borderRadius: 16,
-  overflow: "hidden",
-  boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-  transition: "transform 0.3s ease-in-out",
-  "&:hover": {
-    transform: "translateY(-8px)",
-  },
-});
-
 function TableBookingManagement() {
+  // Date formatting function
+  const formatDate = (date) => {
+    const d = new Date(date);
+    return d.toISOString().split("T")[0];
+  };
+
   const [openDialogForDelete, setOpenDialogForDelete] = useState(false);
 
   const userInfo = JSON.parse(localStorage.getItem("userInfo")) || {};
@@ -87,6 +84,7 @@ function TableBookingManagement() {
   const token = userInfo.token;
   const user = userInfo.user;
 
+  const [selectedDate, setSelectedDate] = useState(formatDate(new Date())); // store as string
   const [activeTab, setActiveTab] = useState(0);
   const [tables, setTables] = useState([]);
   const [tableInput, setTableInput] = useState({
@@ -96,8 +94,12 @@ function TableBookingManagement() {
     status: "",
     bookingCharges: "",
     email: email,
+    bookingDate: selectedDate,
   });
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const [LimitDialogOpen, setLimitDialogOpen] = useState(false);
+  const [DuplicateDialogOpen, setDuplicateDialogOpen] = useState(false);
+
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [editingTable, setEditingTable] = useState(null);
@@ -144,7 +146,7 @@ function TableBookingManagement() {
     setOpenSuccessDialogForDelete(false);
   };
 
-  const availableTimeSlots = [
+  const TIME_SLOTS = [
     "10:00 AM - 11:00 AM",
     "11:00 AM - 12:00 PM",
     "12:00 PM - 1:00 PM",
@@ -155,82 +157,107 @@ function TableBookingManagement() {
     "5:00 PM - 6:00 PM",
   ];
 
+  const MAX_TABLES = 6;
+
   // Updated handleAddTable function
   const handleAddTable = async () => {
     if (
       tableInput.tableNumber &&
       tableInput.capacity &&
       tableInput.timeslot &&
-      tableInput.status
+      tableInput.status &&
+      tableInput.bookingCharges &&
+      // tableInput.email &&
+      tableInput.bookingDate
     ) {
       try {
+        const data = {
+          tableNumber: tableInput.tableNumber,
+          capacity: tableInput.capacity,
+          timeslot: tableInput.timeslot,
+          status: tableInput.status,
+          bookingCharges: tableInput.bookingCharges,
+          email: email,
+          bookingDate: tableInput.bookingDate,
+        };
         if (editingTable !== null) {
           // Update existing table
           const response = await axios.put(
             `/api/tables/updateTable/${editingTable}`,
-            tableInput,
+            data,
             {
               headers: { Authorization: `Bearer ${token}` },
             }
           );
 
           if (response?.data?.resultCode === 0) {
-            setOpenSuccessDialog(true);
+            setOpenSuccessDialogForUpdate(true);
             fetchAllTablesDetails();
             setEditingTable(null);
-            setTableInput({
+            setTableInput((prev) => ({
+              ...prev,
               tableNumber: "",
               capacity: "",
               timeslot: "",
               status: "",
               bookingCharges: "",
-            });
+              bookingDate: selectedDate, // Use the state that's already being maintained
+            }));
+          }
+          if (response?.data?.resultCode == 71) {
+            setDuplicateDialogOpen(true);
           }
         } else {
           // Add new table
-          if (tables.length < 6) {
-            const response = await axios.post(
-              `/api/tables/addTable`,
-              tableInput,
-              {
-                headers: { Authorization: `Bearer ${token}` },
-              }
-            );
+          if (tables.length < MAX_TABLES) {
+            const response = await axios.post(`/api/tables/addTable`, data, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
 
             if (response?.data?.resultCode === 0) {
-              setOpenSuccessDialogForUpdate(true);
+              setOpenSuccessDialog(true);
               fetchAllTablesDetails();
-              setTableInput({
+              setTableInput((prev) => ({
+                ...prev,
                 tableNumber: "",
                 capacity: "",
                 timeslot: "",
                 status: "",
                 bookingCharges: "",
-              });
+                bookingDate: selectedDate, // Use the state that's already being maintained
+              }));
+            }
+            if (response?.data?.resultCode == 71) {
+              setDuplicateDialogOpen(true);
             }
           } else {
-            setIsDialogOpen(true);
+            setLimitDialogOpen(true);
           }
         }
       } catch (error) {
         console.log("Error saving table:", error);
       }
+    } else {
+      console.log(" All fields require : ", tableInput);
     }
   };
 
   const handleEditTable = (tableId) => {
     const table = tables.find((table) => table._id === tableId);
     if (table) {
-      setTableInput({
+      setTableInput((prev) => ({
+        ...prev, // Preserve email and other fields
         tableNumber: table.tableNumber,
         capacity: table.capacity.toString(),
         timeslot: table.timeslot,
         status: table.status,
         bookingCharges: table.bookingCharges || "",
-      });
+        bookingDate: formatDate(new Date(table.bookingDate)),
+      }));
       setEditingTable(tableId);
     }
   };
+
   const handleConfirmDelete = (id) => {
     setTableToDelete(id);
     setOpenDialogForDelete(true);
@@ -256,29 +283,12 @@ function TableBookingManagement() {
   };
 
   const handleDialogClose = () => {
-    setIsDialogOpen(false);
+    setLimitDialogOpen(false);
   };
 
-  // const rows = [
-  //   {
-  //     id: 1,
-  //     bookingId: "B001",
-  //     tableNo: 5,
-  //     seats: 4,
-  //     customerName: "John Doe",
-  //     timeSlot: "10:00 AM - 11:00 AM",
-  //     date: "2024-12-27",
-  //   },
-  //   {
-  //     id: 2,
-  //     bookingId: "B002",
-  //     tableNo: 3,
-  //     seats: 2,
-  //     customerName: "Jane Smith",
-  //     timeSlot: "11:00 AM - 12:00 PM",
-  //     date: "2024-12-27",
-  //   },
-  // ];
+  const handleDuplicateDialogClose = () => {
+    setDuplicateDialogOpen(false);
+  };
 
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -316,6 +326,7 @@ function TableBookingManagement() {
       );
 
       if (response?.data?.resultCode === 0) {
+        await setTables([]);
         setTables(response.data.resultData);
         setTableListLoader(false);
       }
@@ -328,6 +339,13 @@ function TableBookingManagement() {
     fetchAllTablesDetails();
     fetchAllBookings();
   }, []);
+
+  useEffect(() => {
+    setTableInput((prev) => ({
+      ...prev,
+      bookingDate: selectedDate,
+    }));
+  }, [selectedDate]);
 
   return (
     <Box sx={{ display: "flex", height: "85vh", backgroundColor: "#F5FDFE" }}>
@@ -342,7 +360,7 @@ function TableBookingManagement() {
             <Grid container spacing={4}>
               {/* Add/Edit Table Form */}
               <Grid item xs={12} md={4}>
-                <Card sx={{ borderRadius: "16px", p: 2, minHeight: "110%" }}>
+                <Card sx={{ borderRadius: "16px", p: 2, minHeight: "100%" }}>
                   <Box
                     sx={{
                       display: "flex",
@@ -403,44 +421,66 @@ function TableBookingManagement() {
                       />
                     </Grid>
                     <Grid item xs={12}>
-                      <TextField
-                        size="small"
-                        label="Seats"
-                        type="number"
-                        fullWidth
-                        value={tableInput.capacity}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          const numValue = Number(value);
-                          if (numValue >= 0 && numValue <= 12) {
-                            handleInputChange("capacity", value);
-                          }
+                      <Box
+                        spacing={2}
+                        sx={{
+                          display: "flex",
+                          flexDirection: "row",
                         }}
-                        InputProps={{
-                          sx: { borderRadius: "12px" },
-                        }}
-                      />
+                      >
+                        {" "}
+                        <TextField
+                          size="small"
+                          label="Seats"
+                          type="number"
+                          sx={{ width: "35%" }}
+                          value={tableInput.capacity}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            const numValue = Number(value);
+                            if (numValue >= 0 && numValue <= 12) {
+                              handleInputChange("capacity", value);
+                            }
+                          }}
+                          // InputProps={{
+                          //   sx: { borderRadius: "12px" },
+                          // }}
+                        />
+                        <TextField
+                          size="small"
+                          label="Pre-Booking Charges"
+                          type="number"
+                          sx={{ width: "65%", ml: 1 }}
+                          value={tableInput.bookingCharges}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            const numValue = Number(value);
+
+                            if (
+                              value === "" ||
+                              (numValue >= 0 && numValue <= 1000)
+                            ) {
+                              handleInputChange("bookingCharges", value);
+                            }
+                          }}
+                          // InputProps={{
+                          //   sx: { borderRadius: "12px" },
+                          // }}
+                        />
+                      </Box>
                     </Grid>
                     <Grid item xs={12}>
                       <TextField
-                        size="small"
-                        label="Pre-Booking Charges"
-                        type="number"
+                        label="Booking Date"
+                        type="date"
                         fullWidth
-                        value={tableInput.bookingCharges}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          const numValue = Number(value);
-
-                          if (
-                            value === "" ||
-                            (numValue >= 0 && numValue <= 1000)
-                          ) {
-                            handleInputChange("bookingCharges", value);
-                          }
-                        }}
-                        InputProps={{
-                          sx: { borderRadius: "12px" },
+                        size="small"
+                        sx={{ borderRadius: "12px" }}
+                        InputLabelProps={{ shrink: true }}
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)} // now just a string
+                        inputProps={{
+                          min: formatDate(new Date()),
                         }}
                       />
                     </Grid>
@@ -454,7 +494,7 @@ function TableBookingManagement() {
                             handleInputChange("status", e.target.value)
                           }
                           label="status"
-                          sx={{ borderRadius: "12px" }}
+                          // sx={{ borderRadius: "12px" }}
                         >
                           <MenuItem key="1" value="available">
                             Available
@@ -474,9 +514,9 @@ function TableBookingManagement() {
                             handleInputChange("timeslot", e.target.value)
                           }
                           label="Time Slot"
-                          sx={{ borderRadius: "12px" }}
+                          // sx={{ borderRadius: "12px" }}
                         >
-                          {availableTimeSlots.map((slot, index) => (
+                          {TIME_SLOTS.map((slot, index) => (
                             <MenuItem key={index} value={slot}>
                               {slot}
                             </MenuItem>
@@ -550,7 +590,11 @@ function TableBookingManagement() {
                 ) : (
                   <>
                     <Card
-                      sx={{ borderRadius: "16px", p: 3, minHeight: "110%" }}
+                      sx={{
+                        borderRadius: "16px",
+                        p: 3,
+                        minHeight: "100%",
+                      }}
                     >
                       {" "}
                       <Typography
@@ -663,7 +707,21 @@ function TableBookingManagement() {
                                       sx={{
                                         textAlign: "center",
                                         color: "text.secondary",
-                                        mt: 1,
+                                      }}
+                                    >
+                                      {" "}
+                                      <strong>
+                                        {" "}
+                                        {moment(table.bookingDate).format(
+                                          "DD/MM/YYYY"
+                                        )}
+                                      </strong>
+                                    </Typography>
+                                    <Typography
+                                      sx={{
+                                        textAlign: "center",
+                                        color: "text.secondary",
+                                        mt: 0,
                                       }}
                                     >
                                       {table.timeslot}
@@ -679,7 +737,7 @@ function TableBookingManagement() {
                                     </Typography>
                                     <Box
                                       sx={{
-                                        mt: 2,
+                                        mt: 1,
                                         p: 1,
                                         borderRadius: "8px",
                                         bgcolor:
@@ -755,19 +813,19 @@ function TableBookingManagement() {
                       )
                       .map((row) => (
                         <TableRow
-                          key={row.id}
+                          key={row._id}
                           sx={{
                             "&:hover": { bgcolor: "rgba(26,35,126,0.05)" },
                             transition: "background-color 0.2s",
                           }}
                         >
-                          <TableCell>{row.bookingId}</TableCell>
-                          <TableCell>{row.tableNo}</TableCell>
-                          <TableCell>{row.seats}</TableCell>
+                          <TableCell>{row._id}</TableCell>
+                          <TableCell>{row.tableNumber}</TableCell>
+                          <TableCell>{row.capacity}</TableCell>
                           <TableCell>{row.customerName}</TableCell>
-                          <TableCell>{row.timeSlot}</TableCell>
+                          <TableCell>{row.timeslot}</TableCell>
                           <TableCell>
-                            {new Date(row.date).toLocaleDateString()}
+                            {new Date(row.bookedAt).toLocaleDateString()}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -790,7 +848,7 @@ function TableBookingManagement() {
 
       {/* limit reached dailog box */}
       <Dialog
-        open={isDialogOpen}
+        open={LimitDialogOpen}
         onClose={handleDialogClose}
         PaperProps={{
           sx: {
@@ -826,6 +884,48 @@ function TableBookingManagement() {
             }}
           >
             Understood
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* duplicate table dailog box */}
+      <Dialog
+        open={DuplicateDialogOpen}
+        onClose={handleDuplicateDialogClose}
+        PaperProps={{
+          sx: {
+            width: "400px",
+            borderRadius: "16px",
+            p: 2,
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{ textAlign: "center", color: "#d32f2f", fontWeight: 600 }}
+        >
+          Table Already Exist
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ textAlign: "center", color: "#666" }}>
+            Table with same Table No and Timeslot already exists.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: "center", pt: 2 }}>
+          <Button
+            variant="contained"
+            onClick={handleDuplicateDialogClose}
+            sx={{
+              bgcolor: "#1a237e",
+              color: "white",
+              px: 4,
+              py: 1,
+              borderRadius: "8px",
+              "&:hover": {
+                bgcolor: "#0d47a1",
+              },
+            }}
+          >
+            Try Again
           </Button>
         </DialogActions>
       </Dialog>

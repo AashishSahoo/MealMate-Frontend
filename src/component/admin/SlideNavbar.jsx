@@ -38,6 +38,7 @@ import RestroOwnerList from "../../pages/admin/RestroOwnerList";
 import RestrauntOwnerReport from "../../pages/admin/RestrauntOwnerReport";
 import UsersOrderHistory from "../../pages/admin/UsersOrderHistory";
 import Category from "../../pages/admin/Category";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 
 const drawerWidth = 280;
 
@@ -158,6 +159,7 @@ export default function MiniDrawer() {
         },
       ],
     },
+    // { text: "Logout", icon: <ExitToAppIcon />, id: "Logout" },
   ];
 
   const menuItemStyle = {
@@ -322,6 +324,40 @@ export default function MiniDrawer() {
             </React.Fragment>
           ))}
         </List>
+        <Box sx={{ marginTop: "auto" }}>
+          <ListItem disablePadding>
+            <ListItemButton
+              sx={{
+                minHeight: 48,
+                px: 2.5,
+                justifyContent: open ? "initial" : "center",
+                ...menuItemStyle,
+              }}
+              onClick={() => console.log("Logout Clicked")}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: open ? 3 : "auto",
+                  justifyContent: "center",
+                  color: "#ffffff",
+                }}
+              >
+                <ExitToAppIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Logout"
+                sx={{
+                  opacity: open ? 1 : 0,
+                  "& .MuiTypography-root": {
+                    fontWeight: 500,
+                    fontSize: "0.95rem",
+                  },
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+        </Box>
       </Drawer>
 
       <Box

@@ -34,6 +34,8 @@ import OrderHistory from "../../pages/customer/OrderHistory";
 import Cart from "../../pages/customer/Cart";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import { Add } from "@mui/icons-material";
+import Payment from "../../pages/customer/Payment";
+import CreditScoreIcon from "@mui/icons-material/CreditScore";
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
@@ -131,6 +133,7 @@ export default function MiniDrawer() {
       id: "Table Booking",
     },
     { text: "Order History", icon: <HistoryIcon />, id: "Order History" },
+    { text: "Payment", icon: <CreditScoreIcon />, id: "Payment" },
   ];
 
   const menuItemStyle = {
@@ -270,6 +273,7 @@ export default function MiniDrawer() {
         {menuData === "Cart" && <Cart />}
         {menuData === "Table Booking" && <TableBooking />}
         {menuData === "Order History" && <OrderHistory />}
+        {menuData === "Payment " && <Payment />}
       </Box>
     </Box>
   );
