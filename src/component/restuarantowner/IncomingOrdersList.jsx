@@ -1,191 +1,3 @@
-// import React from "react";
-// import {
-//   Box,
-//   List,
-//   ListItem,
-//   ListItemAvatar,
-//   ListItemText,
-//   Avatar,
-//   Typography,
-//   Chip,
-// } from "@mui/material";
-// import RestaurantIcon from "@mui/icons-material/Restaurant";
-// import PersonIcon from "@mui/icons-material/Person";
-// import AccessTimeIcon from "@mui/icons-material/AccessTime";
-// import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
-// import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-// import PendingActionsIcon from "@mui/icons-material/PendingActions";
-
-// const IncomingOrdersList = () => {
-//   const orders = [
-//     {
-//       id: "ORD12345",
-//       customerName: "John Doe",
-//       totalAmount: "$45.99",
-//       orderTime: "2023-12-22 11:30 AM",
-//       status: "Pending",
-//     },
-//     {
-//       id: "ORD12346",
-//       customerName: "Alice Smith",
-//       totalAmount: "$23.49",
-//       orderTime: "2023-12-22 11:20 AM",
-//       status: "Confirmed",
-//     },
-//     {
-//       id: "ORD12347",
-//       customerName: "Mark Wilson",
-//       totalAmount: "$15.00",
-//       orderTime: "2023-12-22 11:10 AM",
-//       status: "Pending",
-//     },
-//     {
-//       id: "ORD12348",
-//       customerName: "Jane Brown",
-//       totalAmount: "$50.00",
-//       orderTime: "2023-12-22 10:50 AM",
-//       status: "Confirmed",
-//     },
-//     {
-//       id: "ORD12349",
-//       customerName: "Tom Harris",
-//       totalAmount: "$30.75",
-//       orderTime: "2023-12-22 10:30 AM",
-//       status: "Pending",
-//     },
-//   ];
-
-//   const getStatusChip = (status) => {
-//     if (status === "Pending") {
-//       return (
-//         <Chip
-//           icon={<PendingActionsIcon />}
-//           label="Pending"
-//           color="warning"
-//           size="small"
-//         />
-//       );
-//     }
-//     if (status === "Confirmed") {
-//       return (
-//         <Chip
-//           icon={<CheckCircleOutlineIcon />}
-//           label="Confirmed"
-//           color="success"
-//           size="small"
-//         />
-//       );
-//     }
-//     return null;
-//   };
-
-//   return (
-//     <Box
-//       sx={{
-//         width: "100%",
-//         maxWidth: 300,
-//         height: 450, // Fixed height
-//         // padding: 1,
-//         borderRadius: 2,
-//         boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-//         background: "#ffffff",
-//       }}
-//     >
-//       {/* Centered Heading */}
-//       <Box
-//         sx={{
-//           // background: "linear-gradient(to right, #4facfe, #00f2fe)",
-//           background:
-//             "linear-gradient(to right,rgb(250, 191, 90),rgb(230, 135, 19))",
-//           padding: "10px 0",
-//           borderRadius: 1,
-//           textAlign: "center",
-//           // marginBottom: 2,
-//         }}
-//       >
-//         <Typography variant="h6" component="div" sx={{ color: "white" }}>
-//           Incoming Orders
-//         </Typography>
-//       </Box>
-
-//       {/* Order List */}
-//       <Box
-//         sx={{
-//           background: "#ffffff",
-//           borderRadius: 2,
-//           height: "calc(100% - 60px)", // Remaining height after header
-//           overflowY: "auto", // Scroll within the box
-//           // padding: 1,
-//         }}
-//       >
-//         <List>
-//           {orders.map((order) => (
-//             <ListItem
-//               key={order.id}
-//               sx={{
-//                 position: "relative", // To position the orange line absolutely
-//                 padding: 2,
-//               }}
-//             >
-//               <ListItemAvatar>
-//                 <Avatar sx={{ backgroundColor: "#ff9800" }}>
-//                   <RestaurantIcon />
-//                 </Avatar>
-//               </ListItemAvatar>
-//               <ListItemText
-//                 primary={
-//                   <Typography variant="body1" fontWeight="bold">
-//                     Order ID: {order.id}
-//                   </Typography>
-//                 }
-//                 secondary={
-//                   <>
-//                     <Typography variant="body2" color="textSecondary">
-//                       <PersonIcon
-//                         fontSize="small"
-//                         sx={{ verticalAlign: "middle", marginRight: 0.5 }}
-//                       />
-//                       {order.customerName}
-//                     </Typography>
-//                     <Typography variant="body2" color="textSecondary">
-//                       <MonetizationOnIcon
-//                         fontSize="small"
-//                         sx={{ verticalAlign: "middle", marginRight: 0.5 }}
-//                       />
-//                       {order.totalAmount}
-//                     </Typography>
-//                     <Typography variant="body2" color="textSecondary">
-//                       <AccessTimeIcon
-//                         fontSize="small"
-//                         sx={{ verticalAlign: "middle", marginRight: 0.5 }}
-//                       />
-//                       {order.orderTime}
-//                     </Typography>
-//                   </>
-//                 }
-//               />
-//               {/* Fixed-width orange line */}
-//               <Box
-//                 sx={{
-//                   position: "absolute",
-//                   bottom: 0,
-//                   left: "50%",
-//                   transform: "translateX(-50%)",
-//                   width: "80%", // Fixed width for the line
-//                   height: "1px", // Height of the line
-//                   backgroundColor: "orange",
-//                 }}
-//               />
-//             </ListItem>
-//           ))}
-//         </List>
-//       </Box>
-//     </Box>
-//   );
-// };
-
-// export default IncomingOrdersList;
-
 import React from "react";
 import {
   Box,
@@ -198,6 +10,7 @@ import {
   Chip,
   Paper,
   Fade,
+  Tooltip,
 } from "@mui/material";
 import RestaurantIcon from "@mui/icons-material/Restaurant";
 import PersonIcon from "@mui/icons-material/Person";
@@ -206,47 +19,9 @@ import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
 
-const IncomingOrdersList = () => {
-  const orders = [
-    {
-      id: "ORD12345",
-      customerName: "John Doe",
-      totalAmount: "$45.99",
-      orderTime: "2023-12-22 11:30 AM",
-      status: "Pending",
-    },
-    {
-      id: "ORD12346",
-      customerName: "Alice Smith",
-      totalAmount: "$23.49",
-      orderTime: "2023-12-22 11:20 AM",
-      status: "Confirmed",
-    },
-    {
-      id: "ORD12347",
-      customerName: "Mark Wilson",
-      totalAmount: "$15.00",
-      orderTime: "2023-12-22 11:10 AM",
-      status: "Pending",
-    },
-    {
-      id: "ORD12348",
-      customerName: "Jane Brown",
-      totalAmount: "$50.00",
-      orderTime: "2023-12-22 10:50 AM",
-      status: "Confirmed",
-    },
-    {
-      id: "ORD12349",
-      customerName: "Tom Harris",
-      totalAmount: "$30.75",
-      orderTime: "2023-12-22 10:30 AM",
-      status: "Pending",
-    },
-  ];
-
+const IncomingOrdersList = ({ IncomingOrdersList }) => {
   const getStatusChip = (status) => {
-    if (status === "Pending") {
+    if (status === "processing") {
       return (
         <Chip
           icon={<PendingActionsIcon sx={{ fontSize: 16 }} />}
@@ -263,7 +38,7 @@ const IncomingOrdersList = () => {
         />
       );
     }
-    if (status === "Confirmed") {
+    if (status === "completed") {
       return (
         <Chip
           icon={<CheckCircleOutlineIcon sx={{ fontSize: 16 }} />}
@@ -344,9 +119,9 @@ const IncomingOrdersList = () => {
           }}
         >
           <List sx={{ p: 0 }}>
-            {orders.map((order, index) => (
+            {IncomingOrdersList.map((order, index) => (
               <ListItem
-                key={order.id}
+                key={order._id}
                 sx={{
                   py: 2.5,
                   px: 3,
@@ -356,7 +131,7 @@ const IncomingOrdersList = () => {
                     transform: "translateX(5px)",
                   },
                   borderBottom:
-                    index !== orders.length - 1
+                    index !== IncomingOrdersList.length - 1
                       ? "1px solid rgba(0, 0, 0, 0.06)"
                       : "none",
                 }}
@@ -386,7 +161,10 @@ const IncomingOrdersList = () => {
                         variant="subtitle1"
                         sx={{ fontWeight: 700, color: "#2d3436" }}
                       >
-                        {order.id}
+                        Order ID:{" "}
+                        <Tooltip title={order._id} arrow>
+                          {order._id.slice(0, 9) + ".."}
+                        </Tooltip>
                       </Typography>
                       {getStatusChip(order.status)}
                     </Box>
@@ -408,7 +186,8 @@ const IncomingOrdersList = () => {
                           "& svg": { mr: 1, fontSize: 16, opacity: 0.8 },
                         }}
                       >
-                        <PersonIcon /> {order.customerName}
+                        <PersonIcon /> {order.user.firstName}{" "}
+                        {order.user.lastName}
                       </Typography>
                       <Typography
                         variant="body2"
@@ -419,7 +198,7 @@ const IncomingOrdersList = () => {
                           "& svg": { mr: 1, fontSize: 16, opacity: 0.8 },
                         }}
                       >
-                        <MonetizationOnIcon /> {order.totalAmount}
+                        <MonetizationOnIcon /> ₹{order.totalAmount.toFixed(2)}
                       </Typography>
                       <Typography
                         variant="body2"
@@ -430,7 +209,8 @@ const IncomingOrdersList = () => {
                           "& svg": { mr: 1, fontSize: 16, opacity: 0.8 },
                         }}
                       >
-                        <AccessTimeIcon /> {order.orderTime}
+                        <AccessTimeIcon />{" "}
+                        {new Date(order.createdAt).toLocaleString()}
                       </Typography>
                     </Box>
                   }

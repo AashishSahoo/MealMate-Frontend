@@ -22,8 +22,15 @@ import IncomingOrdersList from "../../component/restuarantowner/IncomingOrdersLi
 import TableBookingsList from "../../component/restuarantowner/TableBookingList";
 import SalesRadarChart from "../../component/restuarantowner/SalesRadarChart";
 import TimelineIcon from "@mui/icons-material/Timeline";
+import axios from "axios";
 
 const DashboardRestrOwner = () => {
+  const [orders, setOrders] = useState([]);
+
+  const userInfo = JSON.parse(localStorage.getItem("userInfo")) || {};
+  const email = userInfo.email || null;
+  const token = userInfo.token || null;
+
   const initialFilters = {
     totalOrders: "Last Month",
     totalRevenue: "Last Month",
@@ -40,6 +47,8 @@ const DashboardRestrOwner = () => {
     acceptedOrders: 0,
     declinedOrders: 0,
   });
+
+  const [salesData, setSalesData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [anchorEls, setAnchorEls] = useState({});
 
@@ -106,8 +115,60 @@ const DashboardRestrOwner = () => {
     handleMenuClose(key);
   };
 
+  const fetchAllDetails = async (req, res) => {
+    try {
+      const response = await axios.get(`api/orders/dashboardStat/${email}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response?.data?.resultCode === 0) {
+        const resp = response?.data?.resultData;
+        data.acceptedOrders = resp.acceptedOrders;
+        data.declinedOrders = resp.rejectedOrders;
+        data.pendingOrders = resp.pendingOrders;
+        data.totalRevenue = resp.totalRevenue;
+        data.totalOrders = resp.totalOrders;
+
+        setSalesData(resp.salesByCategory);
+      }
+    } catch (error) {
+      console.log("Error fetching all details:", error);
+    }
+  };
+
+  const fetchAllIncomingOrders = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `/api/orders/getAllIncomingOrdersByRestaurant/${email}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response?.data?.resultCode === 0) {
+        setOrders(response.data.resultData);
+        const newButtonState = {};
+        response.data.resultData.forEach((order) => {
+          newButtonState[order._id] = {
+            acceptLoading: false,
+            rejectLoading: false,
+            disabled: order.status !== "processing",
+          };
+        });
+        setButtonState(newButtonState);
+      }
+    } catch (error) {
+      console.error("Error fetching incoming orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     Object.keys(initialFilters).forEach((key) => fetchData(filters[key], key));
+    fetchAllIncomingOrders();
+
+    fetchAllDetails();
   }, []);
 
   return (
@@ -250,7 +311,7 @@ const DashboardRestrOwner = () => {
                     },
                   }}
                 >
-                  <IncomingOrdersList />
+                  <IncomingOrdersList IncomingOrdersList={orders} />
                 </Paper>
               </Grid>
               <Grid item xs={12} md={3}>
@@ -282,7 +343,7 @@ const DashboardRestrOwner = () => {
                     },
                   }}
                 >
-                  <SalesRadarChart />
+                  <SalesRadarChart dataset={salesData} />
                 </Paper>
               </Grid>
             </Grid>
