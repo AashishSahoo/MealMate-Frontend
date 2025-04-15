@@ -45,6 +45,7 @@ import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import axios from "axios";
 import tablebooking from "../../assets/tablebooking.png";
+import moment from "moment";
 
 const TableBooking = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -64,80 +65,6 @@ const TableBooking = () => {
   const email = userInfo.email;
   const token = userInfo.token;
   const user = userInfo.user;
-
-  // Sample data - replace with actual API data
-  const availableTables = [
-    {
-      id: "TB12345",
-      restaurantName: "Spice Garden",
-      tableNumber: "5",
-      capacity: 4,
-      price: "₹500",
-      status: "Available",
-      description: "Window-side table with city view",
-      time: "1:00 PM - 2:00 PM",
-    },
-    {
-      id: "TB12346",
-      restaurantName: "The Grand Kitchen",
-      tableNumber: "3",
-      capacity: 2,
-      price: "₹300",
-      status: "Available",
-      description: "Cozy corner table for couples",
-      time: "1:00 PM - 2:00 PM",
-    },
-    {
-      id: "TB12347",
-      restaurantName: "Spice Garden",
-      tableNumber: "7",
-      capacity: 6,
-      price: "₹800",
-      status: "Available",
-      description: "Large family table",
-      time: "1:00 PM - 2:00 PM",
-    },
-    {
-      id: "TB12348",
-      restaurantName: "The Grand Kitchen",
-      tableNumber: "4",
-      capacity: 4,
-      price: "₹400",
-      status: "Available",
-      description: "Central dining area table",
-      time: "1:00 PM - 2:00 PM",
-    },
-    {
-      id: "TB12349",
-      restaurantName: "Spice Garden",
-      tableNumber: "9",
-      capacity: 2,
-      price: "₹300",
-      status: "Available",
-      description: "Intimate dining table",
-      time: "1:00 PM - 2:00 PM",
-    },
-    {
-      id: "TB12350",
-      restaurantName: "The Grand Kitchen",
-      tableNumber: "6",
-      capacity: 8,
-      price: "₹1000",
-      status: "Available",
-      description: "Premium large group table",
-      time: "1:00 PM - 2:00 PM",
-    },
-    {
-      id: "TB12351",
-      restaurantName: "Spice Garden",
-      tableNumber: "2",
-      capacity: 4,
-      price: "₹500",
-      status: "Available",
-      description: "Garden view table",
-      time: "1:00 PM - 2:00 PM",
-    },
-  ];
 
   const bookingHistory = [
     {
@@ -300,6 +227,8 @@ const TableBooking = () => {
 
       if (response?.data?.resultCode === 0) {
         setOpenSuccessDialog(true);
+        await fetchAllTablesDetails();
+        await fetchAllBookings();
 
         console.log("success");
       }
@@ -310,17 +239,14 @@ const TableBooking = () => {
 
   const fetchAllBookings = async () => {
     try {
-      console.log("Fetching bookings...");
       const response = await axios.get(`/api/tables/get-all-bookings`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: { email: email }, // Pass the user's email as a query parameter
+        params: { email: email },
       });
 
       if (response?.data?.resultCode === 0) {
         const bookings = response?.data?.resultData;
         setRows(bookings);
-        console.log("Bookings fetched successfully:", bookings);
-        // Update state or display the bookings in your UI
       }
     } catch (error) {
       console.error("Error fetching bookings:", error);
@@ -603,6 +529,7 @@ const TableBooking = () => {
                   <TableCell>Restaurant</TableCell>
                   <TableCell>Table Number</TableCell>
                   <TableCell>Persons</TableCell>
+                  <TableCell>Booking Price</TableCell>
                   <TableCell>Booking Time</TableCell>
                   <TableCell>Status</TableCell>
                 </TableRow>
@@ -618,7 +545,10 @@ const TableBooking = () => {
                       </TableCell>
                       <TableCell>{booking.tableNumber}</TableCell>
                       <TableCell>{booking.capacity}</TableCell>
-                      <TableCell>{booking.bookedAt}</TableCell>
+                      <TableCell>₹{booking.bookingCharges}</TableCell>
+                      <TableCell>
+                        {moment(booking.bookedAt).format("YYYY-MM-DD:h:mm")}
+                      </TableCell>
                       <TableCell>{getStatusChip(booking.status)}</TableCell>
                     </TableRow>
                   ))}

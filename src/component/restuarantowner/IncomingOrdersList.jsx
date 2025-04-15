@@ -18,6 +18,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
+import { Skeleton } from "@mui/material";
 
 const IncomingOrdersList = ({ IncomingOrdersList }) => {
   const getStatusChip = (status) => {
@@ -119,104 +120,127 @@ const IncomingOrdersList = ({ IncomingOrdersList }) => {
           }}
         >
           <List sx={{ p: 0 }}>
-            {IncomingOrdersList.map((order, index) => (
-              <ListItem
-                key={order._id}
+            {IncomingOrdersList.length === 0 ? (
+              <Box
                 sx={{
-                  py: 2.5,
-                  px: 3,
-                  transition: "all 0.3s ease",
-                  "&:hover": {
-                    backgroundColor: "rgba(0, 0, 0, 0.02)",
-                    transform: "translateX(5px)",
-                  },
-                  borderBottom:
-                    index !== IncomingOrdersList.length - 1
-                      ? "1px solid rgba(0, 0, 0, 0.06)"
-                      : "none",
+                  height: 300,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "column",
                 }}
               >
-                <ListItemAvatar>
-                  <Avatar
-                    sx={{
-                      background:
-                        "linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)",
-                      boxShadow: "0 4px 12px rgba(255, 107, 107, 0.2)",
-                    }}
-                  >
-                    <RestaurantIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary={
-                    <Box
+                <Typography variant="h6" color="textSecondary">
+                  No Orders Found
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="textSecondary"
+                  sx={{ mt: 1 }}
+                >
+                  There are currently no incoming orders.
+                </Typography>
+              </Box>
+            ) : (
+              IncomingOrdersList.map((order, index) => (
+                <ListItem
+                  key={order._id}
+                  sx={{
+                    py: 2.5,
+                    px: 3,
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      backgroundColor: "rgba(0, 0, 0, 0.02)",
+                      transform: "translateX(5px)",
+                    },
+                    borderBottom:
+                      index !== IncomingOrdersList.length - 1
+                        ? "1px solid rgba(0, 0, 0, 0.06)"
+                        : "none",
+                  }}
+                >
+                  <ListItemAvatar>
+                    <Avatar
                       sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        mb: 1,
+                        background:
+                          "linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)",
+                        boxShadow: "0 4px 12px rgba(255, 107, 107, 0.2)",
                       }}
                     >
-                      <Typography
-                        variant="subtitle1"
-                        sx={{ fontWeight: 700, color: "#2d3436" }}
-                      >
-                        Order ID:{" "}
-                        <Tooltip title={order._id} arrow>
-                          {order._id.slice(0, 9) + ".."}
-                        </Tooltip>
-                      </Typography>
-                      {getStatusChip(order.status)}
-                    </Box>
-                  }
-                  secondary={
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 0.5,
-                      }}
-                    >
-                      <Typography
-                        variant="body2"
+                      <RestaurantIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={
+                      <Box
                         sx={{
                           display: "flex",
+                          justifyContent: "space-between",
                           alignItems: "center",
-                          color: "text.secondary",
-                          "& svg": { mr: 1, fontSize: 16, opacity: 0.8 },
+                          mb: 1,
                         }}
                       >
-                        <PersonIcon /> {order.user.firstName}{" "}
-                        {order.user.lastName}
-                      </Typography>
-                      <Typography
-                        variant="body2"
+                        <Typography
+                          variant="subtitle1"
+                          sx={{ fontWeight: 700, color: "#2d3436" }}
+                        >
+                          Order ID:{" "}
+                          <Tooltip title={order._id} arrow>
+                            {order._id.slice(0, 9) + ".."}
+                          </Tooltip>
+                        </Typography>
+                        {getStatusChip(order.status)}
+                      </Box>
+                    }
+                    secondary={
+                      <Box
                         sx={{
                           display: "flex",
-                          alignItems: "center",
-                          color: "text.secondary",
-                          "& svg": { mr: 1, fontSize: 16, opacity: 0.8 },
+                          flexDirection: "column",
+                          gap: 0.5,
                         }}
                       >
-                        <MonetizationOnIcon /> ₹{order.totalAmount.toFixed(2)}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          color: "text.secondary",
-                          "& svg": { mr: 1, fontSize: 16, opacity: 0.8 },
-                        }}
-                      >
-                        <AccessTimeIcon />{" "}
-                        {new Date(order.createdAt).toLocaleString()}
-                      </Typography>
-                    </Box>
-                  }
-                />
-              </ListItem>
-            ))}
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            color: "text.secondary",
+                            "& svg": { mr: 1, fontSize: 16, opacity: 0.8 },
+                          }}
+                        >
+                          <PersonIcon /> {order.user.firstName}{" "}
+                          {order.user.lastName}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            color: "text.secondary",
+                            "& svg": { mr: 1, fontSize: 16, opacity: 0.8 },
+                          }}
+                        >
+                          <MonetizationOnIcon /> ₹{order.totalAmount.toFixed(2)}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            color: "text.secondary",
+                            "& svg": { mr: 1, fontSize: 16, opacity: 0.8 },
+                          }}
+                        >
+                          <AccessTimeIcon />{" "}
+                          {new Date(order.createdAt).toLocaleString()}
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                </ListItem>
+              ))
+            )}
           </List>
         </Box>
       </Paper>

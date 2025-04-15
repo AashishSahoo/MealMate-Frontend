@@ -35,6 +35,7 @@ import SaleByMonth from "../../pages/restuarantowner/SaleByMonth";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import { BsGraphUp, BsCalendarMonth } from "react-icons/bs";
+import ProfilePage from "../../pages/restuarantowner/ProfilePage";
 
 const drawerWidth = 280;
 
@@ -149,22 +150,27 @@ export default function MiniDrawer() {
       icon: <FaHistory size={24} />,
       id: "Order History",
     },
+    // {
+    //   text: "Sales Analytics",
+    //   icon: <FaChartBar size={24} />,
+    //   id: "Sales",
+    //   subItems: [
+    //     {
+    //       text: "By Category",
+    //       icon: <BsGraphUp size={20} />,
+    //       id: "SalesByCategory",
+    //     },
+    //     {
+    //       text: "By Month",
+    //       icon: <BsCalendarMonth size={20} />,
+    //       id: "SalesByMonth",
+    //     },
+    //   ],
+    // },
     {
       text: "Sales Analytics",
       icon: <FaChartBar size={24} />,
-      id: "Sales",
-      subItems: [
-        {
-          text: "By Category",
-          icon: <BsGraphUp size={20} />,
-          id: "SalesByCategory",
-        },
-        {
-          text: "By Month",
-          icon: <BsCalendarMonth size={20} />,
-          id: "SalesByMonth",
-        },
-      ],
+      id: "SalesByMonth",
     },
   ];
 
@@ -217,10 +223,18 @@ export default function MiniDrawer() {
           </Box>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Badge badgeContent={4} color="error">
+            {/* <Badge badgeContent={4} color="error">
               <NotificationsIcon />
-            </Badge>
-            <Avatar sx={{ bgcolor: "#64b5f6" }}>
+            </Badge> */}
+            <Avatar
+              sx={{
+                bgcolor: "#64b5f6",
+                cursor: "pointer", // Add pointer cursor
+                transition: "transform 0.2s",
+                "&:hover": { transform: "scale(1.1)" },
+              }}
+              onClick={() => setMenuData("Profile")} // Add this
+            >
               <AccountCircleIcon />
             </Avatar>
           </Box>
@@ -258,11 +272,7 @@ export default function MiniDrawer() {
                     ...menuItemStyle,
                   }}
                   onClick={() => {
-                    if (item.subItems) {
-                      handleSalesClick();
-                    } else {
-                      setMenuData(item.id);
-                    }
+                    setMenuData(item.id);
                   }}
                   selected={!item.subItems && menuData === item.id}
                 >
@@ -291,43 +301,6 @@ export default function MiniDrawer() {
                     (salesOpen ? <ExpandLess /> : <ExpandMore />)}
                 </ListItemButton>
               </ListItem>
-              {item.subItems && (
-                <Collapse in={salesOpen && open} timeout="auto" unmountOnExit>
-                  <List component="div" disablePadding>
-                    {item.subItems.map((subItem) => (
-                      <ListItemButton
-                        key={subItem.text}
-                        sx={{
-                          pl: 4,
-                          ...menuItemStyle,
-                        }}
-                        onClick={() => setMenuData(subItem.id)}
-                        selected={menuData === subItem.id}
-                      >
-                        <ListItemIcon
-                          sx={{
-                            minWidth: 0,
-                            mr: 3,
-                            color:
-                              menuData === subItem.id ? "#64b5f6" : "#ffffff",
-                          }}
-                        >
-                          {subItem.icon}
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={subItem.text}
-                          sx={{
-                            "& .MuiTypography-root": {
-                              fontWeight: 500,
-                              fontSize: "0.9rem",
-                            },
-                          }}
-                        />
-                      </ListItemButton>
-                    ))}
-                  </List>
-                </Collapse>
-              )}
             </React.Fragment>
           ))}
         </List>
@@ -351,6 +324,7 @@ export default function MiniDrawer() {
         {menuData === "Order History" && <OrderHistory />}
         {menuData === "SalesByCategory" && <SalesByCategoryChart />}
         {menuData === "SalesByMonth" && <SaleByMonth />}
+        {menuData === "Profile" && <ProfilePage />}
       </Box>
     </Box>
   );

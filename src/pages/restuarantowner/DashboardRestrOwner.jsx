@@ -23,13 +23,17 @@ import TableBookingsList from "../../component/restuarantowner/TableBookingList"
 import SalesRadarChart from "../../component/restuarantowner/SalesRadarChart";
 import TimelineIcon from "@mui/icons-material/Timeline";
 import axios from "axios";
+import { CardSkeleton } from "../../component/CardSkeleton";
+import { Skeleton } from "@mui/material";
 
 const DashboardRestrOwner = () => {
   const [orders, setOrders] = useState([]);
+  const [tableBookings, setTableBookings] = useState([]);
 
   const userInfo = JSON.parse(localStorage.getItem("userInfo")) || {};
   const email = userInfo.email || null;
   const token = userInfo.token || null;
+  const userId = userInfo.userId || null;
 
   const initialFilters = {
     totalOrders: "Last Month",
@@ -85,22 +89,6 @@ const DashboardRestrOwner = () => {
     },
   ];
 
-  const fetchData = async (filter, key) => {
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/${key}?filter=${filter}`);
-      const result = await response.json();
-      setData((prevData) => ({
-        ...prevData,
-        [key]: result[key] || 0,
-      }));
-    } catch (error) {
-      console.error(`Error fetching data for ${key}:`, error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleMenuOpen = (event, key) => {
     setAnchorEls((prev) => ({ ...prev, [key]: event.currentTarget }));
   };
@@ -109,13 +97,24 @@ const DashboardRestrOwner = () => {
     setAnchorEls((prev) => ({ ...prev, [key]: null }));
   };
 
-  const handleFilterChange = (newFilter, key) => {
-    setFilters((prev) => ({ ...prev, [key]: newFilter }));
-    fetchData(newFilter, key);
-    handleMenuClose(key);
+  const fetchTableBookings = async () => {
+    console.log("userID : ", userId);
+    try {
+      const response = await axios.get(
+        `/api/tables/get-all-bookings-restuarant/${userId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response?.data?.resultCode === 0) {
+        setTableBookings(response?.data?.resultData);
+      }
+    } catch (error) {
+      console.log("Error fetching table bookings:", error);
+    }
   };
 
   const fetchAllDetails = async (req, res) => {
+    setLoading(true);
     try {
       const response = await axios.get(`api/orders/dashboardStat/${email}`, {
         headers: {
@@ -132,9 +131,13 @@ const DashboardRestrOwner = () => {
         data.totalOrders = resp.totalOrders;
 
         setSalesData(resp.salesByCategory);
+        await fetchAllIncomingOrders();
+        await fetchTableBookings();
       }
     } catch (error) {
       console.log("Error fetching all details:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -165,9 +168,7 @@ const DashboardRestrOwner = () => {
   };
 
   useEffect(() => {
-    Object.keys(initialFilters).forEach((key) => fetchData(filters[key], key));
-    fetchAllIncomingOrders();
-
+    // Object.keys(initialFilters).forEach((key) => fetchData(filters[key], key));
     fetchAllDetails();
   }, []);
 
@@ -275,16 +276,16 @@ const DashboardRestrOwner = () => {
                     }}
                   >
                     <MenuItem
-                      onClick={() =>
-                        handleFilterChange("Last Month", card.dataKey)
-                      }
+                    // onClick={() =>
+                    //   handleFilterChange("Last Month", card.dataKey)
+                    // }
                     >
                       Last Month
                     </MenuItem>
                     <MenuItem
-                      onClick={() =>
-                        handleFilterChange("Last Week", card.dataKey)
-                      }
+                    // onClick={() =>
+                    //   handleFilterChange("Last Week", card.dataKey)
+                    // }
                     >
                       Last Week
                     </MenuItem>
@@ -311,7 +312,11 @@ const DashboardRestrOwner = () => {
                     },
                   }}
                 >
-                  <IncomingOrdersList IncomingOrdersList={orders} />
+                  {loading ? (
+                    <CardSkeleton />
+                  ) : (
+                    <IncomingOrdersList IncomingOrdersList={orders} />
+                  )}
                 </Paper>
               </Grid>
               <Grid item xs={12} md={3}>
@@ -327,7 +332,11 @@ const DashboardRestrOwner = () => {
                     },
                   }}
                 >
-                  <TableBookingsList />
+                  {loading ? (
+                    <CardSkeleton />
+                  ) : (
+                    <TableBookingsList IncomingBookingList={tableBookings} />
+                  )}
                 </Paper>
               </Grid>
               <Grid item xs={12} md={6}>
@@ -343,7 +352,12 @@ const DashboardRestrOwner = () => {
                     },
                   }}
                 >
-                  <SalesRadarChart dataset={salesData} />
+                  {" "}
+                  {loading ? (
+                    <CardSkeleton />
+                  ) : (
+                    <SalesRadarChart dataset={salesData} />
+                  )}
                 </Paper>
               </Grid>
             </Grid>

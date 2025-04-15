@@ -1,5 +1,5 @@
-import React from "react";
-import { Box, Typography, Paper, Fade } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Box, Typography, Paper, Fade, Skeleton } from "@mui/material";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -11,6 +11,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import axios from "axios";
 
 ChartJS.register(
   CategoryScale,
@@ -23,6 +24,13 @@ ChartJS.register(
 );
 
 const SaleByMonth = () => {
+  const userInfo = JSON.parse(localStorage.getItem("userInfo")) || {};
+  const email = userInfo.email;
+  const token = userInfo.token;
+
+  const [chartData, setChartData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const months = [
     "Jan",
     "Feb",
@@ -37,51 +45,7 @@ const SaleByMonth = () => {
     "Nov",
     "Dec",
   ];
-
-  const generateRandomData = () => {
-    return months.map(() => Math.floor(Math.random() * 50000) + 10000);
-  };
-
-  const data = {
-    labels: months,
-    datasets: [
-      {
-        label: "Burgers",
-        data: generateRandomData(),
-        borderColor: "rgba(75, 192, 192, 1)",
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
-        tension: 0.4,
-      },
-      {
-        label: "Pizzas",
-        data: generateRandomData(),
-        borderColor: "rgba(255, 99, 132, 1)",
-        backgroundColor: "rgba(255, 99, 132, 0.2)",
-        tension: 0.4,
-      },
-      {
-        label: "Beverages",
-        data: generateRandomData(),
-        borderColor: "rgba(153, 102, 255, 1)",
-        backgroundColor: "rgba(153, 102, 255, 0.2)",
-        tension: 0.4,
-      },
-      {
-        label: "Desserts",
-        data: generateRandomData(),
-        borderColor: "rgba(255, 159, 64, 1)",
-        backgroundColor: "rgba(255, 159, 64, 0.2)",
-        tension: 0.4,
-      },
-      {
-        label: "Salads",
-        data: generateRandomData(),
-        borderColor: "rgba(54, 162, 235, 1)",
-        backgroundColor: "rgba(54, 162, 235, 0.2)",
-        tension: 0.4,
-      },
-    ],
-  };
+  const currentYear = new Date().getFullYear();
 
   const options = {
     responsive: true,
@@ -92,9 +56,7 @@ const SaleByMonth = () => {
     },
     scales: {
       x: {
-        grid: {
-          display: false,
-        },
+        grid: { display: false },
         ticks: {
           color: "#555",
           font: {
@@ -105,16 +67,14 @@ const SaleByMonth = () => {
         },
       },
       y: {
-        grid: {
-          display: false,
-        },
+        grid: { display: false },
         ticks: {
           color: "#555",
           font: {
             size: 12,
             family: "'Inter', sans-serif",
           },
-          callback: (value) => `$${value.toLocaleString()}`,
+          callback: (value) => `₹${value.toLocaleString()}`,
         },
       },
     },
@@ -153,13 +113,81 @@ const SaleByMonth = () => {
         borderWidth: 1,
         cornerRadius: 8,
         callbacks: {
-          label: (context) => {
-            return ` ${context.dataset.label}: $${context.raw.toLocaleString()}`;
-          },
+          label: (context) =>
+            ` ${context.dataset.label}: ₹${context.raw.toLocaleString()}`,
         },
       },
     },
   };
+
+  const fetchAllDetails = async () => {
+    try {
+      const response = await axios.get(
+        `/api/report/monthlyProductSales/${email}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response?.data?.resultCode === 0) {
+        const categorySalesArray = response.data.resultData.categorySalesArray;
+
+        // Initialize data structure
+        const categoryMap = {};
+
+        categorySalesArray.forEach((entry) => {
+          const entryDate = new Date(entry.latestTime);
+          const year = entryDate.getFullYear();
+
+          // Only consider current year
+          if (year !== currentYear) return;
+
+          const monthIndex = entryDate.getMonth(); // 0 - 11
+          const category = entry.category;
+
+          // Initialize category with zeroed array
+          if (!categoryMap[category]) {
+            categoryMap[category] = new Array(12).fill(0);
+          }
+
+          categoryMap[category][monthIndex] += entry.sales;
+        });
+
+        const colors = [
+          "rgba(75, 192, 192, 1)",
+          "rgba(255, 99, 132, 1)",
+          "rgba(153, 102, 255, 1)",
+          "rgba(255, 159, 64, 1)",
+          "rgba(54, 162, 235, 1)",
+          "rgba(255, 206, 86, 1)",
+        ];
+        const backgroundColors = colors.map((c) => c.replace("1)", "0.2)"));
+
+        const datasets = Object.keys(categoryMap).map((category, idx) => ({
+          label: category,
+          data: categoryMap[category],
+          borderColor: colors[idx % colors.length],
+          backgroundColor: backgroundColors[idx % colors.length],
+          tension: 0.4,
+        }));
+
+        setChartData({
+          labels: months,
+          datasets,
+        });
+      } else {
+        console.error("Failed to fetch report:", response.data.resultMessage);
+      }
+    } catch (error) {
+      console.log("Error fetching monthly report:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllDetails();
+  }, []);
 
   return (
     <Fade in={true} timeout={1000}>
@@ -181,31 +209,37 @@ const SaleByMonth = () => {
           },
         }}
       >
-        <Typography
-          variant="h5"
-          gutterBottom
-          sx={{
-            fontWeight: 700,
-            color: "#222",
-            mb: 3.5,
-            textAlign: "center",
-            fontFamily: "'Inter', sans-serif",
-            letterSpacing: "-0.5px",
-            textShadow: "1px 1px 1px rgba(0,0,0,0.05)",
-          }}
-        >
-          Monthly Sales by Product
-        </Typography>
+        {loading ? (
+          <Skeleton variant="rectangular" height={400} animation="wave" />
+        ) : (
+          <>
+            <Typography
+              variant="h5"
+              gutterBottom
+              sx={{
+                fontWeight: 700,
+                color: "#222",
+                mb: 3.5,
+                textAlign: "center",
+                fontFamily: "'Inter', sans-serif",
+                letterSpacing: "-0.5px",
+                textShadow: "1px 1px 1px rgba(0,0,0,0.05)",
+              }}
+            >
+              Monthly Sales by Product
+            </Typography>
 
-        <Box
-          sx={{
-            height: "350px",
-            position: "relative",
-            filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.05))",
-          }}
-        >
-          <Line data={data} options={options} />
-        </Box>
+            <Box
+              sx={{
+                height: "350px",
+                position: "relative",
+                filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.05))",
+              }}
+            >
+              <Line data={chartData} options={options} />
+            </Box>
+          </>
+        )}
       </Paper>
     </Fade>
   );

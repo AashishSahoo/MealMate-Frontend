@@ -82,7 +82,7 @@ function TableBookingManagement() {
   // Extract fields from userInfo
   const email = userInfo.email;
   const token = userInfo.token;
-  const user = userInfo.user;
+  const userId = userInfo.userId;
 
   const [selectedDate, setSelectedDate] = useState(formatDate(new Date())); // store as string
   const [activeTab, setActiveTab] = useState(0);
@@ -113,6 +113,7 @@ function TableBookingManagement() {
   const [tableToDelete, setTableToDelete] = useState("");
   const [openSuccessDialogForDelete, setOpenSuccessDialogForDelete] =
     useState(false);
+  const [tableBookings, setTableBookings] = useState([]);
 
   // const { token, email } = useSelector((state) => state.auth);
 
@@ -286,6 +287,22 @@ function TableBookingManagement() {
     setLimitDialogOpen(false);
   };
 
+  const fetchTableBookings = async () => {
+    console.log("userID : ", userId);
+    try {
+      const response = await axios.get(
+        `/api/tables/get-all-bookings-restuarant/${userId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response?.data?.resultCode === 0) {
+        setTableBookings(response?.data?.resultData);
+      }
+    } catch (error) {
+      console.log("Error fetching table bookings:", error);
+    }
+  };
+
   const handleDuplicateDialogClose = () => {
     setDuplicateDialogOpen(false);
   };
@@ -298,10 +315,13 @@ function TableBookingManagement() {
   const fetchAllBookings = async () => {
     try {
       console.log("Fetching bookings...");
-      const response = await axios.get(`/api/tables/get-all-bookings`, {
-        headers: { Authorization: `Bearer ${token}` },
-        params: { email: email }, // Pass the user's email as a query parameter
-      });
+      const response = await axios.get(
+        `/api/tables/get-all-bookings-restuarant/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { email: email }, // Pass the user's email as a query parameter
+        }
+      );
 
       if (response?.data?.resultCode === 0) {
         const bookings = response?.data?.resultData;
@@ -743,7 +763,10 @@ function TableBookingManagement() {
                                         bgcolor:
                                           table.status === "available"
                                             ? "#4caf50"
-                                            : "#f44336",
+                                            : table.status === "booked"
+                                              ? "#DF1717"
+                                              : "#525150",
+
                                         textAlign: "center",
                                       }}
                                     >
@@ -798,6 +821,9 @@ function TableBookingManagement() {
                         Customer Name
                       </TableCell>
                       <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                        Mobile No
+                      </TableCell>
+                      <TableCell sx={{ color: "white", fontWeight: 600 }}>
                         Time Slot
                       </TableCell>
                       <TableCell sx={{ color: "white", fontWeight: 600 }}>
@@ -822,7 +848,11 @@ function TableBookingManagement() {
                           <TableCell>{row._id}</TableCell>
                           <TableCell>{row.tableNumber}</TableCell>
                           <TableCell>{row.capacity}</TableCell>
-                          <TableCell>{row.customerName}</TableCell>
+                          <TableCell>
+                            {row.bookedBy.firstName} {row.bookedBy.lastName}
+                          </TableCell>
+                          <TableCell>{row.bookedBy.mobileNo}</TableCell>
+
                           <TableCell>{row.timeslot}</TableCell>
                           <TableCell>
                             {new Date(row.bookedAt).toLocaleDateString()}
