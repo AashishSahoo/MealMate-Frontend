@@ -21,6 +21,8 @@ import Groups3Icon from "@mui/icons-material/Groups3";
 import Groups2Icon from "@mui/icons-material/Groups2";
 import GroupsIcon from "@mui/icons-material/Groups";
 import CategoryIcon from "@mui/icons-material/Category";
+import Skeleton from "@mui/material/Skeleton";
+
 const StatCard = ({
   title,
   color,
@@ -104,13 +106,14 @@ const DashboardAdmin = () => {
   const [filter, setFilter] = useState("Last Month");
   const [data, setData] = useState({ totalUsers: 0, filter: "Last Month" });
   const [loading, setLoading] = useState(true);
+  const [skeletonLoader, setSkeletonLoader] = useState(true);
   const [userCount, setUserCount] = useState(0);
   const [restroOwnerCount, setRestroOwnerCount] = useState(0);
   const { token } = useSelector((state) => state.auth);
   const [monthlyOrders, setMonthlOrders] = useState([]);
   const [topRestro, setTopRestro] = useState([]);
   const [topItems, setTopItems] = useState([]);
-  const [categoryCount, setCategoryCount] = useState("");
+  const [categoryCount, setCategoryCount] = useState(0);
 
   const open = Boolean(anchorEl);
 
@@ -163,6 +166,8 @@ const DashboardAdmin = () => {
       }
     } catch (error) {
       console.log("Error getting stats for admin :", error);
+    } finally {
+      setSkeletonLoader(false);
     }
   };
 
@@ -199,64 +204,132 @@ const DashboardAdmin = () => {
     <>
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Total Customer"
-            color="linear-gradient(135deg, #6B73FF 0%, #000DFF 100%)"
-            // data={userCount}
-            data={{ totalUsers: userCount }}
-            loading={loading}
-            filter={filter}
-            handleMenuOpen={handleMenuOpen}
-            icon={Groups3Icon}
-          />
+          {skeletonLoader ? (
+            <Card sx={{ height: 150 }}>
+              <Skeleton
+                sx={{ bgcolor: "#6B73FF" }}
+                variant="rectangular"
+                width="100%"
+                height="100%"
+              />
+            </Card>
+          ) : (
+            <StatCard
+              title="Total Customer"
+              color="linear-gradient(135deg, #6B73FF 0%, #000DFF 100%)"
+              // data={userCount}
+              data={{ totalUsers: userCount }}
+              loading={loading}
+              filter={filter}
+              handleMenuOpen={handleMenuOpen}
+              icon={Groups3Icon}
+            />
+          )}
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Total Restaurant Owner"
-            color="linear-gradient(135deg, #FF6B6B 0%, #FF0000 100%)"
-            data={{ totalUsers: restroOwnerCount }}
-            loading={loading}
-            filter={filter}
-            handleMenuOpen={handleMenuOpen}
-            icon={Groups2Icon}
-          />
+          {skeletonLoader ? (
+            <Card sx={{ height: 150 }}>
+              <Skeleton
+                sx={{ bgcolor: "#FF6B6B" }}
+                variant="rectangular"
+                width="100%"
+                height="100%"
+              />
+            </Card>
+          ) : (
+            <StatCard
+              title="Total Restaurant Owner"
+              color="linear-gradient(135deg, #FF6B6B 0%, #FF0000 100%)"
+              data={{ totalUsers: restroOwnerCount }}
+              loading={loading}
+              filter={filter}
+              handleMenuOpen={handleMenuOpen}
+              icon={Groups2Icon}
+            />
+          )}
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Total Categories"
-            color="linear-gradient(135deg, #36D1DC 0%, #5B86E5 100%)"
-            data={{ totalUsers: categoryCount }}
-            loading={loading}
-            filter={filter}
-            handleMenuOpen={handleMenuOpen}
-            icon={CategoryIcon}
-          />
+          {skeletonLoader ? (
+            <Card sx={{ height: 150 }}>
+              <Skeleton
+                sx={{ bgcolor: "#36D1DC" }}
+                variant="rectangular"
+                width="100%"
+                height="100%"
+              />
+            </Card>
+          ) : (
+            <StatCard
+              title="Total Categories"
+              color="linear-gradient(135deg, #36D1DC 0%, #5B86E5 100%)"
+              data={{ totalUsers: categoryCount }}
+              loading={loading}
+              filter={filter}
+              handleMenuOpen={handleMenuOpen}
+              icon={CategoryIcon}
+            />
+          )}
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Total Users"
-            color="linear-gradient(135deg, #11998e 0%, #38ef7d 100%)"
-            data={{ totalUsers: userCount + restroOwnerCount }}
-            loading={loading}
-            filter={filter}
-            handleMenuOpen={handleMenuOpen}
-            icon={GroupsIcon}
-          />
+          {skeletonLoader ? (
+            <Card sx={{ height: 150 }}>
+              <Skeleton
+                sx={{ bgcolor: "#38ef7d" }}
+                variant="rectangular"
+                width="100%"
+                height="100%"
+              />
+            </Card>
+          ) : (
+            <StatCard
+              title="Total Users"
+              color="linear-gradient(135deg, #11998e 0%, #38ef7d 100%)"
+              data={{ totalUsers: userCount + restroOwnerCount }}
+              loading={loading}
+              filter={filter}
+              handleMenuOpen={handleMenuOpen}
+              icon={GroupsIcon}
+            />
+          )}
         </Grid>
       </Grid>
 
       <Grid container spacing={3} sx={{ padding: 3 }}>
         <Grid item xs={12} md={5}>
-          <OrdersGraph
-            orderHistory={monthlyOrders}
-            style={{ flexGrow: 1, height: "100%", width: "100%" }}
-          />
+          {skeletonLoader ? (
+            <Skeleton
+              sx={{ bgcolor: "rgba(153, 102, 255, 1)" }}
+              variant="rectangular"
+              height="500px"
+            />
+          ) : (
+            <OrdersGraph
+              orderHistory={monthlyOrders}
+              style={{ flexGrow: 1, height: "100%", width: "100%" }}
+            />
+          )}
         </Grid>
         <Grid item xs={12} md={4}>
-          <TopRestaurantOwnersChart trendingRestro={topRestro} />
+          {skeletonLoader ? (
+            <Skeleton
+              sx={{ bgcolor: "rgba(255, 206, 86, 1)" }}
+              variant="rectangular"
+              height="500px"
+            />
+          ) : (
+            <TopRestaurantOwnersChart trendingRestro={topRestro} />
+          )}
         </Grid>
         <Grid item xs={12} md={3}>
-          <TrendingFoodItem trendingItems={topItems} />
+          {skeletonLoader ? (
+            <Skeleton
+              sx={{ bgcolor: "#2E7D32" }}
+              variant="rectangular"
+              height="500px"
+            />
+          ) : (
+            <TrendingFoodItem trendingItems={topItems} />
+          )}
         </Grid>
       </Grid>
     </>

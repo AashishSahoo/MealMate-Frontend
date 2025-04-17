@@ -40,6 +40,7 @@ import UsersOrderHistory from "../../pages/admin/UsersOrderHistory";
 import Category from "../../pages/admin/Category";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { useNavigate } from "react-router-dom";
+import OrderHeatmap from "../../pages/admin/OrderHeatmap";
 
 const drawerWidth = 280;
 
@@ -150,22 +151,27 @@ export default function MiniDrawer() {
     { text: "UserList", icon: <ListAltIcon />, id: "UserList" },
     { text: "RestroOwnerList", icon: <ListAltIcon />, id: "RestroOwnerList" },
     { text: "Category", icon: <CategoryIcon />, id: "Category" },
+    // {
+    //   text: "Reports",
+    //   icon: <AssessmentIcon />,
+    //   id: "Reports",
+    //   subItems: [
+    //     {
+    //       text: "Users OrderHistory",
+    //       icon: <SsidChartIcon />,
+    //       id: "Users OrderHistory",
+    //     },
+    //     {
+    //       text: "Restraunt Owner Report",
+    //       icon: <AlignVerticalBottomIcon />,
+    //       id: "Restraunt Owner Report",
+    //     },
+    //   ],
+    // },
     {
       text: "Reports",
       icon: <AssessmentIcon />,
       id: "Reports",
-      subItems: [
-        {
-          text: "Users OrderHistory",
-          icon: <SsidChartIcon />,
-          id: "Users OrderHistory",
-        },
-        {
-          text: "Restraunt Owner Report",
-          icon: <AlignVerticalBottomIcon />,
-          id: "Restraunt Owner Report",
-        },
-      ],
     },
     // { text: "Logout", icon: <ExitToAppIcon />, id: "Logout" },
   ];
@@ -292,43 +298,6 @@ export default function MiniDrawer() {
                     (reportOpen ? <ExpandLess /> : <ExpandMore />)}
                 </ListItemButton>
               </ListItem>
-              {item.subItems && (
-                <Collapse in={reportOpen && open} timeout="auto" unmountOnExit>
-                  <List component="div" disablePadding>
-                    {item.subItems.map((subItem) => (
-                      <ListItemButton
-                        key={subItem.text}
-                        sx={{
-                          pl: 4,
-                          ...menuItemStyle,
-                        }}
-                        onClick={() => setMenuData(subItem.id)}
-                        selected={menuData === subItem.id}
-                      >
-                        <ListItemIcon
-                          sx={{
-                            minWidth: 0,
-                            mr: 3,
-                            color:
-                              menuData === subItem.id ? "#95A5A6" : "#ffffff",
-                          }}
-                        >
-                          {subItem.icon}
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={subItem.text}
-                          sx={{
-                            "& .MuiTypography-root": {
-                              fontWeight: 500,
-                              fontSize: "0.9rem",
-                            },
-                          }}
-                        />
-                      </ListItemButton>
-                    ))}
-                  </List>
-                </Collapse>
-              )}
             </React.Fragment>
           ))}
         </List>
@@ -384,8 +353,8 @@ export default function MiniDrawer() {
         {menuData === "Onboard" && <Onboard />}
         {menuData === "UserList" && <UserList />}
         {menuData === "RestroOwnerList" && <RestroOwnerList />}
-        {menuData === "Users OrderHistory" && <UsersOrderHistory />}
-        {menuData === "Restraunt Owner Report" && <RestrauntOwnerReport />}
+        {menuData === "Reports" && <OrderHeatmap />}
+        {/* {menuData === "Restraunt Owner Report" && <RestrauntOwnerReport />} */}
         {menuData === "Category" && <Category />}
       </Box>
     </Box>
