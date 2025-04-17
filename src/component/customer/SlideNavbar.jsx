@@ -36,6 +36,9 @@ import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import { Add } from "@mui/icons-material";
 import Payment from "../../pages/customer/Payment";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
+import { useNavigate } from "react-router-dom";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
@@ -120,6 +123,12 @@ export default function MiniDrawer() {
   const theme = useTheme();
   const [open, setOpen] = useState(true);
   const [menuData, setMenuData] = useState("Dashboard");
+
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate(`/login`);
+  };
 
   const menuItems = [
     { text: "Dashboard", icon: <HomeIcon />, id: "Dashboard" },
@@ -254,6 +263,40 @@ export default function MiniDrawer() {
             </ListItem>
           ))}
         </List>
+        <Box sx={{ marginTop: "auto" }}>
+          <ListItem disablePadding>
+            <ListItemButton
+              sx={{
+                minHeight: 48,
+                px: 2.5,
+                justifyContent: open ? "initial" : "center",
+                ...menuItemStyle,
+              }}
+              onClick={() => handleLogout()}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: open ? 3 : "auto",
+                  justifyContent: "center",
+                  color: "#ffffff",
+                }}
+              >
+                <ExitToAppIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Logout"
+                sx={{
+                  opacity: open ? 1 : 0,
+                  "& .MuiTypography-root": {
+                    fontWeight: 500,
+                    fontSize: "0.95rem",
+                  },
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+        </Box>
       </Drawer>
 
       <Box

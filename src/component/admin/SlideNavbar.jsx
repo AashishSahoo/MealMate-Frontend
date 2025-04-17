@@ -39,6 +39,7 @@ import RestrauntOwnerReport from "../../pages/admin/RestrauntOwnerReport";
 import UsersOrderHistory from "../../pages/admin/UsersOrderHistory";
 import Category from "../../pages/admin/Category";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import { useNavigate } from "react-router-dom";
 
 const drawerWidth = 280;
 
@@ -133,6 +134,13 @@ export default function MiniDrawer() {
 
   const handleReportClick = () => {
     setReportOpen(!reportOpen);
+  };
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate(`/login`);
   };
 
   const menuItems = [
@@ -333,7 +341,7 @@ export default function MiniDrawer() {
                 justifyContent: open ? "initial" : "center",
                 ...menuItemStyle,
               }}
-              onClick={() => console.log("Logout Clicked")}
+              onClick={() => handleLogout()}
             >
               <ListItemIcon
                 sx={{

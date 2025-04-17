@@ -36,6 +36,9 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import { BsGraphUp, BsCalendarMonth } from "react-icons/bs";
 import ProfilePage from "../../pages/restuarantowner/ProfilePage";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+
+import { useNavigate } from "react-router-dom";
 
 const drawerWidth = 280;
 
@@ -127,9 +130,10 @@ export default function MiniDrawer() {
   const [open, setOpen] = useState(true);
   const [menuData, setMenuData] = useState("Home");
   const [salesOpen, setSalesOpen] = useState(false);
-
-  const handleSalesClick = () => {
-    setSalesOpen(!salesOpen);
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate(`/login`);
   };
 
   const menuItems = [
@@ -304,6 +308,40 @@ export default function MiniDrawer() {
             </React.Fragment>
           ))}
         </List>
+        <Box sx={{ marginTop: "auto" }}>
+          <ListItem disablePadding>
+            <ListItemButton
+              sx={{
+                minHeight: 48,
+                px: 2.5,
+                justifyContent: open ? "initial" : "center",
+                ...menuItemStyle,
+              }}
+              onClick={() => handleLogout()}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: open ? 3 : "auto",
+                  justifyContent: "center",
+                  color: "#ffffff",
+                }}
+              >
+                <ExitToAppIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Logout"
+                sx={{
+                  opacity: open ? 1 : 0,
+                  "& .MuiTypography-root": {
+                    fontWeight: 500,
+                    fontSize: "0.95rem",
+                  },
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+        </Box>
       </Drawer>
 
       <Box
