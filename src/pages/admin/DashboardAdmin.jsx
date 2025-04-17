@@ -107,10 +107,14 @@ const DashboardAdmin = () => {
   const [userCount, setUserCount] = useState(0);
   const [restroOwnerCount, setRestroOwnerCount] = useState(0);
   const { token } = useSelector((state) => state.auth);
+  const [monthlyOrders, setMonthlOrders] = useState([]);
+  const [topRestro, setTopRestro] = useState([]);
+  const [topItems, setTopItems] = useState([]);
+  const [categoryCount, setCategoryCount] = useState("");
 
   const open = Boolean(anchorEl);
 
-  const fetchUserCount = async (req, res) => {
+  const fetchUserCount = async () => {
     try {
       const response = await axios.get(`/api/users/customers`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -120,9 +124,6 @@ const DashboardAdmin = () => {
         const count = response?.data?.resultData;
         // setUserCount(count.length);
         setUserCount(response.data.resultData.length);
-        console.log("User count:", response.data.resultData.length); // Debugging
-
-        // console.log(response, "user data");
       }
     } catch (error) {
       console.log("error fetching  user list");
@@ -131,7 +132,7 @@ const DashboardAdmin = () => {
     }
   };
 
-  const fetchRestroOwnerCount = async (req, res) => {
+  const fetchRestroOwnerCount = async () => {
     try {
       const response = await axios.get(`/api/users/restaurant-owners`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -147,9 +148,43 @@ const DashboardAdmin = () => {
     }
   };
 
+  const fetchAllAnalysisStats = async () => {
+    try {
+      const response = await axios.get(`/api/orders/dashboard-overview`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response?.data?.resultCode === 0) {
+        const data = response?.data?.resultData;
+
+        setMonthlOrders(data.monthlyOrders);
+        setTopItems(data.topSellingItems);
+        setTopRestro(data.topRestaurants);
+      }
+    } catch (error) {
+      console.log("Error getting stats for admin :", error);
+    }
+  };
+
+  const fetchCategoryList = async (req, res) => {
+    try {
+      const response = await axios.get(`/api/categories`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response?.data?.resultCode === 0) {
+        setCategoryCount(response?.data?.resultData.length);
+      }
+    } catch (error) {
+      console.log("Error fetching Category List : ", error);
+    }
+  };
+
   useEffect(() => {
     fetchUserCount();
     fetchRestroOwnerCount();
+    fetchAllAnalysisStats();
+    fetchCategoryList();
   }, []);
 
   const handleMenuOpen = (event) => {
@@ -190,7 +225,7 @@ const DashboardAdmin = () => {
           <StatCard
             title="Total Categories"
             color="linear-gradient(135deg, #36D1DC 0%, #5B86E5 100%)"
-            data={data}
+            data={{ totalUsers: categoryCount }}
             loading={loading}
             filter={filter}
             handleMenuOpen={handleMenuOpen}
@@ -212,13 +247,16 @@ const DashboardAdmin = () => {
 
       <Grid container spacing={3} sx={{ padding: 3 }}>
         <Grid item xs={12} md={5}>
-          <OrdersGraph style={{ flexGrow: 1, height: "100%", width: "100%" }} />
+          <OrdersGraph
+            orderHistory={monthlyOrders}
+            style={{ flexGrow: 1, height: "100%", width: "100%" }}
+          />
         </Grid>
         <Grid item xs={12} md={4}>
-          <TopRestaurantOwnersChart />
+          <TopRestaurantOwnersChart trendingRestro={topRestro} />
         </Grid>
         <Grid item xs={12} md={3}>
-          <TrendingFoodItem />
+          <TrendingFoodItem trendingItems={topItems} />
         </Grid>
       </Grid>
     </>

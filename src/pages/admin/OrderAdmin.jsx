@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Paper,
@@ -17,10 +17,11 @@ import {
   FormControl,
   InputLabel,
   Fade,
+  Skeleton,
 } from "@mui/material";
 import breakfast from "../../assets/breakfast.png";
+import axios from "axios";
 
-// Table column definitions
 const columns = [
   { id: "userName", label: "Username", minWidth: 150 },
   { id: "userId", label: "User ID", minWidth: 100 },
@@ -30,73 +31,17 @@ const columns = [
   { id: "date", label: "Date of Order", minWidth: 150 },
 ];
 
-// Mock order data
-function createOrderData(
-  userName,
-  userId,
-  orderId,
-  price,
-  items,
-  categories,
-  restaurant,
-  status,
-  date
-) {
-  return {
-    userName,
-    userId,
-    orderId,
-    price,
-    items,
-    categories,
-    restaurant,
-    status,
-    date,
-  };
-}
-
-const orders = [
-  createOrderData(
-    "John Doe",
-    "U001",
-    "O101",
-    "$45.99",
-    ["Pizza", "Burger", "Fries"],
-    ["Food", "Beverage"],
-    "Pizza Palace",
-    "Delivered",
-    "2024-11-28"
-  ),
-  createOrderData(
-    "Jane Smith",
-    "U002",
-    "O102",
-    "$25.50",
-    ["Sushi", "Miso Soup"],
-    ["Food"],
-    "Sushi Haven",
-    "Pending",
-    "2024-11-29"
-  ),
-  createOrderData(
-    "Emily Clark",
-    "U003",
-    "O103",
-    "$30.00",
-    ["Cappuccino", "Croissant"],
-    ["Beverage", "Bakery"],
-    "Cafe Delight",
-    "Preparing",
-    "2024-11-30"
-  ),
-];
-
 export default function OrderHistoryTable() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [expanded, setExpanded] = useState({});
+  const [expandedOrderId, setExpandedOrderId] = useState(null);
   const [filterRestaurant, setFilterRestaurant] = useState("");
-  const [filterCategory, setFilterCategory] = useState("");
+  const [allOrders, setAllOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const userInfo = JSON.parse(localStorage.getItem("userInfo")) || {};
+  const token = userInfo.token;
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -107,38 +52,58 @@ export default function OrderHistoryTable() {
     setPage(0);
   };
 
-  const handleRowClick = (index) => {
-    setExpanded((prevState) => ({ ...prevState, [index]: !prevState[index] }));
+  const handleRowClick = (orderId) => {
+    setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
   };
 
   const handleFilterRestaurantChange = (event) => {
     setFilterRestaurant(event.target.value);
   };
 
-  const handleFilterCategoryChange = (event) => {
-    setFilterCategory(event.target.value);
-  };
-
-  const filteredOrders = orders.filter((order) => {
-    const matchesRestaurant =
-      !filterRestaurant || order.restaurant === filterRestaurant;
-    const matchesCategory =
-      !filterCategory || order.categories.includes(filterCategory);
-    return matchesRestaurant && matchesCategory;
-  });
-
   const getStatusColor = (status) => {
     switch (status) {
-      case "Delivered":
+      case "completed":
         return "#1976d2";
-      case "Pending":
+      case "processing":
         return "#ed6c02";
-      case "Preparing":
-        return "#2e7d32";
+      case "cancelled":
+        return "#E31D1A";
       default:
         return "#1976d2";
     }
   };
+
+  const fetchAllOrders = async () => {
+    try {
+      const response = await axios.get(`/api/orders/getAllOrders`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response?.data?.resultCode === 0) {
+        setAllOrders(response?.data?.resultData);
+        setFilteredOrders(response?.data?.resultData);
+      }
+    } catch (error) {
+      console.log("Error fetching orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllOrders();
+  }, []);
+
+  useEffect(() => {
+    const filtered = allOrders.filter((order) => {
+      const matchesRestaurant =
+        !filterRestaurant ||
+        order.restaurant.restaurantName === filterRestaurant;
+      return matchesRestaurant;
+    });
+    setFilteredOrders(filtered);
+    setPage(0);
+  }, [filterRestaurant, allOrders]);
 
   return (
     <Fade in={true} timeout={800}>
@@ -148,7 +113,6 @@ export default function OrderHistoryTable() {
           width: "100%",
           padding: 4,
           borderRadius: 2,
-          backgroundColor: "#ffffff",
           boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
         }}
       >
@@ -156,80 +120,39 @@ export default function OrderHistoryTable() {
           sx={{
             marginBottom: 4,
             display: "flex",
-            flexDirection: "row",
             justifyContent: "space-between",
-            alignItems: "flex-start", // Align items to the top
+            alignItems: "flex-start",
           }}
         >
-          <Box display="flex" flexDirection="column" sx={{ flexGrow: 1 }}>
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 600,
-                color: "#000",
-                mb: 3,
-              }}
-            >
+          <Box sx={{ flexGrow: 1 }}>
+            <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }}>
               Order Management
             </Typography>
-            <Box sx={{ display: "flex", gap: 2, mb: 1 }}>
-              <FormControl sx={{ minWidth: 240 }} size="small">
-                <InputLabel>Restaurant</InputLabel>
-                <Select
-                  value={filterRestaurant}
-                  onChange={handleFilterRestaurantChange}
-                  label="Restaurant"
-                >
-                  <MenuItem value="">All Restaurants</MenuItem>
-                  {Array.from(
-                    new Set(orders.map((order) => order.restaurant))
-                  ).map((restaurant) => (
-                    <MenuItem key={restaurant} value={restaurant}>
-                      {restaurant}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <FormControl sx={{ minWidth: 240 }} size="small">
-                <InputLabel>Category</InputLabel>
-                <Select
-                  value={filterCategory}
-                  onChange={handleFilterCategoryChange}
-                  label="Category"
-                >
-                  <MenuItem value="">All Categories</MenuItem>
-                  {Array.from(
-                    new Set(orders.flatMap((order) => order.categories))
-                  ).map((category) => (
-                    <MenuItem key={category} value={category}>
-                      {category}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
+            <FormControl sx={{ minWidth: 240 }} size="small">
+              <InputLabel>Restaurant</InputLabel>
+              <Select
+                value={filterRestaurant}
+                onChange={handleFilterRestaurantChange}
+                label="Restaurant"
+              >
+                <MenuItem value="">All Restaurants</MenuItem>
+                {Array.from(
+                  new Set(
+                    allOrders.map((order) => order.restaurant.restaurantName)
+                  )
+                ).map((restaurant) => (
+                  <MenuItem key={restaurant} value={restaurant}>
+                    {restaurant}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Box>
-
-          {/* Image container with constrained height */}
-          <Box
-            sx={{
-              marginLeft: 0,
-              height: "100%", // Take parent height
-              display: "flex",
-              alignItems: "center", // Vertically center image
-            }}
-          >
-            <img
-              src={breakfast}
-              alt="header"
-              style={{
-                height: "7rem", // Fixed height matching header
-                width: "auto",
-                objectFit: "contain",
-              }}
-            />
-          </Box>
+          <img
+            src={breakfast}
+            alt="header"
+            style={{ height: "7rem", width: "auto" }}
+          />
         </Box>
 
         <TableContainer sx={{ maxHeight: 600 }}>
@@ -239,13 +162,7 @@ export default function OrderHistoryTable() {
                 {columns.map((column) => (
                   <TableCell
                     key={column.id}
-                    style={{
-                      minWidth: column.minWidth,
-                      backgroundColor: "#f5f5f5",
-                      color: "#000",
-                      fontWeight: 600,
-                      fontSize: "0.875rem",
-                    }}
+                    sx={{ backgroundColor: "#f5f5f5", fontWeight: 600 }}
                   >
                     {column.label}
                   </TableCell>
@@ -253,113 +170,118 @@ export default function OrderHistoryTable() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredOrders
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((order, index) => (
-                  <React.Fragment key={index}>
-                    <TableRow
-                      hover
-                      onClick={() => handleRowClick(index)}
-                      sx={{
-                        cursor: "pointer",
-                        "&:hover": {
-                          backgroundColor: "rgba(25, 118, 210, 0.04)",
-                        },
-                      }}
-                    >
-                      <TableCell sx={{ fontWeight: 500 }}>
-                        {order.userName}
+              {loading ? (
+                Array.from({ length: rowsPerPage }).map((_, index) => (
+                  <TableRow key={index}>
+                    {columns.map((column) => (
+                      <TableCell key={column.id}>
+                        <Skeleton variant="text" animation="wave" />
                       </TableCell>
-                      <TableCell>{order.userId}</TableCell>
-                      <TableCell>{order.orderId}</TableCell>
-                      <TableCell sx={{ fontWeight: 500 }}>
-                        {order.price}
-                      </TableCell>
-                      <TableCell>
-                        <Box
-                          sx={{
-                            backgroundColor: `${getStatusColor(order.status)}15`,
-                            color: getStatusColor(order.status),
-                            padding: "6px 16px",
-                            borderRadius: "20px",
-                            display: "inline-block",
-                            fontSize: "0.75rem",
-                            fontWeight: 600,
-                            letterSpacing: "0.5px",
-                          }}
-                        >
-                          {order.status}
-                        </Box>
-                      </TableCell>
-                      <TableCell>{order.date}</TableCell>
-                    </TableRow>
-
-                    <TableRow>
-                      <TableCell colSpan={6} sx={{ padding: 0 }}>
-                        <Collapse
-                          in={expanded[index]}
-                          timeout="auto"
-                          unmountOnExit
-                        >
+                    ))}
+                  </TableRow>
+                ))
+              ) : filteredOrders.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={columns.length} align="center">
+                    <Typography variant="body2" color="textSecondary">
+                      No data present
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredOrders
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((order) => (
+                    <React.Fragment key={order._id}>
+                      <TableRow
+                        hover
+                        onClick={() => handleRowClick(order._id)}
+                        sx={{ cursor: "pointer" }}
+                      >
+                        <TableCell>
+                          {order.user.firstName} {order.user.lastName}
+                        </TableCell>
+                        <TableCell>{order.user._id}</TableCell>
+                        <TableCell>{order._id}</TableCell>
+                        <TableCell sx={{ fontWeight: 500 }}>
+                          ₹{order.totalAmount.toFixed(2)}
+                        </TableCell>
+                        <TableCell>
                           <Box
                             sx={{
-                              margin: 2,
-                              padding: 3,
-                              backgroundColor: "#f8f9fa",
-                              borderRadius: 1,
-                              border: "1px solid #e0e0e0",
+                              backgroundColor: `${getStatusColor(order.status)}15`,
+                              color: getStatusColor(order.status),
+                              padding: "6px 16px",
+                              borderRadius: "20px",
+                              display: "inline-block",
+                              fontSize: "0.75rem",
+                              fontWeight: 600,
                             }}
                           >
-                            <Typography
-                              variant="subtitle1"
-                              sx={{ fontWeight: 600, color: "#000", mb: 2 }}
-                            >
-                              Order Details
-                            </Typography>
-                            <Box sx={{ display: "grid", gap: 2 }}>
-                              <Typography variant="body2">
-                                <span
-                                  style={{
-                                    fontWeight: 600,
-                                    marginRight: "8px",
-                                    color: "#B96B1A",
-                                  }}
-                                >
-                                  Items:
-                                </span>
-                                {order.items.join(", ")}
-                              </Typography>
-                              <Typography variant="body2">
-                                <span
-                                  style={{
-                                    fontWeight: 600,
-                                    marginRight: "8px",
-                                    color: "#B96B1A",
-                                  }}
-                                >
-                                  Categories:
-                                </span>
-                                {order.categories.join(", ")}
-                              </Typography>
-                              <Typography variant="body2">
-                                <span
-                                  style={{
-                                    fontWeight: 600,
-                                    marginRight: "8px",
-                                    color: "#B96B1A",
-                                  }}
-                                >
-                                  Restaurant:
-                                </span>
-                                {order.restaurant}
-                              </Typography>
-                            </Box>
+                            {order.status}
                           </Box>
-                        </Collapse>
-                      </TableCell>
-                    </TableRow>
-                  </React.Fragment>
-                ))}
+                        </TableCell>
+                        <TableCell>
+                          {new Date(order.createdAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }
+                          )}
+                        </TableCell>
+                      </TableRow>
+
+                      <TableRow>
+                        <TableCell colSpan={6} sx={{ padding: 0 }}>
+                          <Collapse in={expandedOrderId === order._id}>
+                            <Box
+                              sx={{
+                                margin: 2,
+                                padding: 3,
+                                backgroundColor: "#f8f9fa",
+                              }}
+                            >
+                              <Typography
+                                variant="subtitle1"
+                                sx={{ fontWeight: 600, mb: 2 }}
+                              >
+                                Order Details
+                              </Typography>
+                              <Box sx={{ display: "grid", gap: 2 }}>
+                                <Typography variant="body2">
+                                  <span
+                                    style={{
+                                      fontWeight: 600,
+                                      color: "#B96B1A",
+                                    }}
+                                  >
+                                    Items:
+                                  </span>{" "}
+                                  {order.items
+                                    .map((item) => item.food.name)
+                                    .join(", ")}
+                                </Typography>
+                                <Typography variant="body2">
+                                  <span
+                                    style={{
+                                      fontWeight: 600,
+                                      color: "#B96B1A",
+                                    }}
+                                  >
+                                    Restaurant:
+                                  </span>{" "}
+                                  {order.restaurant.restaurantName}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </Collapse>
+                        </TableCell>
+                      </TableRow>
+                    </React.Fragment>
+                  ))
+              )}
             </TableBody>
           </Table>
         </TableContainer>
@@ -372,10 +294,7 @@ export default function OrderHistoryTable() {
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
-          sx={{
-            borderTop: "1px solid #e0e0e0",
-            marginTop: 2,
-          }}
+          sx={{ borderTop: "1px solid #e0e0e0", mt: 2 }}
         />
       </Paper>
     </Fade>

@@ -9,64 +9,19 @@ import {
   ListItemAvatar,
   ListItemText,
   Avatar,
+  Tooltip,
   Divider,
   CircularProgress,
 } from "@mui/material";
 import FastfoodIcon from "@mui/icons-material/Fastfood";
 import RestaurantIcon from "@mui/icons-material/Restaurant";
 
-const TrendingFoodItem = () => {
-  const [trendingItems, setTrendingItems] = useState([]);
+const TrendingFoodItem = ({ trendingItems }) => {
+  // const [trendingItems, setTrendingItems] = useState([]);
+  console.log(trendingItems, "5items");
   const [displayedItems, setDisplayedItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const itemsPerPage = 4;
-
-  useEffect(() => {
-    const fetchTrendingItems = async () => {
-      try {
-        // Simulated data for a single restaurant's top items
-        const data = [
-          {
-            id: 1,
-            name: "Butter Chicken",
-            price: "₹350",
-            orderCount: 150,
-            imageUrl: "butter-chicken.jpg",
-          },
-
-          {
-            id: 3,
-            name: "Dal Makhani",
-            price: "₹220",
-            orderCount: 100,
-            imageUrl: "dal-makhani.jpg",
-          },
-          {
-            id: 4,
-            name: "Naan",
-            price: "₹40",
-            orderCount: 90,
-            imageUrl: "naan.jpg",
-          },
-          {
-            id: 5,
-            name: "Paneer Butter Masala",
-            price: "₹280",
-            orderCount: 85,
-            imageUrl: "paneer.jpg",
-          },
-        ];
-        setTrendingItems(data);
-        setDisplayedItems(data.slice(0, itemsPerPage));
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching trending items:", error);
-        setLoading(false);
-      }
-    };
-
-    fetchTrendingItems();
-  }, []);
 
   const handleScroll = (event) => {
     const { scrollTop, clientHeight, scrollHeight } = event.target;
@@ -100,7 +55,7 @@ const TrendingFoodItem = () => {
           sx={{
             fontWeight: 600,
             color: "#1B5E20",
-            mb: 2,
+            mb: 0,
             display: "flex",
             alignItems: "center",
             gap: 1,
@@ -109,7 +64,7 @@ const TrendingFoodItem = () => {
           <FastfoodIcon /> Top Selling Items
         </Typography>
 
-        {loading ? (
+        {trendingItems.length <= 0 ? (
           <Box
             sx={{
               display: "flex",
@@ -118,7 +73,8 @@ const TrendingFoodItem = () => {
               flex: 1,
             }}
           >
-            <CircularProgress sx={{ color: "#2E7D32" }} />
+            {/* <CircularProgress sx={{ color: "#2E7D32" }} /> */}
+            <Typography sx={{ color: "#2E7D32" }}>No data found</Typography>
           </Box>
         ) : (
           <List
@@ -143,8 +99,8 @@ const TrendingFoodItem = () => {
               },
             }}
           >
-            {displayedItems.map((item, index) => (
-              <React.Fragment key={item.id}>
+            {trendingItems.map((item, index) => (
+              <React.Fragment key={item.name}>
                 <ListItem
                   sx={{
                     transition: "all 0.3s ease",
@@ -167,32 +123,38 @@ const TrendingFoodItem = () => {
                   </ListItemAvatar>
                   <ListItemText
                     primary={
-                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                        {item.name}
-                      </Typography>
+                      <Tooltip title={item.name} arrow>
+                        <Typography
+                          variant="subtitle1"
+                          sx={{ fontWeight: 600 }}
+                          noWrap
+                        >
+                          {item.name}
+                        </Typography>
+                      </Tooltip>
                     }
                     secondary={
                       <Box
                         sx={{ display: "flex", alignItems: "center", gap: 1 }}
                       >
                         <Typography variant="body2" color="text.secondary">
-                          {item.price}
+                          ₹{item.price}
+                        </Typography>{" "}
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: "#2E7D32",
+                            fontWeight: 600,
+                            background: "rgba(46, 125, 50, 0.1)",
+                            padding: "4px 12px",
+                            borderRadius: "12px",
+                          }}
+                        >
+                          {item.totalSold} orders
                         </Typography>
                       </Box>
                     }
                   />
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: "#2E7D32",
-                      fontWeight: 600,
-                      background: "rgba(46, 125, 50, 0.1)",
-                      padding: "4px 12px",
-                      borderRadius: "12px",
-                    }}
-                  >
-                    {item.orderCount} orders
-                  </Typography>
                 </ListItem>
                 {index < displayedItems.length - 1 && (
                   <Divider variant="inset" component="li" />

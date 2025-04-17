@@ -28,10 +28,12 @@ const Login = () => {
 
   const [loading, setLoading] = useState(false); // Loading state
   const [formData, setFormData] = useState({
-    email: "ashishsahoo0013@gmail.com",
+    // email: "ashishsahoo0013@gmail.com",
+    email: "admin@gmail.com",
+
     password: "Pass@123",
-    roleType: "restro-owner",
-    // roleType: "admin",
+    // roleType: "restro-owner",
+    roleType: "admin",
     // roleType: "customer",
   }); // Fixed incorrect initialization of formData
   const navigate = useNavigate();
@@ -53,9 +55,9 @@ const Login = () => {
 
       if (response?.data?.resultCode === 0) {
         const data = response.data.resultData;
-        console.log(data.user.roleType, "user");
-        console.log(data.token, "token");
-        console.log(data.user.email, "email");
+        // console.log(data.user.roleType, "user");
+        // console.log(data.token, "token");
+        // console.log(data.user.email, "email");
 
         const userData = {
           user: data.user.roleType,
@@ -74,7 +76,6 @@ const Login = () => {
             userId: data.user.userId,
           })
         );
-        console.log("Login response:", data);
 
         const redirectTo =
           formData.roleType === "admin"
@@ -83,7 +84,6 @@ const Login = () => {
               ? "/resto-owner"
               : "/customer";
 
-        console.log(redirectTo);
         navigate(redirectTo);
 
         //   Swal.fire({
@@ -113,7 +113,7 @@ const Login = () => {
   };
 
   useEffect(() => {
-    console.log("Redux state after login:", authState);
+    // console.log("Redux state after login:", authState);
   }, [authState]);
 
   return (

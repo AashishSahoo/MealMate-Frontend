@@ -11,13 +11,22 @@ import {
 
 ChartJS.register(RadialLinearScale, ArcElement, Tooltip, Legend);
 
-const TopRestaurantOwnersChart = () => {
+const TopRestaurantOwnersChart = ({ trendingRestro }) => {
+  console.log(trendingRestro, "top restro");
+
+  const labelData = trendingRestro
+    .slice(0, 5)
+    .map((restro) => restro.restaurantName);
+  const valueData = trendingRestro
+    .slice(0, 5)
+    .map((restro) => restro.totalOrders);
+
   const chartData = {
-    labels: ["Owner B", "Owner C", "Owner D", "Owner E"],
+    labels: labelData,
     datasets: [
       {
         label: "Orders",
-        data: [120, 90, 50, 30],
+        data: valueData,
         backgroundColor: [
           "rgba(255, 99, 132, 0.6)",
           "rgba(54, 162, 235, 0.6)",
@@ -137,16 +146,26 @@ const TopRestaurantOwnersChart = () => {
         <Box
           sx={{
             height: "calc(100% - 80px)",
-            position: "relative",
-            filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.05))",
-            mt: 2, // Add margin top to the chart container
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            mt: 2,
           }}
         >
-          <PolarArea
-            data={chartData}
-            options={chartOptions}
-            // sx={{ mt: "1rem" }}
-          />
+          {trendingRestro.length > 0 ? (
+            <PolarArea data={chartData} options={chartOptions} />
+          ) : (
+            <Typography
+              variant="body1"
+              sx={{
+                color: "#888",
+                fontWeight: 500,
+                fontFamily: "'Inter', sans-serif",
+              }}
+            >
+              No data found
+            </Typography>
+          )}
         </Box>
       </Paper>
     </Fade>

@@ -22,7 +22,8 @@ ChartJS.register(
   Filler
 );
 
-const OrdersGraph = () => {
+const OrdersGraph = ({ orderHistory }) => {
+  // const labelData = orderHistory.map((order)=>{order.})
   const salesData = {
     labels: [
       "January",
@@ -41,7 +42,7 @@ const OrdersGraph = () => {
     datasets: [
       {
         label: "Orders",
-        data: [12, 19, 3, 5, 2, 3, 10, 15, 20, 18, 25, 30],
+        data: orderHistory,
         backgroundColor: "rgba(75, 192, 192, 0.2)",
         borderColor: "rgba(75, 192, 192, 1)",
         borderWidth: 2,
@@ -171,88 +172,30 @@ const OrdersGraph = () => {
               position: "relative",
               filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.05))",
               transition: "transform 0.3s ease-in-out",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               "&:hover": {
                 transform: "scale(1.02)",
               },
             }}
           >
-            <Line data={salesData} options={salesOptions} />
-          </Box>
-
-          {/* <Box
-            sx={{
-              flex: 1,
-              overflow: "hidden",
-              borderTop: "1px solid rgba(0,0,0,0.1)",
-              pt: 2,
-            }}
-          >
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 700,
-                color: "#222",
-                mb: 2,
-                fontFamily: "'Inter', sans-serif",
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-              }}
-            >
-              Recent Orders
-            </Typography>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <Paper
-                elevation={1}
+            {orderHistory.length === 0 ||
+            orderHistory.every((val) => val === 0) ? (
+              <Typography
+                variant="body1"
                 sx={{
-                  p: 2.5,
-                  borderRadius: 2,
-                  backgroundColor: "rgba(75, 192, 192, 0.05)",
-                  border: "1px solid rgba(75, 192, 192, 0.1)",
-                  transition: "all 0.3s ease",
-                  cursor: "pointer",
-                  "&:hover": {
-                    transform: "translateY(-2px)",
-                    backgroundColor: "rgba(75, 192, 192, 0.1)",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-                  },
+                  color: "#888",
+                  fontWeight: 500,
+                  fontFamily: "'Inter', sans-serif",
                 }}
               >
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    mb: 1,
-                  }}
-                >
-                  <Typography sx={{ fontWeight: 600, color: "#444" }}>
-                    Order #123
-                  </Typography>
-                  <Typography sx={{ color: "#666", fontSize: "0.9rem" }}>
-                    2 mins ago
-                  </Typography>
-                </Box>
-                <Typography sx={{ color: "#666" }}>
-                  2x Margherita Pizza, 1x Garlic Bread
-                </Typography>
-                <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
-                  <Typography
-                    sx={{
-                      fontSize: "0.8rem",
-                      bgcolor: "rgba(75, 192, 192, 0.2)",
-                      color: "rgb(75, 192, 192)",
-                      px: 1,
-                      py: 0.5,
-                      borderRadius: 1,
-                      fontWeight: 600,
-                    }}
-                  >
-                    Pending
-                  </Typography>
-                </Box>
-              </Paper>
-            </Box>
-          </Box> */}
+                No data found
+              </Typography>
+            ) : (
+              <Line data={salesData} options={salesOptions} />
+            )}
+          </Box>
         </Box>
       </Paper>
     </Fade>
