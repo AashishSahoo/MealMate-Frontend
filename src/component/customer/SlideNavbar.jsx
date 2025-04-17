@@ -38,6 +38,7 @@ import Payment from "../../pages/customer/Payment";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import { useNavigate } from "react-router-dom";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import ProfilePageCustomer from "../../pages/customer/ProfilePageCustomer";
 
 const drawerWidth = 240;
 
@@ -133,7 +134,7 @@ export default function MiniDrawer() {
   const menuItems = [
     { text: "Dashboard", icon: <HomeIcon />, id: "Dashboard" },
     { text: "Menu", icon: <RestaurantMenuIcon />, id: "Menu" },
-    { text: "Order Now", icon: <ShoppingCartIcon />, id: "ActiveOrder" },
+    // { text: "Order Now", icon: <ShoppingCartIcon />, id: "ActiveOrder" },
     { text: "Cart", icon: <AddShoppingCartIcon />, id: "Cart" },
 
     {
@@ -142,7 +143,7 @@ export default function MiniDrawer() {
       id: "Table Booking",
     },
     { text: "Order History", icon: <HistoryIcon />, id: "Order History" },
-    { text: "Payment", icon: <CreditScoreIcon />, id: "Payment" },
+    // { text: "Payment", icon: <CreditScoreIcon />, id: "Payment" },
   ];
 
   const menuItemStyle = {
@@ -194,10 +195,19 @@ export default function MiniDrawer() {
           </Box>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Badge badgeContent={4} color="error">
+            {/* <Badge badgeContent={4} color="error">
               <NotificationsIcon />
             </Badge>
-            <Avatar sx={{ bgcolor: "#E6E6FA" }}>
+             */}
+            <Avatar
+              sx={{
+                bgcolor: "#95A5A6",
+                cursor: "pointer",
+                transition: "transform 0.2s",
+                "&:hover": { transform: "scale(1.1)" },
+              }}
+              onClick={() => setMenuData("Profile")}
+            >
               <AccountCircleIcon />
             </Avatar>
           </Box>
@@ -312,11 +322,12 @@ export default function MiniDrawer() {
       >
         {menuData === "Dashboard" && <DashboardCustomer />}
         {menuData === "Menu" && <Menu />}
-        {menuData === "ActiveOrder" && <ActiveOrder />}
+        {/* {menuData === "ActiveOrder" && <ActiveOrder />} */}
         {menuData === "Cart" && <Cart />}
         {menuData === "Table Booking" && <TableBooking />}
         {menuData === "Order History" && <OrderHistory />}
-        {menuData === "Payment " && <Payment />}
+        {/* {menuData === "Payment " && <Payment />} */}
+        {menuData === "Profile" && <ProfilePageCustomer />}
       </Box>
     </Box>
   );

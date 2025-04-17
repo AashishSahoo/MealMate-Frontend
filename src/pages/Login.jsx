@@ -29,12 +29,12 @@ const Login = () => {
   const [loading, setLoading] = useState(false); // Loading state
   const [formData, setFormData] = useState({
     // email: "ashishsahoo0013@gmail.com",
-    email: "admin@gmail.com",
-
+    // email: "admin@gmail.com",
+    email: "mailtoashishsahoo@gmail.com",
     password: "Pass@123",
     // roleType: "restro-owner",
-    roleType: "admin",
-    // roleType: "customer",
+    // roleType: "admin",
+    roleType: "customer",
   }); // Fixed incorrect initialization of formData
   const navigate = useNavigate();
   const dispatch = useDispatch();

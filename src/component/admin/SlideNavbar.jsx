@@ -41,6 +41,7 @@ import Category from "../../pages/admin/Category";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { useNavigate } from "react-router-dom";
 import OrderHeatmap from "../../pages/admin/OrderHeatmap";
+import ProfilePage from "../../pages/admin/ProfilePageAdmin";
 
 const drawerWidth = 280;
 
@@ -225,10 +226,19 @@ export default function MiniDrawer() {
           </Box>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Badge badgeContent={4} color="error">
+            {/* <Badge badgeContent={4} color="error">
               <NotificationsIcon />
             </Badge>
-            <Avatar sx={{ bgcolor: "#95A5A6" }}>
+             */}
+            <Avatar
+              sx={{
+                bgcolor: "#95A5A6",
+                cursor: "pointer",
+                transition: "transform 0.2s",
+                "&:hover": { transform: "scale(1.1)" },
+              }}
+              onClick={() => setMenuData("Profile")}
+            >
               <AccountCircleIcon />
             </Avatar>
           </Box>
@@ -356,6 +366,7 @@ export default function MiniDrawer() {
         {menuData === "Reports" && <OrderHeatmap />}
         {/* {menuData === "Restraunt Owner Report" && <RestrauntOwnerReport />} */}
         {menuData === "Category" && <Category />}
+        {menuData === "Profile" && <ProfilePage />}
       </Box>
     </Box>
   );
