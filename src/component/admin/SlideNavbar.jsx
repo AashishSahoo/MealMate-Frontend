@@ -42,6 +42,7 @@ import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { useNavigate } from "react-router-dom";
 import OrderHeatmap from "../../pages/admin/OrderHeatmap";
 import ProfilePage from "../../pages/admin/ProfilePageAdmin";
+import Applogo from "../../assets/Applogo.png";
 
 const drawerWidth = 280;
 
@@ -201,20 +202,23 @@ export default function MiniDrawer() {
       <AppBar position="fixed" open={open}>
         <Toolbar sx={{ justifyContent: "space-between" }}>
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <IconButton
-              color="inherit"
-              aria-label="toggle drawer"
-              onClick={() => setOpen(!open)}
-              edge="start"
-              sx={{
-                marginRight: 2,
-                "&:hover": {
-                  background: "rgba(255, 255, 255, 0.1)",
-                },
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
+            {!open && (
+              <IconButton
+                color="inherit"
+                aria-label="toggle drawer"
+                onClick={() => setOpen(!open)}
+                edge="start"
+                sx={{
+                  marginRight: 2,
+                  "&:hover": {
+                    background: "rgba(255, 255, 255, 0.1)",
+                  },
+                }}
+              >
+                <MenuIcon />
+              </IconButton>
+            )}
+
             <Typography
               variant="h6"
               noWrap
@@ -249,6 +253,21 @@ export default function MiniDrawer() {
         <DrawerHeader>
           {open && (
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              {/* <Avatar>
+                <img
+                  src={Applogo}
+                  alt="App Logo"
+                  style={{
+                    height: "100%",
+                    width: "100%",
+                    objectFit: "contain",
+                    background: "#fff",
+                    padding: "auto",
+                  }}
+                />
+              </Avatar>
+               */}
+              <Avatar src={Applogo} alt="App Logo" />
               <Typography variant="h6" sx={{ fontWeight: 700 }}>
                 Admin Panel
               </Typography>

@@ -18,6 +18,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  
   TextField,
   Select,
   MenuItem,
@@ -1129,6 +1130,7 @@ function Products() {
           </DialogActions>
         </Box>
       </Dialog>
+
       <Dialog
         open={viewImageDialogOpen}
         onClose={() => setViewImageDialogOpen(false)}
@@ -1177,6 +1179,7 @@ function Products() {
           />
         </DialogContent>
       </Dialog>
+
     </Box>
   );
 }

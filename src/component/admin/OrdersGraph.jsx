@@ -138,7 +138,7 @@ const OrdersGraph = ({ orderHistory }) => {
           p: 3,
           borderRadius: 4,
           backgroundColor: "#ffffff",
-          height: "500px", // Fixed height
+          height: "500px", 
           position: "relative",
           overflow: "hidden",
           boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08)",

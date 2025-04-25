@@ -342,6 +342,7 @@ export default function MiniDrawer() {
             </ListItemButton>
           </ListItem>
         </Box>
+        
       </Drawer>
 
       <Box
