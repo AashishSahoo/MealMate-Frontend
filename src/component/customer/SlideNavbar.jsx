@@ -39,6 +39,7 @@ import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import { useNavigate } from "react-router-dom";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import ProfilePageCustomer from "../../pages/customer/ProfilePageCustomer";
+import Applogo from "../../assets/Applogo.png";
 
 const drawerWidth = 240;
 
@@ -170,27 +171,30 @@ export default function MiniDrawer() {
       <AppBar position="fixed" open={open}>
         <Toolbar sx={{ justifyContent: "space-between" }}>
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <IconButton
-              color="inherit"
-              aria-label="toggle drawer"
-              onClick={() => setOpen(!open)}
-              edge="start"
-              sx={{
-                marginRight: 2,
-                "&:hover": {
-                  background: "rgba(255, 255, 255, 0.1)",
-                },
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
+            {!open && (
+              <IconButton
+                color="inherit"
+                aria-label="toggle drawer"
+                onClick={() => setOpen(!open)}
+                edge="start"
+                sx={{
+                  marginRight: 2,
+                  "&:hover": {
+                    background: "rgba(255, 255, 255, 0.1)",
+                  },
+                }}
+              >
+                <MenuIcon />
+              </IconButton>
+            )}
+
             <Typography
               variant="h6"
               noWrap
               component="div"
               sx={{ fontWeight: 600 }}
             >
-              MealMate
+              MealMate Customer
             </Typography>
           </Box>
 
@@ -217,10 +221,26 @@ export default function MiniDrawer() {
       <Drawer variant="permanent" open={open}>
         <DrawerHeader>
           {open && (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                Customer Panel
-              </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                width: "100%",
+              }}
+            >
+              <Box
+                component="img"
+                src={Applogo}
+                alt="App Logo"
+                sx={{
+                  height: "3.5rem",
+                  width: "auto",
+                  objectFit: "contain",
+                  marginLeft: open ? "0.5rem" : "0",
+                  transition: "all 0.3s ease",
+                }}
+              />
             </Box>
           )}
           <IconButton onClick={() => setOpen(false)} sx={{ color: "#ffffff" }}>

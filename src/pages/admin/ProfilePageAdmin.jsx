@@ -36,6 +36,7 @@ import { CgClose } from "react-icons/cg";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import adminImage from "../../assets/admin.png";
+import Applogo from "../../assets/Applogo.png";
 
 // Enhanced Animations
 const glow = keyframes`
@@ -144,6 +145,7 @@ const ProfilePage = () => {
                   position: "relative",
                 }}
               >
+                {/* Avatar Section */}
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   transition={{ type: "spring", stiffness: 300 }}
@@ -166,7 +168,30 @@ const ProfilePage = () => {
                   </Avatar>
                 </motion.div>
 
+                {/* Info Section */}
                 <Box sx={{ ml: 4, flexGrow: 1 }}>
+                  {/* App Logo */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      mb: 1,
+                    }}
+                  >
+                    {/* <img
+                      src={Applogo}
+                      alt="App Logo"
+                      style={{
+                        height: 80,
+                        width: 80,
+                        objectFit: "contain",
+                        borderRadius: 6,
+                        backgroundColor: "#000",
+                        boxShadow: theme.shadows[2],
+                      }}
+                    /> */}
+                  </Box>
+
                   <Typography
                     variant="h4"
                     gutterBottom

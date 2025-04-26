@@ -77,11 +77,10 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
-  padding: theme.spacing(0, 2),
-  background: "rgba(255, 255, 255, 0.05)",
-  backdropFilter: "blur(10px)",
-  color: "#ffffff",
+  padding: theme.spacing(0, 1),
   minHeight: 70,
+  background: "linear-gradient(135deg, #2C3E50 0%, #1A1A1A 100%)",
+  color: "#ffffff",
   borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
   ...theme.mixins.toolbar,
 }));
@@ -252,28 +251,32 @@ export default function MiniDrawer() {
       <Drawer variant="permanent" open={open}>
         <DrawerHeader>
           {open && (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              {/* <Avatar>
-                <img
-                  src={Applogo}
-                  alt="App Logo"
-                  style={{
-                    height: "100%",
-                    width: "100%",
-                    objectFit: "contain",
-                    background: "#fff",
-                    padding: "auto",
-                  }}
-                />
-              </Avatar>
-               */}
-              <Avatar src={Applogo} alt="App Logo" />
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                Admin Panel
-              </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                width: "100%",
+              }}
+            >
+              <Box
+                component="img"
+                src={Applogo}
+                alt="App Logo"
+                sx={{
+                  height: "3.5rem",
+                  width: "auto",
+                  objectFit: "contain",
+                  marginLeft: open ? "0.5rem" : "0",
+                  transition: "all 0.3s ease",
+                }}
+              />
             </Box>
           )}
-          <IconButton onClick={() => setOpen(false)} sx={{ color: "#ffffff" }}>
+          <IconButton
+            onClick={() => setOpen(false)}
+            sx={{ color: "#ffffff", ml: "auto" }} // keeps button to the right side
+          >
             {theme.direction === "rtl" ? (
               <ChevronRightIcon />
             ) : (

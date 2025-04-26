@@ -9,33 +9,29 @@ import {
   IconButton,
   Chip,
   Rating,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
   Avatar,
   Fade,
   Slide,
+  Skeleton,
 } from "@mui/material";
 import {
   NavigateNext as NavigateNextIcon,
   NavigateBefore as NavigateBeforeIcon,
   AccessTime as AccessTimeIcon,
   LocalOffer as LocalOfferIcon,
-  History as HistoryIcon,
   CheckCircle as CheckCircleIcon,
   LocalShipping as LocalShippingIcon,
 } from "@mui/icons-material";
-
 import { styled } from "@mui/material/styles";
+import axios from "axios";
+
 import img6 from "../../assets/img6.jpg";
 import img7 from "../../assets/img7.jpg";
 import img8 from "../../assets/img8.jpg";
-import img9 from "../../assets/img9.jpg";
-import img10 from "../../assets/img10.jpg";
-import img13 from "../../assets/img13.jpg";
-import img14 from "../../assets/img14.jpg";
-import img15 from "../../assets/img15.jpg";
+
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 
 const StyledCard = styled(Card)(({ theme }) => ({
   transition: "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out",
@@ -48,6 +44,38 @@ const StyledCard = styled(Card)(({ theme }) => ({
 const DashboardCustomer = () => {
   const customerName = "Alex";
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const userInfo = JSON.parse(localStorage.getItem("userInfo")) || {};
+  const email = userInfo.email || null;
+  const token = userInfo.token || null;
+
+  const fetchAllOrderHistory = async () => {
+    try {
+      const response = await axios.get(
+        `/api/orders/getAllOrdersByUser/${email}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (response?.data?.resultCode === 0) {
+        const data = response.data.resultData;
+        const filteredData = data
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 3);
+        setOrders(filteredData);
+      }
+    } catch (error) {
+      console.log("Error fetching orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllOrderHistory();
+  }, []);
 
   const topPicks = [
     {
@@ -79,60 +107,29 @@ const DashboardCustomer = () => {
     },
   ];
 
-  const recentOrders = [
-    {
-      id: 1,
-      name: "Veggie Delight Pizza",
-      image: img9,
-      orderDate: "Today, 2:30 PM",
-      status: "Delivered",
-    },
-    {
-      id: 2,
-      name: "Double Cheese Burger",
-      image: img10,
-      orderDate: "Yesterday, 8:45 PM",
-      status: "Delivered",
-    },
-    {
-      id: 3,
-      name: "Spicy Noodles",
-      image: img13,
-      orderDate: "2 days ago",
-      status: "Delivered",
-    },
-  ];
-
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentIndex((prevIndex) =>
-        prevIndex === topPicks.length - 1 ? 0 : prevIndex + 1
-      );
+      setCurrentIndex((prev) => (prev === topPicks.length - 1 ? 0 : prev + 1));
     }, 3000);
-
     return () => clearInterval(timer);
   }, []);
 
   const handlePrevious = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? topPicks.length - 1 : prevIndex - 1
-    );
+    setCurrentIndex((prev) => (prev === 0 ? topPicks.length - 1 : prev - 1));
   };
 
   const handleNext = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === topPicks.length - 1 ? 0 : prevIndex + 1
-    );
+    setCurrentIndex((prev) => (prev === topPicks.length - 1 ? 0 : prev + 1));
   };
 
   return (
-    <Box sx={{ p: 3, bgcolor: "#f5f5f5", minHeight: "100vh" }}>
+    <Box sx={{ p: 3, minHeight: "100vh" }}>
       {/* Welcome Section */}
       <Fade in timeout={800}>
         <Typography
           variant="h4"
           sx={{
-            mb: 4,
+            mb: 1,
             fontWeight: 700,
             color: "#8A2BE2",
             textShadow: "2px 2px 4px rgba(138,43,226,0.2)",
@@ -144,43 +141,30 @@ const DashboardCustomer = () => {
 
       {/* Top Picks Carousel */}
       <Slide direction="right" in timeout={1000}>
-        <Typography
-          variant="h5"
-          sx={{
-            mb: 3,
-            fontWeight: 600,
-            color: "#333",
-          }}
-        >
+        <Typography variant="h5" sx={{ mb: 1, fontWeight: 600, color: "#333" }}>
           Today's Top Picks
         </Typography>
       </Slide>
 
-      <StyledCard
-        sx={{
-          position: "relative",
-          borderRadius: 4,
-          boxShadow: "0 8px 24px rgba(138,43,226,0.12)",
-          mb: 4,
-        }}
-      >
+      <StyledCard sx={{ position: "relative", borderRadius: 4, mb: 5 }}>
         <CardMedia
           component="img"
-          height="300"
+          height="380"
           image={topPicks[currentIndex].image}
           alt={topPicks[currentIndex].name}
           sx={{ objectFit: "cover" }}
         />
 
+        {/* Navigation Buttons */}
         <IconButton
           onClick={handlePrevious}
           sx={{
             position: "absolute",
-            left: 16,
             top: "50%",
+            left: 16,
             transform: "translateY(-50%)",
             bgcolor: "white",
-            "&:hover": { bgcolor: "#f5f5f5" },
+            "&:hover": { bgcolor: "#f0f0f0" },
           }}
         >
           <NavigateBeforeIcon />
@@ -190,17 +174,17 @@ const DashboardCustomer = () => {
           onClick={handleNext}
           sx={{
             position: "absolute",
-            right: 16,
             top: "50%",
+            right: 16,
             transform: "translateY(-50%)",
             bgcolor: "white",
-            "&:hover": { bgcolor: "#f5f5f5" },
+            "&:hover": { bgcolor: "#f0f0f0" },
           }}
         >
           <NavigateNextIcon />
         </IconButton>
 
-        <CardContent sx={{ position: "relative" }}>
+        <CardContent>
           <Chip
             icon={<LocalOfferIcon />}
             label={topPicks[currentIndex].offer}
@@ -214,86 +198,108 @@ const DashboardCustomer = () => {
             }}
           />
 
-          <Box sx={{ mt: 1 }}>
-            <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
-              {topPicks[currentIndex].name}
-            </Typography>
+          <Typography variant="h5" sx={{ fontWeight: 600, mt: 1 }}>
+            {topPicks[currentIndex].name}
+          </Typography>
 
-            <Grid container spacing={2} alignItems="center">
-              <Grid item>
-                <Rating
-                  value={topPicks[currentIndex].rating}
-                  precision={0.1}
-                  readOnly
-                  sx={{ color: "#8A2BE2" }}
-                />
-              </Grid>
-
-              <Grid item>
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <AccessTimeIcon sx={{ color: "#8A2BE2", mr: 0.5 }} />
-                  <Typography variant="body1" color="text.secondary">
-                    {topPicks[currentIndex].deliveryTime}
-                  </Typography>
-                </Box>
-              </Grid>
-
-              <Grid item>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    color: "#8A2BE2",
-                    fontWeight: 600,
-                  }}
-                >
-                  {topPicks[currentIndex].price}
-                </Typography>
-              </Grid>
+          <Grid container spacing={2} alignItems="center" sx={{ mt: 1 }}>
+            <Grid item>
+              <Rating
+                value={topPicks[currentIndex].rating}
+                precision={0.1}
+                readOnly
+                sx={{ color: "#8A2BE2" }}
+              />
             </Grid>
-          </Box>
+            <Grid item>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <AccessTimeIcon sx={{ color: "#8A2BE2", mr: 0.5 }} />
+                <Typography variant="body2" color="text.secondary">
+                  {topPicks[currentIndex].deliveryTime}
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid item>
+              <Typography
+                variant="h6"
+                sx={{ color: "#8A2BE2", fontWeight: 600 }}
+              >
+                {topPicks[currentIndex].price}
+              </Typography>
+            </Grid>
+          </Grid>
         </CardContent>
       </StyledCard>
 
       {/* Recent Orders */}
       <Slide direction="left" in timeout={1200}>
-        <Typography
-          variant="h5"
-          sx={{
-            mb: 3,
-            fontWeight: 600,
-            color: "#333",
-          }}
-        >
+        <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, color: "#333" }}>
           Recent Orders
         </Typography>
       </Slide>
 
-      <StyledCard sx={{ mb: 4, borderRadius: 4 }}>
-        <List>
-          {recentOrders.map((order) => (
-            <ListItem key={order.id} divider>
-              <ListItemAvatar>
-                <Avatar
-                  variant="rounded"
-                  src={order.image}
-                  sx={{ width: 56, height: 56 }}
-                />
-              </ListItemAvatar>
-              <ListItemText
-                primary={order.name}
-                secondary={order.orderDate}
-                sx={{ ml: 2 }}
-              />
-              <Chip
-                label={order.status}
-                color="success"
-                size="small"
-                sx={{ ml: 2 }}
-              />
-            </ListItem>
-          ))}
-        </List>
-      </StyledCard>
+      <Grid container spacing={2} sx={{ mb: 5 }}>
+        {loading
+          ? Array.from({ length: 3 }).map((_, index) => (
+              <Grid item xs={12} md={4} key={index}>
+                <Card sx={{ p: 2, borderRadius: 3 }}>
+                  <Skeleton variant="text" height={30} width="70%" />
+                  <Skeleton variant="text" height={20} width="40%" />
+                  <Skeleton
+                    variant="rectangular"
+                    height={40}
+                    width={120}
+                    sx={{ my: 2 }}
+                  />
+                  <Skeleton variant="text" height={25} width="30%" />
+                </Card>
+              </Grid>
+            ))
+          : orders.map((order) => (
+              <Grid item xs={12} md={4} key={order._id}>
+                <Card sx={{ p: 2, borderRadius: 3, m: 0.5 }}>
+                  <Typography variant="h6" fontWeight={600}>
+                    {order.restaurant.restaurantName}
+                  </Typography>{" "}
+                  <Typography variant="body2" color="text.secondary">
+                    {dayjs(order.createdAt).fromNow()}
+                  </Typography>
+                  <Box sx={{ display: "flex", mt: 2, gap: 1 }}>
+                    {order.items.slice(0, 3).map((item, index) => (
+                      <Avatar
+                        key={index}
+                        src={item.food.imageUrl}
+                        alt={item.food.name}
+                        sx={{ width: 40, height: 40, borderRadius: 1 }}
+                      />
+                    ))}
+                    {order.items.length > 3 && (
+                      <Avatar sx={{ bgcolor: "#ccc", width: 40, height: 40 }}>
+                        +{order.items.length - 6}
+                      </Avatar>
+                    )}
+                  </Box>
+                  <Box
+                    sx={{
+                      mt: 2,
+                      display: "flex",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Typography fontWeight={500}>
+                      ₹{order.totalAmount.toFixed(2)}
+                    </Typography>
+                    <Chip
+                      size="small"
+                      variant="outlined"
+                      label={order.status}
+                      color={order.status === "completed" ? "success" : "error"}
+                    />
+                  </Box>
+                </Card>
+              </Grid>
+            ))}
+      </Grid>
 
       {/* Order Stats */}
       <Grid container spacing={3}>
