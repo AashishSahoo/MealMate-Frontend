@@ -14,6 +14,8 @@ import {
   Slide,
   Skeleton,
 } from "@mui/material";
+import { Tooltip } from "@mui/material"; // already imported elsewhere in your file?
+
 import {
   NavigateNext as NavigateNextIcon,
   NavigateBefore as NavigateBeforeIcon,
@@ -24,10 +26,6 @@ import {
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import axios from "axios";
-
-import img6 from "../../assets/img6.jpg";
-import img7 from "../../assets/img7.jpg";
-import img8 from "../../assets/img8.jpg";
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -43,7 +41,12 @@ const StyledCard = styled(Card)(({ theme }) => ({
 }));
 
 const DashboardCustomer = () => {
-  const customerName = "Alex";
+  const [userData, setUserData] = useState({
+    restroName: "",
+  });
+
+  const [orderCount, setOrderCount] = useState(0);
+  const [currentOrder, setCurrentOrder] = useState({});
   const [currentIndex, setCurrentIndex] = useState(0);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,6 +54,60 @@ const DashboardCustomer = () => {
   const userInfo = JSON.parse(localStorage.getItem("userInfo")) || {};
   const email = userInfo.email || null;
   const token = userInfo.token || null;
+  const userId = userInfo.userId || null;
+
+  const [topPicks, setTopPicks] = useState([]);
+
+  const fetchOrdersStats = async () => {
+    try {
+      const response = await axios.get(`/api/orders/user-dashboard/${email}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response?.data?.resultCode === 0) {
+        const data = response.data.resultData;
+
+        setOrderCount(data.todayOrderCount);
+        setCurrentOrder(data.currentOrderStatus);
+      }
+    } catch (error) {
+      console.log("Error fetching orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchUserProfileDetails = async () => {
+    try {
+      const response = await axios.get(`/api/users/user-profile/${email}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response?.data?.resultCode === 0) {
+        const details = response?.data?.resultData;
+        setUserData({
+          userName: `${details.firstName} ${details.lastName}`,
+        });
+      }
+    } catch (error) {
+      console.log("Error fetching user name:", error);
+    }
+  };
+
+  const fetchTodaysPick = async () => {
+    try {
+      const response = await axios.get(`/api/food/random`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response?.data?.resultCode === 0) {
+        const data = response.data.resultData;
+        setTopPicks(data);
+      }
+    } catch (error) {
+      console.log("Error fetching top picks:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchAllOrderHistory = async () => {
     try {
@@ -76,44 +133,17 @@ const DashboardCustomer = () => {
 
   useEffect(() => {
     fetchAllOrderHistory();
+    fetchTodaysPick();
+    fetchUserProfileDetails();
+    fetchOrdersStats();
   }, []);
-
-  const topPicks = [
-    {
-      id: 1,
-      name: "Supreme Pizza",
-      image: img6,
-      rating: 4.8,
-      deliveryTime: "25-30 min",
-      price: "₹399",
-      offer: "50% OFF up to ₹100",
-    },
-    {
-      id: 2,
-      name: "Classic Burger",
-      image: img7,
-      rating: 4.5,
-      deliveryTime: "20-25 min",
-      price: "₹249",
-      offer: "Free Delivery",
-    },
-    {
-      id: 3,
-      name: "Chicken Biryani",
-      image: img8,
-      rating: 4.7,
-      deliveryTime: "30-35 min",
-      price: "₹499",
-      offer: "20% OFF",
-    },
-  ];
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev === topPicks.length - 1 ? 0 : prev + 1));
     }, 3000);
     return () => clearInterval(timer);
-  }, []);
+  }, [topPicks]);
 
   const handlePrevious = () => {
     setCurrentIndex((prev) => (prev === 0 ? topPicks.length - 1 : prev - 1));
@@ -124,7 +154,7 @@ const DashboardCustomer = () => {
   };
 
   return (
-    <Box sx={{ p: 3, minHeight: "100vh" }}>
+    <Box sx={{ p: 1, minHeight: "100vh" }}>
       {/* Welcome Section */}
       <Fade in timeout={800}>
         <Typography
@@ -136,7 +166,7 @@ const DashboardCustomer = () => {
             textShadow: "2px 2px 4px rgba(138,43,226,0.2)",
           }}
         >
-          Welcome back, {customerName}! 👋
+          Welcome back, {userData.userName}! 👋
         </Typography>
       </Fade>
 
@@ -147,90 +177,97 @@ const DashboardCustomer = () => {
         </Typography>
       </Slide>
 
-      <StyledCard sx={{ position: "relative", borderRadius: 4, mb: 5 }}>
-        <CardMedia
-          component="img"
-          height="400"
-          image={topPicks[currentIndex].image}
-          alt={topPicks[currentIndex].name}
-          sx={{ objectFit: "cover" }}
-        />
-
-        {/* Navigation Buttons */}
-        <IconButton
-          onClick={handlePrevious}
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: 16,
-            transform: "translateY(-50%)",
-            bgcolor: "white",
-            "&:hover": { bgcolor: "#f0f0f0" },
-          }}
-        >
-          <NavigateBeforeIcon />
-        </IconButton>
-
-        <IconButton
-          onClick={handleNext}
-          sx={{
-            position: "absolute",
-            top: "50%",
-            right: 16,
-            transform: "translateY(-50%)",
-            bgcolor: "white",
-            "&:hover": { bgcolor: "#f0f0f0" },
-          }}
-        >
-          <NavigateNextIcon />
-        </IconButton>
-
-        <CardContent>
-          <Chip
-            icon={<LocalOfferIcon />}
-            label={topPicks[currentIndex].offer}
-            sx={{
-              position: "absolute",
-              top: -20,
-              right: 16,
-              bgcolor: "#8A2BE2",
-              color: "white",
-              fontWeight: 500,
-            }}
+      {loading ? (
+        <StyledCard sx={{ position: "relative", borderRadius: 4, mb: 5 }}>
+          <Skeleton
+            variant="rectangular"
+            height={420}
+            sx={{ objectFit: "cover" }}
           />
-
-          <Typography variant="h5" sx={{ fontWeight: 600, mt: 1 }}>
-            {topPicks[currentIndex].name}
-          </Typography>
-
-          <Grid container spacing={2} alignItems="center" sx={{ mt: 1 }}>
-            <Grid item>
-              <Rating
-                value={topPicks[currentIndex].rating}
-                precision={0.1}
-                readOnly
-                sx={{ color: "#8A2BE2" }}
-              />
+          <CardContent>
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Skeleton variant="text" height={30} width="60%" />
+            </Box>
+            <Grid container spacing={2} alignItems="center" sx={{ m: 1 }}>
+              <Skeleton variant="text" height={30} width="40%" />
             </Grid>
-            <Grid item>
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <AccessTimeIcon sx={{ color: "#8A2BE2", mr: 0.5 }} />
-                <Typography variant="body2" color="text.secondary">
-                  {topPicks[currentIndex].deliveryTime}
+          </CardContent>
+        </StyledCard>
+      ) : (
+        topPicks.length > 0 && (
+          <StyledCard sx={{ position: "relative", borderRadius: 4, mb: 5 }}>
+            <CardMedia
+              component="img"
+              height="420"
+              image={topPicks[currentIndex].imageUrl}
+              alt={topPicks[currentIndex].name}
+              sx={{ objectFit: "cover" }}
+            />
+            <IconButton
+              onClick={handlePrevious}
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: 16,
+                transform: "translateY(-50%)",
+                bgcolor: "white",
+                "&:hover": { bgcolor: "#f0f0f0" },
+              }}
+            >
+              <NavigateBeforeIcon />
+            </IconButton>
+            <IconButton
+              onClick={handleNext}
+              sx={{
+                position: "absolute",
+                top: "50%",
+                right: 16,
+                transform: "translateY(-50%)",
+                bgcolor: "white",
+                "&:hover": { bgcolor: "#f0f0f0" },
+              }}
+            >
+              <NavigateNextIcon />
+            </IconButton>
+            <CardContent>
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                <Typography variant="h5" sx={{ fontWeight: 600, mt: 1 }}>
+                  {topPicks[currentIndex].name}
+                </Typography>
+                <Typography variant="subtitle" sx={{ fontWeight: 200, mt: 1 }}>
+                  {topPicks[currentIndex].description}
                 </Typography>
               </Box>
-            </Grid>
-            <Grid item>
-              <Typography
-                variant="h6"
-                sx={{ color: "#8A2BE2", fontWeight: 600 }}
-              >
-                {topPicks[currentIndex].price}
-              </Typography>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </StyledCard>
+              <Grid container spacing={2} alignItems="center" sx={{ mt: 1 }}>
+                <Grid item>
+                  <Rating
+                    value={4.5}
+                    precision={0.1}
+                    readOnly
+                    sx={{ color: "#8A2BE2" }}
+                  />
+                </Grid>
+                <Grid item>
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <AccessTimeIcon sx={{ color: "#8A2BE2", mr: 0.5 }} />
+                    <Typography variant="body2" color="text.secondary">
+                      25-30 min
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item>
+                  <Typography
+                    variant="h6"
+                    sx={{ color: "#8A2BE2", fontWeight: 600 }}
+                  >
+                    ₹{topPicks[currentIndex].price}
+                  </Typography>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </StyledCard>
+        )
+      )}
 
       {/* Recent Orders */}
       <Slide direction="left" in timeout={1200}>
@@ -304,90 +341,173 @@ const DashboardCustomer = () => {
 
       {/* Order Stats */}
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <StyledCard
-            sx={{ bgcolor: "#8A2BE2", color: "white", borderRadius: 3 }}
-          >
-            <CardContent>
-              <Typography variant="h6">Today's Orders</Typography>
-              <Typography variant="h3" sx={{ my: 2 }}>
-                12
-              </Typography>
-              <Typography variant="body2">↑ 24% from yesterday</Typography>
-            </CardContent>
-          </StyledCard>
-        </Grid>
+        {loading ? (
+          <>
+            <Grid item xs={12} md={6}>
+              <StyledCard
+                sx={{ bgcolor: "#8A2BE2", color: "white", borderRadius: 3 }}
+              >
+                <CardContent>
+                  <Skeleton variant="text" height={20} width="60%" />
+                  <Skeleton
+                    variant="text"
+                    height={40}
+                    width="50%"
+                    sx={{ my: 2 }}
+                  />
+                  <Skeleton variant="text" height={20} width="30%" />
+                </CardContent>
+              </StyledCard>
+            </Grid>
 
-        {/* <Grid item xs={12} md={4}>
-          <StyledCard sx={{ borderRadius: 3 }}>
-            <CardContent>
-              <Typography variant="h6">Total Savings</Typography>
-              <Typography variant="h3" sx={{ my: 2, color: "#8A2BE2" }}>
-                ₹850
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                This month
-              </Typography>
-            </CardContent>
-          </StyledCard>
-        </Grid> */}
+            <Grid item xs={12} md={6}>
+              <StyledCard sx={{ borderRadius: 3 }}>
+                <CardContent>
+                  <Skeleton variant="text" height={20} width="70%" />
+                  <Skeleton
+                    variant="text"
+                    height={40}
+                    width="60%"
+                    sx={{ my: 2 }}
+                  />
+                  <Skeleton variant="text" height={20} width="40%" />
+                </CardContent>
+              </StyledCard>
+            </Grid>
+          </>
+        ) : (
+          <>
+            <Grid item xs={12} md={6}>
+              <StyledCard
+                sx={{ bgcolor: "#8A2BE2", color: "white", borderRadius: 3 }}
+              >
+                <CardContent>
+                  <Typography variant="h6">Today's Orders</Typography>
+                  <Typography variant="h3" sx={{ my: 2 }}>
+                    {orderCount}
+                  </Typography>
+                  {orderCount <= 0 ? (
+                    <Typography variant="body2">
+                      No orders yet... Why not explore our menu and discover
+                      something delicious today?
+                    </Typography>
+                  ) : (
+                    <Typography variant="body2">
+                      Great going! Looks like you’re making today extra special
+                      with some amazing orders.
+                    </Typography>
+                  )}
+                </CardContent>
+              </StyledCard>
+            </Grid>
 
-        <Grid item xs={12} md={6}>
-          <StyledCard sx={{ borderRadius: 3 }}>
-            <CardContent>
-              <Typography variant="h6">Current Order Status</Typography>
-              <Box sx={{ display: "flex", mt: 0 }}>
-                <Box>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                    <LocalShippingIcon
-                      sx={{ color: "#8A2BE2", fontSize: 30, mr: 1 }}
-                    />
+            <Grid item xs={12} md={6}>
+              <StyledCard sx={{ borderRadius: 3 }}>
+                <CardContent>
+                  <Typography variant="h6">Current Order Status</Typography>
+                  <Box sx={{ display: "flex", mt: 0 }}>
                     <Box>
-                      <Typography variant="h6" color="#8A2BE2">
-                        Chicken Biryani
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Out for delivery
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        15 mins away
-                      </Typography>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", mb: 1 }}
+                      >
+                        <Box>
+                          <Box>
+                            <Tooltip
+                              title={
+                                <Box>
+                                  {currentOrder?.items?.map((food, index) => (
+                                    <Typography
+                                      key={index}
+                                      variant="body2"
+                                      color="inherit"
+                                    >
+                                      {food.foodName}
+                                    </Typography>
+                                  ))}
+                                </Box>
+                              }
+                              arrow
+                            >
+                              <Box sx={{ cursor: "pointer" }}>
+                                {currentOrder?.items
+                                  ?.slice(0, 2)
+                                  .map((food, index) => (
+                                    <Typography
+                                      key={index}
+                                      variant="h6"
+                                      color="#8A2BE2"
+                                    >
+                                      {food.foodName}
+                                    </Typography>
+                                  ))}
+                                {currentOrder?.items?.length > 2 && (
+                                  <Typography variant="h6" color="#8A2BE2">
+                                    ...
+                                  </Typography>
+                                )}
+                              </Box>
+                            </Tooltip>
+                          </Box>
+                          {currentOrder.status === "completed" && (
+                            <>
+                              {" "}
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                Out for delivery - 15 mins away
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              ></Typography>
+                            </>
+                          )}
+                          {currentOrder.status === "processing" && (
+                            <>
+                              {" "}
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                Order Preparing - 45 mins away
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              ></Typography>
+                            </>
+                          )}
+                        </Box>
+                      </Box>
+                    </Box>
+
+                    <Box
+                      sx={{
+                        ml: "auto",
+                        height: "6.6rem",
+                        width: "15rem",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <img
+                        src={Delivery}
+                        alt="delivery"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
+                        }}
+                      />
                     </Box>
                   </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
-                    <CheckCircleIcon
-                      sx={{ color: "success.main", fontSize: 20, mr: 1 }}
-                    />
-                    <Typography variant="body2" color="success.main">
-                      Order confirmed and being prepared
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <Box
-                  sx={{
-                    ml: "auto",
-                    height: "6.7rem",
-                    width: "15rem",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <img
-                    src={Delivery}
-                    alt="delivery"
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "contain",
-                    }}
-                  />
-                </Box>
-              </Box>
-            </CardContent>
-          </StyledCard>
-        </Grid>
+                </CardContent>
+              </StyledCard>
+            </Grid>
+          </>
+        )}
       </Grid>
     </Box>
   );
