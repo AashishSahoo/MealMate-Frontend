@@ -31,6 +31,7 @@ import img8 from "../../assets/img8.jpg";
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import Delivery from "../../assets/delivery.png";
 dayjs.extend(relativeTime);
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -149,7 +150,7 @@ const DashboardCustomer = () => {
       <StyledCard sx={{ position: "relative", borderRadius: 4, mb: 5 }}>
         <CardMedia
           component="img"
-          height="380"
+          height="400"
           image={topPicks[currentIndex].image}
           alt={topPicks[currentIndex].name}
           sx={{ objectFit: "cover" }}
@@ -275,7 +276,7 @@ const DashboardCustomer = () => {
                     ))}
                     {order.items.length > 3 && (
                       <Avatar sx={{ bgcolor: "#ccc", width: 40, height: 40 }}>
-                        +{order.items.length - 6}
+                        +{order.items.length - 3}
                       </Avatar>
                     )}
                   </Box>
@@ -303,7 +304,7 @@ const DashboardCustomer = () => {
 
       {/* Order Stats */}
       <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={6}>
           <StyledCard
             sx={{ bgcolor: "#8A2BE2", color: "white", borderRadius: 3 }}
           >
@@ -317,7 +318,7 @@ const DashboardCustomer = () => {
           </StyledCard>
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        {/* <Grid item xs={12} md={4}>
           <StyledCard sx={{ borderRadius: 3 }}>
             <CardContent>
               <Typography variant="h6">Total Savings</Typography>
@@ -329,32 +330,60 @@ const DashboardCustomer = () => {
               </Typography>
             </CardContent>
           </StyledCard>
-        </Grid>
+        </Grid> */}
 
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={6}>
           <StyledCard sx={{ borderRadius: 3 }}>
             <CardContent>
               <Typography variant="h6">Current Order Status</Typography>
-              <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
-                <LocalShippingIcon
-                  sx={{ color: "#8A2BE2", fontSize: 30, mr: 1 }}
-                />
+              <Box sx={{ display: "flex", mt: 0 }}>
                 <Box>
-                  <Typography variant="h6" color="#8A2BE2">
-                    Chicken Biryani
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Out for delivery - 15 mins away
-                  </Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                    <LocalShippingIcon
+                      sx={{ color: "#8A2BE2", fontSize: 30, mr: 1 }}
+                    />
+                    <Box>
+                      <Typography variant="h6" color="#8A2BE2">
+                        Chicken Biryani
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Out for delivery
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        15 mins away
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
+                    <CheckCircleIcon
+                      sx={{ color: "success.main", fontSize: 20, mr: 1 }}
+                    />
+                    <Typography variant="body2" color="success.main">
+                      Order confirmed and being prepared
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-              <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
-                <CheckCircleIcon
-                  sx={{ color: "success.main", fontSize: 20, mr: 1 }}
-                />
-                <Typography variant="body2" color="success.main">
-                  Order confirmed and being prepared
-                </Typography>
+
+                <Box
+                  sx={{
+                    ml: "auto",
+                    height: "6.7rem",
+                    width: "15rem",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <img
+                    src={Delivery}
+                    alt="delivery"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                </Box>
               </Box>
             </CardContent>
           </StyledCard>
