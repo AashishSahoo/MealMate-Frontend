@@ -40,6 +40,8 @@ import { useNavigate } from "react-router-dom";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import ProfilePageCustomer from "../../pages/customer/ProfilePageCustomer";
 import Applogo from "../../assets/Applogo.png";
+import Chatbot from "../../pages/customer/Chatbot";
+import TryIcon from "@mui/icons-material/Try";
 
 const drawerWidth = 240;
 
@@ -144,6 +146,8 @@ export default function MiniDrawer() {
       id: "Table Booking",
     },
     { text: "Order History", icon: <HistoryIcon />, id: "Order History" },
+    { text: "AI Assistance", icon: <TryIcon />, id: "Chatbot" },
+
     // { text: "Payment", icon: <CreditScoreIcon />, id: "Payment" },
   ];
 
@@ -348,6 +352,7 @@ export default function MiniDrawer() {
         {menuData === "Order History" && <OrderHistory />}
         {/* {menuData === "Payment " && <Payment />} */}
         {menuData === "Profile" && <ProfilePageCustomer />}
+        {menuData === "Chatbot" && <Chatbot />}
       </Box>
     </Box>
   );
