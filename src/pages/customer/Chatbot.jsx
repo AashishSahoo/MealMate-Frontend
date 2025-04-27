@@ -136,7 +136,7 @@ export default function Chatbot() {
       >
         {/* Header */}
         <Box sx={{ textAlign: "center", mb: 2 }}>
-          <Face2Icon sx={{ fontSize: 60, color: "#6C63FF", mb: 1 }} />
+          <SmartToyIcon sx={{ fontSize: 60, color: "#6C63FF" }} />
           <Typography variant="h5" sx={{ fontWeight: "bold" }}>
             AI Assistant Cano
           </Typography>
@@ -150,13 +150,19 @@ export default function Chatbot() {
             sx={{
               p: 2,
               mb: 2,
+              gap: 2,
+
               display: "flex",
               alignItems: "center",
-              justifyContent: "space-between",
-              backgroundColor: "#FFE5E5",
+              // justifyContent: "space-between",
+              backgroundColor: "#EE695D",
             }}
           >
-            <Typography variant="body2">{error.message}</Typography>
+            {" "}
+            <Icon icon="tabler:face-id-error" width="27" height="27" />{" "}
+            <Typography sx={{ fontSize: "1.1rem", fontWeight: "bold" }}>
+              {error.message}
+            </Typography>
             <Button
               variant="outlined"
               size="small"
@@ -185,6 +191,7 @@ export default function Chatbot() {
                   <SmartToyIcon />
                 </Avatar>
               )}
+
               <Paper
                 sx={{
                   p: 2,
@@ -220,6 +227,11 @@ export default function Chatbot() {
                   </ReactMarkdown>
                 )}
               </Paper>
+              {msg.type === "user" && (
+                <Avatar sx={{ bgcolor: "#4B4C7D", ml: 1 }}>
+                  <Icon icon="icon-park-solid:me" width="24" height="24" />
+                </Avatar>
+              )}
             </Box>
           ))}
           {isLoading && (
@@ -340,7 +352,12 @@ export default function Chatbot() {
               }}
             >
               {isLoading ? (
-                <CircularProgress size={24} color="inherit" />
+                <Icon
+                  icon="svg-spinners:tadpole"
+                  width="28"
+                  height="28"
+                  color="#6C63FF"
+                />
               ) : (
                 <TelegramIcon />
               )}
