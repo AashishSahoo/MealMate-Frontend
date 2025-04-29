@@ -269,7 +269,6 @@ const DashboardCustomer = () => {
         )
       )}
 
-      {/* Recent Orders */}
       <Slide direction="left" in timeout={1200}>
         <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, color: "#333" }}>
           Recent Orders
