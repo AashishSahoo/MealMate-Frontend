@@ -13,7 +13,7 @@ import {
   CircularProgress,
   FormHelperText,
 } from "@mui/material";
-import logo3 from "/assets/logo3.png";
+import logo3 from "../assets/Applogo2.png";
 import Slideshow from "../component/Slideshow";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
@@ -51,13 +51,8 @@ const Login = () => {
         },
       });
 
-      // const data = await response.json();
-
       if (response?.data?.resultCode === 0) {
         const data = response.data.resultData;
-        // console.log(data.user.roleType, "user");
-        // console.log(data.token, "token");
-        // console.log(data.user.email, "email");
 
         const userData = {
           user: data.user.roleType,

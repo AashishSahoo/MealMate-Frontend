@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Paper, Fade, Skeleton } from "@mui/material";
+import { Box, Typography, Paper, Fade, Skeleton, Grid } from "@mui/material";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -59,21 +59,14 @@ const SaleByMonth = () => {
         grid: { display: false },
         ticks: {
           color: "#555",
-          font: {
-            size: 13,
-            weight: "bold",
-            family: "'Inter', sans-serif",
-          },
+          font: { size: 13, weight: "bold", family: "'Inter', sans-serif" },
         },
       },
       y: {
         grid: { display: false },
         ticks: {
           color: "#555",
-          font: {
-            size: 12,
-            family: "'Inter', sans-serif",
-          },
+          font: { size: 12, family: "'Inter', sans-serif" },
           callback: (value) => `₹${value.toLocaleString()}`,
         },
       },
@@ -84,11 +77,7 @@ const SaleByMonth = () => {
         labels: {
           padding: 25,
           color: "#444",
-          font: {
-            size: 13,
-            family: "'Inter', sans-serif",
-            weight: "bold",
-          },
+          font: { size: 13, family: "'Inter', sans-serif", weight: "bold" },
           usePointStyle: true,
           pointStyle: "circle",
         },
@@ -99,15 +88,8 @@ const SaleByMonth = () => {
         titleColor: "#222",
         bodyColor: "#444",
         padding: 15,
-        titleFont: {
-          size: 15,
-          family: "'Inter', sans-serif",
-          weight: "bold",
-        },
-        bodyFont: {
-          size: 14,
-          family: "'Inter', sans-serif",
-        },
+        titleFont: { size: 15, family: "'Inter', sans-serif", weight: "bold" },
+        bodyFont: { size: 14, family: "'Inter', sans-serif" },
         displayColors: true,
         borderColor: "rgba(0, 0, 0, 0.05)",
         borderWidth: 1,
@@ -132,20 +114,16 @@ const SaleByMonth = () => {
       if (response?.data?.resultCode === 0) {
         const categorySalesArray = response.data.resultData.categorySalesArray;
 
-        // Initialize data structure
         const categoryMap = {};
 
         categorySalesArray.forEach((entry) => {
           const entryDate = new Date(entry.latestTime);
           const year = entryDate.getFullYear();
-
-          // Only consider current year
           if (year !== currentYear) return;
 
-          const monthIndex = entryDate.getMonth(); // 0 - 11
+          const monthIndex = entryDate.getMonth();
           const category = entry.category;
 
-          // Initialize category with zeroed array
           if (!categoryMap[category]) {
             categoryMap[category] = new Array(12).fill(0);
           }
@@ -171,10 +149,7 @@ const SaleByMonth = () => {
           tension: 0.4,
         }));
 
-        setChartData({
-          labels: months,
-          datasets,
-        });
+        setChartData({ labels: months, datasets });
       } else {
         console.error("Failed to fetch report:", response.data.resultMessage);
       }
@@ -190,58 +165,63 @@ const SaleByMonth = () => {
   }, []);
 
   return (
-    <Fade in={true} timeout={1000}>
-      <Paper
-        elevation={3}
-        sx={{
-          p: 3.5,
-          borderRadius: 4,
-          background: "linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%)",
-          height: "95%",
-          position: "relative",
-          overflow: "hidden",
-          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08)",
-          border: "1px solid rgba(255, 255, 255, 0.8)",
-          transition: "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out",
-          "&:hover": {
-            transform: "translateY(-5px)",
-            boxShadow: "0 12px 48px rgba(0, 0, 0, 0.12)",
-          },
-        }}
-      >
-        {loading ? (
-          <Skeleton variant="rectangular" height={400} animation="wave" />
-        ) : (
-          <>
-            <Typography
-              variant="h5"
-              gutterBottom
-              sx={{
-                fontWeight: 700,
-                color: "#222",
-                mb: 3.5,
-                textAlign: "center",
-                fontFamily: "'Inter', sans-serif",
-                letterSpacing: "-0.5px",
-                textShadow: "1px 1px 1px rgba(0,0,0,0.05)",
-              }}
-            >
-              Monthly Sales by Product
-            </Typography>
+    <Grid container spacing={2}>
+      <Grid item xs={12} md={12} lg={12}>
+        <Fade in={true} timeout={1000}>
+          <Paper
+            elevation={3}
+            sx={{
+              p: 3.5,
+              borderRadius: 4,
+              background: "linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%)",
+              height: "100%",
+              position: "relative",
+              overflow: "hidden",
+              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08)",
+              border: "1px solid rgba(255, 255, 255, 0.8)",
+              transition:
+                "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out",
+              "&:hover": {
+                transform: "translateY(-5px)",
+                boxShadow: "0 12px 48px rgba(0, 0, 0, 0.12)",
+              },
+            }}
+          >
+            {loading ? (
+              <Skeleton variant="rectangular" height={400} animation="wave" />
+            ) : (
+              <>
+                <Typography
+                  variant="h5"
+                  gutterBottom
+                  sx={{
+                    fontWeight: 700,
+                    color: "#222",
+                    mb: 3.5,
+                    textAlign: "center",
+                    fontFamily: "'Inter', sans-serif",
+                    letterSpacing: "-0.5px",
+                    textShadow: "1px 1px 1px rgba(0,0,0,0.05)",
+                  }}
+                >
+                  Monthly Sales by Product
+                </Typography>
 
-            <Box
-              sx={{
-                height: "350px",
-                position: "relative",
-                filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.05))",
-              }}
-            >
-              <Line data={chartData} options={options} />
-            </Box>
-          </>
-        )}
-      </Paper>
-    </Fade>
+                <Box
+                  sx={{
+                    height: "550px",
+                    position: "relative",
+                    filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.05))",
+                  }}
+                >
+                  <Line data={chartData} options={options} />
+                </Box>
+              </>
+            )}
+          </Paper>
+        </Fade>
+      </Grid>
+    </Grid>
   );
 };
 

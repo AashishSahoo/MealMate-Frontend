@@ -30,6 +30,7 @@ import {
   TablePagination,
   IconButton,
   FormHelperText,
+  Chip,
   Tooltip,
   Avatar,
 } from "@mui/material";
@@ -96,6 +97,8 @@ function TableBookingManagement() {
     email: email,
     bookingDate: selectedDate,
   });
+
+  const [bookingHistory, setBookingHistory] = useState([]);
 
   const [LimitDialogOpen, setLimitDialogOpen] = useState(false);
   const [DuplicateDialogOpen, setDuplicateDialogOpen] = useState(false);
@@ -287,22 +290,6 @@ function TableBookingManagement() {
     setLimitDialogOpen(false);
   };
 
-  const fetchTableBookings = async () => {
-    console.log("userID : ", userId);
-    try {
-      const response = await axios.get(
-        `/api/tables/get-all-bookings-restuarant/${userId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      if (response?.data?.resultCode === 0) {
-        setTableBookings(response?.data?.resultData);
-      }
-    } catch (error) {
-      console.log("Error fetching table bookings:", error);
-    }
-  };
-
   const handleDuplicateDialogClose = () => {
     setDuplicateDialogOpen(false);
   };
@@ -312,7 +299,7 @@ function TableBookingManagement() {
     visible: { opacity: 1, y: 0 },
   };
 
-  const fetchAllBookings = async () => {
+  const fetchAllIncomingBookings = async () => {
     try {
       console.log("Fetching bookings...");
       const response = await axios.get(
@@ -331,6 +318,25 @@ function TableBookingManagement() {
       }
     } catch (error) {
       console.error("Error fetching bookings:", error);
+    }
+  };
+
+  const fetchBookingsHistory = async () => {
+    try {
+      const response = await axios.get(
+        `/api/tables/get-restaurant-tables/history`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { email: email },
+        }
+      );
+
+      if (response?.data?.resultCode === 0) {
+        const bookings = response?.data?.resultData;
+        setBookingHistory(bookings);
+      }
+    } catch (error) {
+      console.error("Error fetching bookings history:", error);
     }
   };
 
@@ -357,7 +363,8 @@ function TableBookingManagement() {
 
   useEffect(() => {
     fetchAllTablesDetails();
-    fetchAllBookings();
+    fetchAllIncomingBookings();
+    fetchBookingsHistory();
   }, []);
 
   useEffect(() => {
@@ -368,511 +375,621 @@ function TableBookingManagement() {
   }, [selectedDate]);
 
   return (
-    <Box sx={{ display: "flex", height: "85vh", backgroundColor: "#F5FDFE" }}>
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <StyledTabs value={activeTab} onChange={handleTabChange} centered>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "86vh",
+        backgroundColor: "#F5FDFE",
+      }}
+    >
+      {/* Tabs at top-left */}
+      <Box
+        sx={{
+          px: 4,
+          pt: 2,
+          borderColor: "divider",
+        }}
+      >
+        <Tabs
+          value={activeTab}
+          onChange={handleTabChange}
+          textColor="primary"
+          indicatorColor="primary"
+          aria-label="table management tabs"
+          sx={{
+            "& .MuiTabs-indicator": {
+              backgroundColor: "#1a237e",
+              height: 4,
+              borderRadius: "2px 2px 0 0",
+            },
+          }}
+        >
           <StyledTab label="Manage Tables" />
           <StyledTab label="Incoming Bookings" />
-        </StyledTabs>
+          <StyledTab label="Bookings History" />
+        </Tabs>
+      </Box>
 
+      {/* Main Content */}
+      <Box
+        sx={{
+          flex: 1,
+          p: 4,
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         {activeTab === 0 && (
-          <Box sx={{ p: 4, display: "flex", flexDirection: "column", gap: 4 }}>
-            <Grid container spacing={4}>
-              {/* Add/Edit Table Form */}
-              <Grid item xs={12} md={4}>
-                <Card sx={{ borderRadius: "16px", p: 2, minHeight: "100%" }}>
-                  <Box
+          <Grid container spacing={4}>
+            {/* Add/Edit Table Form - Left Column */}
+            <Grid item xs={12} md={4}>
+              <Card
+                sx={{
+                  borderRadius: "16px",
+                  p: 3,
+                  height: "100%",
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 3,
+                  }}
+                >
+                  <Typography
+                    variant="h6"
                     sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      justifyContent: "space-between",
+                      fontWeight: 600,
+                      color: "#1a237e",
                     }}
                   >
-                    <Typography
-                      variant="h5"
-                      sx={{
-                        mb: 1,
-                        fontWeight: 600,
-                        color: "#1a237e",
-                        textAlign: "center",
-                      }}
-                    >
-                      {editingTable !== null ? "Edit Table" : "Add New Table"}
-                    </Typography>
-                    <Tooltip
-                      title="Table details will be directly shared with customers. So make sure the table details are filled correctly"
-                      arrow
-                    >
-                      <Box
-                        sx={{
-                          width: 40,
-                          height: 40,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          borderRadius: "50%",
-                          cursor: "pointer",
-                          transition: "all 0.3s ease-in-out",
-                          "&:hover": {
-                            backgroundColor: "#FFF8D7",
-                            transform: "scale(1.1)",
-                          },
-                        }}
-                      >
-                        <TipsAndUpdatesIcon
-                          sx={{ color: "#FFBF00", fontSize: 24 }}
-                        />
-                      </Box>
-                    </Tooltip>
-                  </Box>
-
-                  <Grid container spacing={3} sx={{ mt: 1 }}>
-                    <Grid item xs={12}>
-                      <TextField
-                        size="small"
-                        label="Table Number"
-                        type="string"
-                        fullWidth
-                        sx={{ borderRadius: "12px" }}
-                        value={tableInput.tableNumber}
-                        onChange={(e) =>
-                          handleInputChange("tableNumber", e.target.value)
-                        }
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Box
-                        spacing={2}
-                        sx={{
-                          display: "flex",
-                          flexDirection: "row",
-                        }}
-                      >
-                        {" "}
-                        <TextField
-                          size="small"
-                          label="Seats"
-                          type="number"
-                          sx={{ width: "35%" }}
-                          value={tableInput.capacity}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            const numValue = Number(value);
-                            if (numValue >= 0 && numValue <= 12) {
-                              handleInputChange("capacity", value);
-                            }
-                          }}
-                          // InputProps={{
-                          //   sx: { borderRadius: "12px" },
-                          // }}
-                        />
-                        <TextField
-                          size="small"
-                          label="Pre-Booking Charges"
-                          type="number"
-                          sx={{ width: "65%", ml: 1 }}
-                          value={tableInput.bookingCharges}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            const numValue = Number(value);
-
-                            if (
-                              value === "" ||
-                              (numValue >= 0 && numValue <= 1000)
-                            ) {
-                              handleInputChange("bookingCharges", value);
-                            }
-                          }}
-                          // InputProps={{
-                          //   sx: { borderRadius: "12px" },
-                          // }}
-                        />
-                      </Box>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <TextField
-                        label="Booking Date"
-                        type="date"
-                        fullWidth
-                        size="small"
-                        sx={{ borderRadius: "12px" }}
-                        InputLabelProps={{ shrink: true }}
-                        value={selectedDate}
-                        onChange={(e) => setSelectedDate(e.target.value)} // now just a string
-                        inputProps={{
-                          min: formatDate(new Date()),
-                        }}
-                      />
-                    </Grid>
-
-                    <Grid item xs={12}>
-                      <FormControl fullWidth>
-                        <InputLabel>Status</InputLabel>
-                        <Select
-                          value={tableInput.status}
-                          onChange={(e) =>
-                            handleInputChange("status", e.target.value)
-                          }
-                          label="status"
-                          // sx={{ borderRadius: "12px" }}
-                        >
-                          <MenuItem key="1" value="available">
-                            Available
-                          </MenuItem>
-                          <MenuItem key="2" value="booked">
-                            Booked
-                          </MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <FormControl fullWidth>
-                        <InputLabel>Time Slot</InputLabel>
-                        <Select
-                          value={tableInput.timeslot}
-                          onChange={(e) =>
-                            handleInputChange("timeslot", e.target.value)
-                          }
-                          label="Time Slot"
-                          // sx={{ borderRadius: "12px" }}
-                        >
-                          {TIME_SLOTS.map((slot, index) => (
-                            <MenuItem key={index} value={slot}>
-                              {slot}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                  </Grid>
-
-                  <Box
-                    sx={{ display: "flex", justifyContent: "center", mt: 4 }}
+                    {editingTable !== null ? "Edit Table" : "Add New Table"}
+                  </Typography>
+                  <Tooltip
+                    title="Table details will be directly shared with customers. So make sure the table details are filled correctly"
+                    arrow
                   >
-                    {/* Submit Button */}
-                    <Button
-                      size="small"
-                      variant="contained"
-                      onClick={handleAddTable}
+                    <IconButton
                       sx={{
-                        bgcolor: "#1a237e",
-                        color: "white",
-                        px: 4,
-                        py: 1.5,
-                        borderRadius: "12px",
-                        fontSize: "1rem",
-                        textTransform: "none",
-                        boxShadow: "0 4px 12px rgba(26,35,126,0.3)",
+                        color: "#FFBF00",
                         "&:hover": {
-                          bgcolor: "#0d47a1",
+                          backgroundColor: "rgba(255, 191, 0, 0.1)",
                         },
                       }}
                     >
-                      {editingTable !== null ? "Update Table" : "Add Table"}
-                    </Button>
+                      <TipsAndUpdatesIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
 
-                    {editingTable !== null && (
-                      <Button
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <TextField
+                      size="small"
+                      label="Table Number"
+                      fullWidth
+                      value={tableInput.tableNumber}
+                      onChange={(e) =>
+                        handleInputChange("tableNumber", e.target.value)
+                      }
+                      sx={{ mb: 2 }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Box sx={{ display: "flex", gap: 2 }}>
+                      <TextField
                         size="small"
-                        variant="outlined"
-                        onClick={() => setEditingTable(null)}
+                        label="Seats"
+                        type="number"
+                        value={tableInput.capacity}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          const numValue = Number(value);
+                          if (numValue >= 0 && numValue <= 12) {
+                            handleInputChange("capacity", value);
+                          }
+                        }}
+                        sx={{ flex: 1 }}
+                      />
+                      <TextField
+                        size="small"
+                        label="Pre-Booking Charges"
+                        type="number"
+                        value={tableInput.bookingCharges}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          const numValue = Number(value);
+                          if (
+                            value === "" ||
+                            (numValue >= 0 && numValue <= 1000)
+                          ) {
+                            handleInputChange("bookingCharges", value);
+                          }
+                        }}
+                        sx={{ flex: 1 }}
+                      />
+                    </Box>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <TextField
+                      label="Booking Date"
+                      type="date"
+                      fullWidth
+                      size="small"
+                      InputLabelProps={{ shrink: true }}
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                      sx={{ mb: 2 }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                      <InputLabel>Status</InputLabel>
+                      <Select
+                        value={tableInput.status}
+                        onChange={(e) =>
+                          handleInputChange("status", e.target.value)
+                        }
+                        label="Status"
+                      >
+                        <MenuItem value="available">Available</MenuItem>
+                        <MenuItem value="booked">Booked</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <FormControl fullWidth size="small" sx={{ mb: 3 }}>
+                      <InputLabel>Time Slot</InputLabel>
+                      <Select
+                        value={tableInput.timeslot}
+                        onChange={(e) =>
+                          handleInputChange("timeslot", e.target.value)
+                        }
+                        label="Time Slot"
+                      >
+                        {TIME_SLOTS.map((slot, index) => (
+                          <MenuItem key={index} value={slot}>
+                            {slot}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        gap: 2,
+                      }}
+                    >
+                      <Button
+                        variant="contained"
+                        onClick={handleAddTable}
                         sx={{
-                          ml: 2, // Add spacing
-                          color: "#1a237e",
-                          borderColor: "#1a237e",
+                          bgcolor: "#1a237e",
+                          color: "white",
                           px: 4,
-                          py: 1.5,
+                          py: 1,
                           borderRadius: "12px",
-                          fontSize: "1rem",
-                          textTransform: "none",
                           "&:hover": {
-                            borderColor: "#0d47a1",
-                            color: "#0d47a1",
-                            backgroundColor: "#e3f2fd",
+                            bgcolor: "#0d47a1",
                           },
                         }}
                       >
-                        Cancel
+                        {editingTable !== null ? "Update Table" : "Add Table"}
                       </Button>
-                    )}
-                  </Box>
-                </Card>
-              </Grid>
 
-              {/* Table List */}
-              <Grid item xs={12} md={8}>
-                {/* <Card sx={{ borderRadius: "16px", p: 3, minHeight: "110%" }}> */}
-                {tableListLoader ? (
-                  <Skeleton
-                    animation="wave"
-                    sx={{ width: "47rem", height: "30rem" }}
-                  />
-                ) : (
-                  <>
-                    <Card
+                      {editingTable !== null && (
+                        <Button
+                          variant="outlined"
+                          onClick={() => setEditingTable(null)}
+                          sx={{
+                            color: "#1a237e",
+                            borderColor: "#1a237e",
+                            px: 4,
+                            py: 1,
+                            borderRadius: "12px",
+                            "&:hover": {
+                              borderColor: "#0d47a1",
+                              color: "#0d47a1",
+                            },
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      )}
+                    </Box>
+                  </Grid>
+                </Grid>
+              </Card>
+            </Grid>
+
+            {/* Table List - Right Column */}
+            <Grid item xs={12} md={8}>
+              {tableListLoader ? (
+                <Skeleton
+                  variant="rectangular"
+                  width="100%"
+                  height={600}
+                  sx={{ borderRadius: "16px" }}
+                />
+              ) : (
+                <Card
+                  sx={{
+                    borderRadius: "16px",
+                    p: 3,
+                    height: "100%",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                  }}
+                >
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      mb: 3,
+                      fontWeight: 600,
+                      color: "#1a237e",
+                      textAlign: "center",
+                    }}
+                  >
+                    Current Tables
+                  </Typography>
+
+                  {tables.length === 0 ? (
+                    <Box
                       sx={{
-                        borderRadius: "16px",
-                        p: 3,
-                        minHeight: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: 200,
+                        bgcolor: "rgba(0,0,0,0.03)",
+                        borderRadius: "12px",
                       }}
                     >
-                      {" "}
                       <Typography
-                        variant="h5"
-                        sx={{
-                          mb: 3,
-                          fontWeight: 600,
-                          color: "#1a237e",
-                          textAlign: "center",
-                        }}
+                        variant="h6"
+                        sx={{ color: "rgba(0,0,0,0.5)" }}
                       >
-                        Current Tables
+                        No tables added yet
                       </Typography>
-                      <Grid container spacing={3}>
-                        {tables.length === 0 ? (
-                          <Grid item xs={12}>
-                            <Box
+                    </Box>
+                  ) : (
+                    <Grid container spacing={3}>
+                      {tables.map((table, index) => (
+                        <Grid item xs={12} sm={6} md={4} key={index}>
+                          <motion.div
+                            initial="hidden"
+                            animate="visible"
+                            variants={cardVariants}
+                            transition={{ duration: 0.5, delay: index * 0.1 }}
+                          >
+                            <Card
                               sx={{
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                height: "200px",
-                                bgcolor: "rgba(0,0,0,0.03)",
                                 borderRadius: "12px",
+                                position: "relative",
+                                overflow: "visible",
+                                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                                transition: "all 0.3s ease",
+                                "&:hover": {
+                                  transform: "translateY(-5px)",
+                                  boxShadow: "0 8px 24px rgba(26,35,126,0.2)",
+                                },
                               }}
                             >
-                              <Typography
-                                variant="h6"
-                                sx={{ color: "rgba(0,0,0,0.5)" }}
-                              >
-                                No tables added yet
-                              </Typography>
-                            </Box>
-                          </Grid>
-                        ) : (
-                          tables.map((table, index) => (
-                            <Grid item xs={12} sm={6} md={4} key={index}>
-                              <motion.div
-                                initial="hidden"
-                                animate="visible"
-                                variants={cardVariants}
-                                transition={{
-                                  duration: 0.5,
-                                  delay: index * 0.1,
+                              <Box
+                                sx={{
+                                  position: "absolute",
+                                  top: -10,
+                                  right: -10,
+                                  display: "flex",
+                                  gap: 1,
+                                  zIndex: 1,
                                 }}
                               >
-                                <Card
+                                <IconButton
+                                  size="small"
+                                  onClick={() => handleEditTable(table._id)}
                                   sx={{
-                                    borderRadius: "12px",
-                                    position: "relative",
-                                    overflow: "visible",
-                                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                                    transform: "perspective(1000px)",
-                                    transition: "all 0.3s ease",
-                                    "&:hover": {
-                                      transform:
-                                        "perspective(1000px) rotateX(5deg) scale(1.05)",
-                                      boxShadow:
-                                        "0 8px 24px rgba(26,35,126,0.2)",
-                                    },
+                                    bgcolor: "#1a237e",
+                                    color: "white",
+                                    "&:hover": { bgcolor: "#0d47a1" },
                                   }}
                                 >
-                                  <Box
+                                  <EditIcon fontSize="small" />
+                                </IconButton>
+                                <IconButton
+                                  size="small"
+                                  onClick={() => handleConfirmDelete(table._id)}
+                                  sx={{
+                                    bgcolor: "#d32f2f",
+                                    color: "white",
+                                    "&:hover": { bgcolor: "#c62828" },
+                                  }}
+                                >
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </Box>
+
+                              <CardContent>
+                                <Typography
+                                  variant="h6"
+                                  sx={{
+                                    textAlign: "center",
+                                    color: "#1a237e",
+                                  }}
+                                >
+                                  Table {table.tableNumber}
+                                </Typography>
+                                <Divider sx={{ my: 1 }} />
+                                <Typography
+                                  sx={{
+                                    textAlign: "center",
+                                    color: "text.secondary",
+                                  }}
+                                >
+                                  <strong>
+                                    {moment(table.bookingDate).format(
+                                      "DD/MM/YYYY"
+                                    )}
+                                  </strong>
+                                </Typography>
+                                <Typography
+                                  sx={{
+                                    textAlign: "center",
+                                    color: "text.secondary",
+                                    mt: 0,
+                                  }}
+                                >
+                                  {table.timeslot}
+                                </Typography>
+                                <Typography
+                                  sx={{
+                                    textAlign: "center",
+                                    color: "text.secondary",
+                                  }}
+                                >
+                                  {table.capacity} Seats (₹
+                                  {table.bookingCharges})
+                                </Typography>
+                                <Box
+                                  sx={{
+                                    mt: 1,
+                                    p: 1,
+                                    borderRadius: "8px",
+                                    bgcolor:
+                                      table.status === "available"
+                                        ? "#4caf50"
+                                        : table.status === "booked"
+                                          ? "#DF1717"
+                                          : "#525150",
+                                    textAlign: "center",
+                                  }}
+                                >
+                                  <Typography
                                     sx={{
-                                      position: "absolute",
-                                      top: -10,
-                                      right: -10,
-                                      display: "flex",
-                                      gap: 1,
-                                      zIndex: 1,
+                                      color: "white",
+                                      fontSize: "0.875rem",
                                     }}
                                   >
-                                    <IconButton
-                                      size="small"
-                                      onClick={() => handleEditTable(table._id)}
-                                      sx={{
-                                        bgcolor: "#1a237e",
-                                        color: "white",
-                                        "&:hover": { bgcolor: "#0d47a1" },
-                                      }}
-                                    >
-                                      <EditIcon fontSize="small" />
-                                    </IconButton>
-                                    <IconButton
-                                      size="small"
-                                      onClick={() =>
-                                        handleConfirmDelete(table._id)
-                                      }
-                                      sx={{
-                                        bgcolor: "#d32f2f",
-                                        color: "white",
-                                        "&:hover": { bgcolor: "#c62828" },
-                                      }}
-                                    >
-                                      <DeleteIcon fontSize="small" />
-                                    </IconButton>
-                                  </Box>
-                                  <CardContent>
-                                    <Typography
-                                      variant="h6"
-                                      sx={{
-                                        textAlign: "center",
-                                        color: "#1a237e",
-                                      }}
-                                    >
-                                      Table {table.tableNumber}
-                                    </Typography>
-                                    <Divider sx={{ my: 1 }} />
-                                    <Typography
-                                      sx={{
-                                        textAlign: "center",
-                                        color: "text.secondary",
-                                      }}
-                                    >
-                                      {" "}
-                                      <strong>
-                                        {" "}
-                                        {moment(table.bookingDate).format(
-                                          "DD/MM/YYYY"
-                                        )}
-                                      </strong>
-                                    </Typography>
-                                    <Typography
-                                      sx={{
-                                        textAlign: "center",
-                                        color: "text.secondary",
-                                        mt: 0,
-                                      }}
-                                    >
-                                      {table.timeslot}
-                                    </Typography>{" "}
-                                    <Typography
-                                      sx={{
-                                        textAlign: "center",
-                                        color: "text.secondary",
-                                      }}
-                                    >
-                                      {table.capacity} Seats (₹
-                                      {table.bookingCharges})
-                                    </Typography>
-                                    <Box
-                                      sx={{
-                                        mt: 1,
-                                        p: 1,
-                                        borderRadius: "8px",
-                                        bgcolor:
-                                          table.status === "available"
-                                            ? "#4caf50"
-                                            : table.status === "booked"
-                                              ? "#DF1717"
-                                              : "#525150",
-
-                                        textAlign: "center",
-                                      }}
-                                    >
-                                      <Typography
-                                        sx={{
-                                          color: "white",
-                                          fontSize: "0.875rem",
-                                        }}
-                                      >
-                                        {table.status}{" "}
-                                      </Typography>
-                                    </Box>
-                                  </CardContent>
-                                </Card>
-                              </motion.div>
-                            </Grid>
-                          ))
-                        )}
-                      </Grid>
-                    </Card>
-                  </>
-                )}
-                {/* </Card> */}
-              </Grid>
+                                    {table.status}
+                                  </Typography>
+                                </Box>
+                              </CardContent>
+                            </Card>
+                          </motion.div>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  )}
+                </Card>
+              )}
             </Grid>
-          </Box>
+          </Grid>
         )}
 
         {activeTab === 1 && (
-          <Box sx={{ p: 4 }}>
-            <Card
-              sx={{
-                borderRadius: "16px",
-                overflow: "hidden",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
-              }}
-            >
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow sx={{ bgcolor: "#1a237e" }}>
-                      <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                        Booking ID
-                      </TableCell>
-                      <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                        Table No
-                      </TableCell>
-                      <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                        Seats
-                      </TableCell>
-                      <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                        Customer Name
-                      </TableCell>
-                      <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                        Mobile No
-                      </TableCell>
-                      <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                        Time Slot
-                      </TableCell>
-                      <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                        Date
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {rows
-                      .slice(
-                        page * rowsPerPage,
-                        page * rowsPerPage + rowsPerPage
-                      )
-                      .map((row) => (
-                        <TableRow
-                          key={row._id}
-                          sx={{
-                            "&:hover": { bgcolor: "rgba(26,35,126,0.05)" },
-                            transition: "background-color 0.2s",
-                          }}
-                        >
-                          <TableCell>{row._id}</TableCell>
-                          <TableCell>{row.tableNumber}</TableCell>
-                          <TableCell>{row.capacity}</TableCell>
-                          <TableCell>
-                            {row.bookedBy.firstName} {row.bookedBy.lastName}
-                          </TableCell>
-                          <TableCell>{row.bookedBy.mobileNo}</TableCell>
+          <Card
+            sx={{
+              borderRadius: "16px",
+              overflow: "hidden",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+            }}
+          >
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ bgcolor: "#D2E2F3" }}>
+                    <TableCell sx={{ color: "#1a237e", fontWeight: 600 }}>
+                      Booking ID
+                    </TableCell>
+                    <TableCell sx={{ color: "#1a237e", fontWeight: 600 }}>
+                      Booking Date
+                    </TableCell>
+                    <TableCell sx={{ color: "#1a237e", fontWeight: 600 }}>
+                      Table No
+                    </TableCell>
+                    <TableCell sx={{ color: "#1a237e", fontWeight: 600 }}>
+                      Seats
+                    </TableCell>
+                    <TableCell sx={{ color: "#1a237e", fontWeight: 600 }}>
+                      Time Slot
+                    </TableCell>
+                    <TableCell sx={{ color: "#1a237e", fontWeight: 600 }}>
+                      Mobile No
+                    </TableCell>
+                    <TableCell sx={{ color: "#1a237e", fontWeight: 600 }}>
+                      Status
+                    </TableCell>
 
-                          <TableCell>{row.timeslot}</TableCell>
-                          <TableCell>
-                            {new Date(row.bookedAt).toLocaleDateString()}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-                <TablePagination
-                  rowsPerPageOptions={[5, 10, 25]}
-                  component="div"
-                  count={rows.length}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
-                  onPageChange={handleChangePage}
-                  onRowsPerPageChange={handleChangeRowsPerPage}
-                />
-              </TableContainer>
-            </Card>
-          </Box>
+                    <TableCell sx={{ color: "#1a237e", fontWeight: 600 }}>
+                      Customer Name
+                    </TableCell>
+
+                    <TableCell sx={{ color: "#1a237e", fontWeight: 600 }}>
+                      Booked At
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {rows
+                    .slice()
+                    .sort((a, b) => new Date(b.bookedAt) - new Date(a.bookedAt))
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((row) => (
+                      <TableRow
+                        key={row._id}
+                        sx={{
+                          "&:hover": { bgcolor: "rgba(26,35,126,0.05)" },
+                          transition: "background-color 0.2s",
+                        }}
+                      >
+                        <TableCell>{row._id}</TableCell>
+                        <TableCell>
+                          {new Date(row.bookingDate).toLocaleDateString()}
+                        </TableCell>
+
+                        <TableCell>{row.tableNumber}</TableCell>
+                        <TableCell>{row.capacity}</TableCell>
+                        <TableCell>{row.timeslot}</TableCell>
+                        <TableCell>{row.bookedBy.mobileNo}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={row.status}
+                            variant="outlined"
+                            color="success"
+                          />
+                        </TableCell>
+
+                        <TableCell>
+                          {row.bookedBy.firstName} {row.bookedBy.lastName}
+                        </TableCell>
+
+                        <TableCell>
+                          {" "}
+                          {moment(row.bookedAt).format("YYYY-MM-DD hh:mm:ss A")}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={rows.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </TableContainer>
+          </Card>
+        )}
+
+        {activeTab === 2 && (
+          <Card
+            sx={{
+              borderRadius: "16px",
+              overflow: "hidden",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+            }}
+          >
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ bgcolor: "#D2E2F3" }}>
+                    <TableCell sx={{ color: "#1a237e", fontWeight: 600 }}>
+                      Booking ID
+                    </TableCell>
+                    <TableCell sx={{ color: "#1a237e", fontWeight: 600 }}>
+                      Booking Date
+                    </TableCell>
+                    <TableCell sx={{ color: "#1a237e", fontWeight: 600 }}>
+                      Table No
+                    </TableCell>
+                    <TableCell sx={{ color: "#1a237e", fontWeight: 600 }}>
+                      Seats
+                    </TableCell>
+                    <TableCell sx={{ color: "#1a237e", fontWeight: 600 }}>
+                      Time Slot
+                    </TableCell>
+                    <TableCell sx={{ color: "#1a237e", fontWeight: 600 }}>
+                      Mobile No
+                    </TableCell>
+                    <TableCell sx={{ color: "#1a237e", fontWeight: 600 }}>
+                      Status
+                    </TableCell>
+
+                    <TableCell sx={{ color: "#1a237e", fontWeight: 600 }}>
+                      Customer Name
+                    </TableCell>
+
+                    <TableCell sx={{ color: "#1a237e", fontWeight: 600 }}>
+                      Booked At
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {bookingHistory
+                    .slice()
+                    .sort((a, b) => new Date(b.bookedAt) - new Date(a.bookedAt))
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((row) => (
+                      <TableRow
+                        key={row._id}
+                        sx={{
+                          "&:hover": { bgcolor: "rgba(26,35,126,0.05)" },
+                          transition: "background-color 0.2s",
+                        }}
+                      >
+                        <TableCell>{row._id}</TableCell>
+                        <TableCell>
+                          {new Date(row.bookingDate).toLocaleDateString()}
+                        </TableCell>
+
+                        <TableCell>{row.tableNumber}</TableCell>
+                        <TableCell>{row.capacity}</TableCell>
+                        <TableCell>{row.timeslot}</TableCell>
+                        <TableCell>{row.bookedBy.mobileNo}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={row.status}
+                            variant="outlined"
+                            color="success"
+                          />
+                        </TableCell>
+
+                        <TableCell>
+                          {row.bookedBy.firstName} {row.bookedBy.lastName}
+                        </TableCell>
+
+                        <TableCell>
+                          {" "}
+                          {moment(row.bookedAt).format("YYYY-MM-DD hh:mm:ss A")}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={rows.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </TableContainer>
+          </Card>
         )}
       </Box>
 

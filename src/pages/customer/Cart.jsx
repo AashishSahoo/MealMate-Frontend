@@ -228,7 +228,7 @@ const Cart = () => {
       // 3. Initialize Razorpay Checkout
       const options = {
         // key: process.env.VITE_RAZORPAY_KEY_ID,
-        key: "rzp_test_XPXhBsvrBOFTxx",
+        key: "rzp_test_1wLEC32IyasGfA",
         amount: razorpayOrder.amount,
         currency: "INR",
         order_id: razorpayOrder.id,

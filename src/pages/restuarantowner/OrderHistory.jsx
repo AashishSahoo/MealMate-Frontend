@@ -35,6 +35,7 @@ import {
   LocationOn,
 } from "@mui/icons-material";
 import axios from "axios";
+import { Icon } from "@iconify/react";
 
 const columns = [
   { id: "userName", label: "Customer Name", minWidth: 150 },
@@ -219,7 +220,12 @@ const OrderHistory = () => {
               gap: 1,
             }}
           >
-            <LocalDiningRounded sx={{ color: "#4f46e5" }} />
+            <Icon
+              icon="lets-icons:order-fill"
+              width="44"
+              height="44"
+              style={{ color: "#4f46e5" }}
+            />
             Orders History
           </Typography>
         </Box>
@@ -300,6 +306,8 @@ const OrderHistory = () => {
               </TableRow>
             ) : (
               filteredOrders
+                .slice()
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((order, index) => (
                   <React.Fragment key={order.orderId}>

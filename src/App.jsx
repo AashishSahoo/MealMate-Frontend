@@ -11,12 +11,10 @@ import Register from "./pages/Register";
 import CustomerRegister from "./pages/CustomerRegister";
 import RestroOwnerRegister from "./pages/RestroOwnerRegister";
 // import RestuarantDashboard from "./restro-owner/RestuarantDashboard";
-import Home1 from "./pages/Home1";
 import AdminRegister from "./pages/AdminRegister";
 import HomeAdmin from "./pages/admin/HomeAdmin";
 import HomeRestroOwner from "./pages/restuarantowner/HomeRestroOwner";
 import Payment from "./pages/customer/Payment";
-// import Home1 from "./pages/HomeRestroOwner";
 
 function App() {
   return (

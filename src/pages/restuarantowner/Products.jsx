@@ -18,7 +18,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  
   TextField,
   Select,
   MenuItem,
@@ -67,7 +66,7 @@ import Chip from "@mui/material/Chip";
 
 function Products() {
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState(1);
+  const [activeTab, setActiveTab] = useState(0);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [formData, setFormData] = useState({
@@ -272,584 +271,537 @@ function Products() {
   }, []);
 
   return (
-    <Box
-      sx={{
-        height: "100vh", // Use full viewport height
-        display: "flex",
-        flexDirection: "column",
-        background: "#F5FDFE",
-      }}
-    >
-      <Fade in timeout={800}>
-        <Paper
+    <>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "86vh",
+          backgroundColor: "#F5FDFE",
+        }}
+      >
+        <Tabs
+          value={activeTab}
+          onChange={(e, newValue) => setActiveTab(newValue)}
+          textColor="primary"
+          indicatorColor="primary"
+          centered
           sx={{
-            flex: 1,
-            borderRadius: 4,
-            m: 2,
-            overflow: "hidden",
-            display: "flex",
-            flexDirection: "column",
+            "& .MuiTab-root": {
+              fontSize: "1rem",
+              fontWeight: 500,
+              color: "#1a237e",
+              "&.Mui-selected": {
+                color: "#0d47a1",
+              },
+            },
           }}
         >
-          <Box
-            sx={{ flexGrow: 1, overflow: "hidden", backgroundColor: "#F5FDFE" }}
-          >
-            <Card
-              elevation={4}
-              sx={{
-                height: "100%",
-                backgroundColor: "#F5FDFE",
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              <Tabs
-                value={activeTab}
-                onChange={(e, newValue) => setActiveTab(newValue)}
-                textColor="primary"
-                indicatorColor="primary"
-                centered
+          <Tab label="Add  Product" />
+          <Tab label="Product History" />
+        </Tabs>
+
+        {activeTab === 0 && (
+          <Fade in timeout={600}>
+            <Box sx={{ p: 3 }}>
+              <Card
+                elevation={4}
                 sx={{
-                  "& .MuiTab-root": {
-                    fontSize: "1rem",
-                    fontWeight: 500,
-                    color: "#1a237e",
-                    "&.Mui-selected": {
-                      color: "#0d47a1",
-                    },
-                  },
+                  p: 3,
+                  borderRadius: 4,
+                  background: "white",
+                  height: "98%",
                 }}
               >
-                <Tab label="Add Product" />
-                <Tab label="Product History" />
-              </Tabs>
-
-              {activeTab === 0 && (
-                <Fade in timeout={600}>
-                  <Box sx={{ p: 3 }}>
-                    <Card
-                      elevation={4}
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={5}>
+                    <Box
                       sx={{
-                        p: 3,
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        // background:
+                        // "linear-gradient(135deg, #1a237e 0%, #0d47a1 100%)",
                         borderRadius: 4,
-                        background: "white",
-                        height: "98%",
+                        p: 2,
                       }}
                     >
+                      <Box
+                        component="img"
+                        src={img}
+                        alt="Placeholder"
+                        sx={{
+                          width: "100%",
+                          maxHeight: "100%",
+                          objectFit: "contain",
+                          transition: "transform 0.3s ease-in-out",
+                          "&:hover": {
+                            transform: "scale(1.15)",
+                          },
+                        }}
+                      />
+                    </Box>
+                  </Grid>
+
+                  <Grid item xs={12} md={7}>
+                    <Typography
+                      variant="h5"
+                      sx={{
+                        mb: 4,
+                        fontWeight: 700,
+                        color: "#1a237e",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      Add New Product
+                      <Tooltip
+                        title="By default, the product will be available. You can change its status in the Product History section"
+                        arrow
+                      >
+                        {" "}
+                        <Box
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            // backgroundColor: "#7b72da",
+                            borderRadius: "50%",
+                            cursor: "pointer",
+                            transition: "all 0.3s ease-in-out",
+                            "&:hover": {
+                              backgroundColor: "#FFF8D7",
+                              transform: "scale(1.1)",
+                            },
+                          }}
+                        >
+                          <TipsAndUpdatesIcon
+                            sx={{ color: "#FFBF00", fontSize: 24 }}
+                          />
+                        </Box>
+                      </Tooltip>
+                    </Typography>
+
+                    <form onSubmit={handleSubmit}>
                       <Grid container spacing={3}>
-                        <Grid item xs={12} md={5}>
-                          <Box
+                        <Grid item xs={12}>
+                          <TextField
+                            required
+                            name="name"
+                            label="Product Name"
+                            variant="outlined"
+                            fullWidth
+                            value={formData.name}
+                            onChange={handleInputChange}
                             sx={{
-                              height: "100%",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              // background:
-                              // "linear-gradient(135deg, #1a237e 0%, #0d47a1 100%)",
-                              borderRadius: 4,
-                              p: 2,
+                              "& .MuiOutlinedInput-root": {
+                                borderRadius: 2,
+                              },
                             }}
-                          >
-                            <Box
-                              component="img"
-                              src={img}
-                              alt="Placeholder"
-                              sx={{
-                                width: "100%",
-                                maxHeight: "100%",
-                                objectFit: "contain",
-                                transition: "transform 0.3s ease-in-out",
-                                "&:hover": {
-                                  transform: "scale(1.15)",
-                                },
-                              }}
-                            />
-                          </Box>
+                          />
                         </Grid>
 
-                        <Grid item xs={12} md={7}>
-                          <Typography
-                            variant="h5"
+                        <Grid item xs={12}>
+                          <TextField
+                            required
+                            name="description"
+                            label="Description"
+                            variant="outlined"
+                            multiline
+                            rows={1}
+                            fullWidth
+                            value={formData.description}
+                            onChange={handleInputChange}
                             sx={{
-                              mb: 4,
-                              fontWeight: 700,
-                              color: "#1a237e",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
+                              "& .MuiOutlinedInput-root": {
+                                borderRadius: 2,
+                              },
                             }}
-                          >
-                            Add New Product
-                            <Tooltip
-                              title="By default, the product will be available. You can change its status in the Product History section"
-                              arrow
+                          />
+                        </Grid>
+
+                        <Grid item xs={12} md={6}>
+                          <TextField
+                            required
+                            name="price"
+                            label="Price"
+                            type="number"
+                            variant="outlined"
+                            fullWidth
+                            value={formData.price}
+                            onChange={handleInputChange}
+                            sx={{
+                              "& .MuiOutlinedInput-root": {
+                                borderRadius: 2,
+                              },
+                            }}
+                          />
+                        </Grid>
+
+                        <Grid item xs={12} md={6}>
+                          <FormControl fullWidth required>
+                            <InputLabel>Category</InputLabel>
+                            <Select
+                              value={formData.category}
+                              onChange={handleCategoryChange}
+                              sx={{ borderRadius: 2 }}
                             >
-                              {" "}
-                              <Box
-                                sx={{
-                                  width: 40,
-                                  height: 40,
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  // backgroundColor: "#7b72da",
-                                  borderRadius: "50%",
-                                  cursor: "pointer",
-                                  transition: "all 0.3s ease-in-out",
-                                  "&:hover": {
-                                    backgroundColor: "#FFF8D7",
-                                    transform: "scale(1.1)",
-                                  },
-                                }}
-                              >
-                                <TipsAndUpdatesIcon
-                                  sx={{ color: "#FFBF00", fontSize: 24 }}
-                                />
-                              </Box>
-                            </Tooltip>
-                          </Typography>
-
-                          <form onSubmit={handleSubmit}>
-                            <Grid container spacing={3}>
-                              <Grid item xs={12}>
-                                <TextField
-                                  required
-                                  name="name"
-                                  label="Product Name"
-                                  variant="outlined"
-                                  fullWidth
-                                  value={formData.name}
-                                  onChange={handleInputChange}
-                                  sx={{
-                                    "& .MuiOutlinedInput-root": {
-                                      borderRadius: 2,
-                                    },
-                                  }}
-                                />
-                              </Grid>
-
-                              <Grid item xs={12}>
-                                <TextField
-                                  required
-                                  name="description"
-                                  label="Description"
-                                  variant="outlined"
-                                  multiline
-                                  rows={1}
-                                  fullWidth
-                                  value={formData.description}
-                                  onChange={handleInputChange}
-                                  sx={{
-                                    "& .MuiOutlinedInput-root": {
-                                      borderRadius: 2,
-                                    },
-                                  }}
-                                />
-                              </Grid>
-
-                              <Grid item xs={12} md={6}>
-                                <TextField
-                                  required
-                                  name="price"
-                                  label="Price"
-                                  type="number"
-                                  variant="outlined"
-                                  fullWidth
-                                  value={formData.price}
-                                  onChange={handleInputChange}
-                                  sx={{
-                                    "& .MuiOutlinedInput-root": {
-                                      borderRadius: 2,
-                                    },
-                                  }}
-                                />
-                              </Grid>
-
-                              <Grid item xs={12} md={6}>
-                                <FormControl fullWidth required>
-                                  <InputLabel>Category</InputLabel>
-                                  <Select
-                                    value={formData.category}
-                                    onChange={handleCategoryChange}
-                                    sx={{ borderRadius: 2 }}
-                                  >
-                                    {category.map((item) => (
-                                      <MenuItem key={item._id} value={item._id}>
-                                        {item.name}
-                                      </MenuItem>
-                                    ))}
-                                    {/* {category.map ? (
+                              {category.map((item) => (
+                                <MenuItem key={item._id} value={item._id}>
+                                  {item.name}
+                                </MenuItem>
+                              ))}
+                              {/* {category.map ? (
                                       <MenuItem key={category._id}>
                                         {category.name}
                                       </MenuItem>
                                     ) : (
                                       <></>
                                     )} */}
-                                  </Select>
-                                </FormControl>
-                              </Grid>
+                            </Select>
+                          </FormControl>
+                        </Grid>
 
-                              <Grid item xs={12}>
-                                <Box
-                                  sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 3,
-                                    p: 3,
-                                    borderRadius: 2,
-                                    border: "2px dashed #1a237e",
-                                    background: "rgba(26, 35, 126, 0.05)",
-                                  }}
-                                >
-                                  {formData.image ? (
-                                    <img
-                                      src={URL.createObjectURL(formData.image)}
-                                      alt="Product Preview"
-                                      style={{
-                                        width: "100px",
-                                        height: "100px",
-                                        objectFit: "cover",
-                                        borderRadius: "8px",
-                                      }}
-                                    />
-                                  ) : (
-                                    <CloudUploadIcon
-                                      sx={{
-                                        fontSize: "4rem",
-                                        color: "#1a237e",
-                                        opacity: 0.5,
-                                      }}
-                                    />
-                                  )}
+                        <Grid item xs={12}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 3,
+                              p: 3,
+                              borderRadius: 2,
+                              border: "2px dashed #1a237e",
+                              background: "rgba(26, 35, 126, 0.05)",
+                            }}
+                          >
+                            {formData.image ? (
+                              <img
+                                src={URL.createObjectURL(formData.image)}
+                                alt="Product Preview"
+                                style={{
+                                  width: "100px",
+                                  height: "100px",
+                                  objectFit: "cover",
+                                  borderRadius: "8px",
+                                }}
+                              />
+                            ) : (
+                              <CloudUploadIcon
+                                sx={{
+                                  fontSize: "4rem",
+                                  color: "#1a237e",
+                                  opacity: 0.5,
+                                }}
+                              />
+                            )}
 
-                                  <label htmlFor="icon-button-file">
-                                    <input
-                                      accept="image/*"
-                                      style={{ display: "none" }}
-                                      id="icon-button-file"
-                                      type="file"
-                                      onChange={handleImageChange}
-                                    />
-                                    <Button
-                                      variant="outlined"
-                                      component="span"
-                                      startIcon={<PhotoCamera />}
-                                      sx={{
-                                        color: "#1a237e",
-                                        borderColor: "#1a237e",
-                                        "&:hover": {
-                                          borderColor: "#0d47a1",
-                                          background: "rgba(26, 35, 126, 0.1)",
-                                        },
-                                      }}
-                                    >
-                                      Upload Image
-                                    </Button>
-                                  </label>
-                                </Box>
-                              </Grid>
+                            <label htmlFor="icon-button-file">
+                              <input
+                                accept="image/*"
+                                style={{ display: "none" }}
+                                id="icon-button-file"
+                                type="file"
+                                onChange={handleImageChange}
+                              />
+                              <Button
+                                variant="outlined"
+                                component="span"
+                                startIcon={<PhotoCamera />}
+                                sx={{
+                                  color: "#1a237e",
+                                  borderColor: "#1a237e",
+                                  "&:hover": {
+                                    borderColor: "#0d47a1",
+                                    background: "rgba(26, 35, 126, 0.1)",
+                                  },
+                                }}
+                              >
+                                Upload Image
+                              </Button>
+                            </label>
+                          </Box>
+                        </Grid>
 
-                              <Grid item xs={12}>
-                                <Button
-                                  type="submit"
-                                  variant="contained"
-                                  fullWidth
-                                  sx={{
-                                    py: 1.5,
-                                    borderRadius: 2,
-                                    background:
-                                      "linear-gradient(135deg, #1a237e 0%, #0d47a1 100%)",
-                                    "&:hover": {
-                                      background:
-                                        "linear-gradient(135deg, #0d47a1 0%, #1a237e 100%)",
-                                    },
-                                  }}
-                                >
-                                  Add Product
-                                </Button>
-                              </Grid>
-                            </Grid>
-                          </form>
+                        <Grid item xs={12}>
+                          <Button
+                            type="submit"
+                            variant="contained"
+                            fullWidth
+                            sx={{
+                              py: 1.5,
+                              borderRadius: 2,
+                              background:
+                                "linear-gradient(135deg, #1a237e 0%, #0d47a1 100%)",
+                              "&:hover": {
+                                background:
+                                  "linear-gradient(135deg, #0d47a1 0%, #1a237e 100%)",
+                              },
+                            }}
+                          >
+                            Add Product
+                          </Button>
                         </Grid>
                       </Grid>
-                    </Card>
-                  </Box>
-                </Fade>
-              )}
+                    </form>
+                  </Grid>
+                </Grid>
+              </Card>
+            </Box>
+          </Fade>
+        )}
 
-              {activeTab === 1 && (
-                <Fade in timeout={600}>
-                  <Box sx={{ p: 3 }}>
-                    <Card
-                      sx={{
-                        borderRadius: 4,
-                        overflow: "hidden",
-                        background: "white",
-                        height: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        flex: 1, // Add this to fill available space
-                      }}
-                    >
-                      <TableContainer
-                        sx={{
-                          flex: 1, // This makes the table container grow to fill space
-                          minHeight: 0, // Important for flex children to scroll properly
-                          overflow: "auto", // Ensures scrolling works
-                          position: "relative", // Helps with sticky header
-                        }}
-                      >
-                        <Table stickyHeader>
-                          <TableHead>
-                            <TableRow>
-                              <TableCell
-                                sx={{ fontWeight: 600, color: "#1a237e" }}
-                              >
-                                Image
-                              </TableCell>
-                              <TableCell
-                                sx={{ fontWeight: 600, color: "#1a237e" }}
-                              >
-                                Product Name
-                              </TableCell>
-                              <TableCell
-                                sx={{ fontWeight: 600, color: "#1a237e" }}
-                              >
-                                Category
-                              </TableCell>
-                              <TableCell
-                                sx={{ fontWeight: 600, color: "#1a237e" }}
-                              >
-                                Price
-                              </TableCell>
-                              <TableCell
-                                sx={{ fontWeight: 600, color: "#1a237e" }}
-                              >
-                                Description
-                              </TableCell>
-                              <TableCell
-                                sx={{ fontWeight: 600, color: "#1a237e" }}
-                              >
-                                Date
-                              </TableCell>
-                              <TableCell
-                                sx={{ fontWeight: 600, color: "#1a237e" }}
-                              >
-                                Available
-                              </TableCell>
+        {activeTab === 1 && (
+          <Fade in timeout={600}>
+            <Box sx={{ p: 3 }}>
+              <Card
+                sx={{
+                  borderRadius: 4,
+                  overflow: "hidden",
+                  background: "white",
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  flex: 1, // Add this to fill available space
+                }}
+              >
+                <TableContainer
+                  sx={{
+                    flex: 1, // This makes the table container grow to fill space
+                    minHeight: 0, // Important for flex children to scroll properly
+                    overflow: "auto", // Ensures scrolling works
+                    position: "relative", // Helps with sticky header
+                  }}
+                >
+                  <Table stickyHeader>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: 600, color: "#1a237e" }}>
+                          Image
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, color: "#1a237e" }}>
+                          Product Name
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, color: "#1a237e" }}>
+                          Category
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, color: "#1a237e" }}>
+                          Price
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, color: "#1a237e" }}>
+                          Description
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, color: "#1a237e" }}>
+                          Date
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, color: "#1a237e" }}>
+                          Available
+                        </TableCell>
 
-                              <TableCell
-                                sx={{ fontWeight: 600, color: "#1a237e" }}
-                              >
-                                Actions
-                              </TableCell>
-                            </TableRow>
-                          </TableHead>
-                          {loading && (
-                            <TableBody>
-                              {Array.from({ length: rowsPerPage }).map(
-                                (_, index) => (
-                                  <TableRow key={`skeleton-${index}`}>
-                                    <TableCell>
-                                      <Skeleton
-                                        variant="rectangular"
-                                        width={50}
-                                        height={50}
-                                      />
-                                    </TableCell>
-                                    <TableCell>
-                                      <Skeleton variant="text" width="80%" />
-                                    </TableCell>
-                                    <TableCell>
-                                      <Skeleton variant="text" width="60%" />
-                                    </TableCell>
-                                    <TableCell>
-                                      <Skeleton variant="text" width="40%" />
-                                    </TableCell>
-                                    <TableCell>
-                                      <Skeleton variant="text" width="90%" />
-                                    </TableCell>
-                                    <TableCell>
-                                      <Skeleton variant="text" width="70%" />
-                                    </TableCell>
-                                    <TableCell>
-                                      <Skeleton
-                                        variant="circular"
-                                        width={24}
-                                        height={24}
-                                      />
-                                    </TableCell>
-                                    <TableCell>
-                                      <Box sx={{ display: "flex", gap: 1 }}>
-                                        <Skeleton
-                                          variant="circular"
-                                          width={40}
-                                          height={40}
-                                        />
-                                        <Skeleton
-                                          variant="circular"
-                                          width={40}
-                                          height={40}
-                                        />
-                                      </Box>
-                                    </TableCell>
-                                  </TableRow>
-                                )
+                        <TableCell sx={{ fontWeight: 600, color: "#1a237e" }}>
+                          Actions
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    {loading && (
+                      <TableBody>
+                        {Array.from({ length: rowsPerPage }).map((_, index) => (
+                          <TableRow key={`skeleton-${index}`}>
+                            <TableCell>
+                              <Skeleton
+                                variant="rectangular"
+                                width={50}
+                                height={50}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Skeleton variant="text" width="80%" />
+                            </TableCell>
+                            <TableCell>
+                              <Skeleton variant="text" width="60%" />
+                            </TableCell>
+                            <TableCell>
+                              <Skeleton variant="text" width="40%" />
+                            </TableCell>
+                            <TableCell>
+                              <Skeleton variant="text" width="90%" />
+                            </TableCell>
+                            <TableCell>
+                              <Skeleton variant="text" width="70%" />
+                            </TableCell>
+                            <TableCell>
+                              <Skeleton
+                                variant="circular"
+                                width={24}
+                                height={24}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Box sx={{ display: "flex", gap: 1 }}>
+                                <Skeleton
+                                  variant="circular"
+                                  width={40}
+                                  height={40}
+                                />
+                                <Skeleton
+                                  variant="circular"
+                                  width={40}
+                                  height={40}
+                                />
+                              </Box>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    )}
+                    <TableBody>
+                      {products
+                        .slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage
+                        )
+                        .map((product) => (
+                          <TableRow
+                            key={product._id}
+                            sx={{
+                              "&:hover": {
+                                background: "rgba(26, 35, 126, 0.05)",
+                              },
+                            }}
+                          >
+                            <TableCell>
+                              <Box
+                                component="img"
+                                src={product.imageUrl}
+                                alt={product.name}
+                                sx={{
+                                  width: 50,
+                                  height: 50,
+                                  borderRadius: 2,
+                                  cursor: "pointer",
+                                  transition: "transform 0.2s",
+                                  "&:hover": {
+                                    transform: "scale(1.1)",
+                                  },
+                                }}
+                                onClick={() =>
+                                  handleViewImage(product.imageUrl)
+                                }
+                              />
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                maxWidth: "150px",
+                              }}
+                            >
+                              <Tooltip arrow title={product.name}>
+                                {product.name}
+                              </Tooltip>
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                maxWidth: "100px",
+                              }}
+                            >
+                              <Tooltip arrow title={product.category.name}>
+                                {product.category.name}
+                              </Tooltip>
+                            </TableCell>
+                            <TableCell>₹{product.price}</TableCell>
+                            <TableCell
+                              sx={{
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                maxWidth: "150px",
+                              }}
+                            >
+                              <Tooltip arrow title={product.description}>
+                                {product.description}
+                              </Tooltip>
+                            </TableCell>
+                            <TableCell>
+                              {moment(product.createdAt).format(
+                                "D/M/YYYY, HH:mm:ss"
                               )}
-                            </TableBody>
-                          )}
-                          <TableBody>
-                            {products
-                              .slice(
-                                page * rowsPerPage,
-                                page * rowsPerPage + rowsPerPage
-                              )
-                              .map((product) => (
-                                <TableRow
-                                  key={product._id}
+                            </TableCell>
+                            <TableCell alignItems="center">
+                              {product.available ? (
+                                <>
+                                  <Chip
+                                    size="small"
+                                    label="Available"
+                                    variant="outlined"
+                                    color="success"
+                                  />
+                                </>
+                              ) : (
+                                <Chip
+                                  size="small"
+                                  label="Sold Out"
+                                  variant="outlined"
+                                  color="error"
+                                />
+                              )}
+                            </TableCell>
+
+                            <TableCell>
+                              <Tooltip title="Edit">
+                                <IconButton
+                                  onClick={() => handleEdit(product)}
                                   sx={{
+                                    color: "#1a237e",
                                     "&:hover": {
-                                      background: "rgba(26, 35, 126, 0.05)",
+                                      background: "rgba(26, 35, 126, 0.1)",
                                     },
                                   }}
                                 >
-                                  <TableCell>
-                                    <Box
-                                      component="img"
-                                      src={product.imageUrl}
-                                      alt={product.name}
-                                      sx={{
-                                        width: 50,
-                                        height: 50,
-                                        borderRadius: 2,
-                                        cursor: "pointer",
-                                        transition: "transform 0.2s",
-                                        "&:hover": {
-                                          transform: "scale(1.1)",
-                                        },
-                                      }}
-                                      onClick={() =>
-                                        handleViewImage(product.imageUrl)
-                                      }
-                                    />
-                                  </TableCell>
-                                  <TableCell
-                                    sx={{
-                                      whiteSpace: "nowrap",
-                                      overflow: "hidden",
-                                      textOverflow: "ellipsis",
-                                      maxWidth: "150px",
-                                    }}
-                                  >
-                                    <Tooltip arrow title={product.name}>
-                                      {product.name}
-                                    </Tooltip>
-                                  </TableCell>
-                                  <TableCell
-                                    sx={{
-                                      whiteSpace: "nowrap",
-                                      overflow: "hidden",
-                                      textOverflow: "ellipsis",
-                                      maxWidth: "100px",
-                                    }}
-                                  >
-                                    <Tooltip
-                                      arrow
-                                      title={product.category.name}
-                                    >
-                                      {product.category.name}
-                                    </Tooltip>
-                                  </TableCell>
-                                  <TableCell>₹{product.price}</TableCell>
-                                  <TableCell
-                                    sx={{
-                                      whiteSpace: "nowrap",
-                                      overflow: "hidden",
-                                      textOverflow: "ellipsis",
-                                      maxWidth: "150px",
-                                    }}
-                                  >
-                                    <Tooltip arrow title={product.description}>
-                                      {product.description}
-                                    </Tooltip>
-                                  </TableCell>
-                                  <TableCell>
-                                    {moment(product.createdAt).format(
-                                      "D/M/YYYY, HH:mm:ss"
-                                    )}
-                                  </TableCell>
-                                  <TableCell alignItems="center">
-                                    {product.available ? (
-                                      <>
-                                        <Chip
-                                          size="small"
-                                          label="Available"
-                                          variant="outlined"
-                                          color="success"
-                                        />
-                                      </>
-                                    ) : (
-                                      <Chip
-                                        size="small"
-                                        label="Sold Out"
-                                        variant="outlined"
-                                        color="error"
-                                      />
-                                    )}
-                                  </TableCell>
+                                  <EditNoteIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Delete">
+                                <IconButton
+                                  onClick={() => handleDelete(product)}
+                                  sx={{
+                                    color: "#d32f2f",
+                                    "&:hover": {
+                                      background: "rgba(211, 47, 47, 0.1)",
+                                    },
+                                  }}
+                                >
+                                  <Delete />
+                                </IconButton>
+                              </Tooltip>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                <TablePagination
+                  rowsPerPageOptions={[5, 15, 25]}
+                  component="div"
+                  count={products.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+              </Card>
+            </Box>
+          </Fade>
+        )}
+      </Box>
 
-                                  <TableCell>
-                                    <Tooltip title="Edit">
-                                      <IconButton
-                                        onClick={() => handleEdit(product)}
-                                        sx={{
-                                          color: "#1a237e",
-                                          "&:hover": {
-                                            background:
-                                              "rgba(26, 35, 126, 0.1)",
-                                          },
-                                        }}
-                                      >
-                                        <EditNoteIcon />
-                                      </IconButton>
-                                    </Tooltip>
-                                    <Tooltip title="Delete">
-                                      <IconButton
-                                        onClick={() => handleDelete(product)}
-                                        sx={{
-                                          color: "#d32f2f",
-                                          "&:hover": {
-                                            background:
-                                              "rgba(211, 47, 47, 0.1)",
-                                          },
-                                        }}
-                                      >
-                                        <Delete />
-                                      </IconButton>
-                                    </Tooltip>
-                                  </TableCell>
-                                </TableRow>
-                              ))}
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                      <TablePagination
-                        rowsPerPageOptions={[5, 15, 25]}
-                        component="div"
-                        count={products.length}
-                        rowsPerPage={rowsPerPage}
-                        page={page}
-                        onPageChange={handleChangePage}
-                        onRowsPerPageChange={handleChangeRowsPerPage}
-                      />
-                    </Card>
-                  </Box>
-                </Fade>
-              )}
-            </Card>
-          </Box>
-        </Paper>
-      </Fade>
       {/* Edit Dialog */}
       <Dialog
         open={editDialogOpen}
@@ -1179,8 +1131,7 @@ function Products() {
           />
         </DialogContent>
       </Dialog>
-
-    </Box>
+    </>
   );
 }
 

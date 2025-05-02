@@ -25,6 +25,7 @@ import TimelineIcon from "@mui/icons-material/Timeline";
 import axios from "axios";
 import { CardSkeleton } from "../../component/CardSkeleton";
 import { Skeleton } from "@mui/material";
+import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 
 const DashboardRestrOwner = () => {
   const [orders, setOrders] = useState([]);
@@ -66,7 +67,7 @@ const DashboardRestrOwner = () => {
     {
       title: "Total Revenue",
       color: "linear-gradient(135deg, #43CBFF 0%, #9708CC 100%)",
-      icon: <AttachMoneyIcon />,
+      icon: <CurrencyRupeeIcon />,
       dataKey: "totalRevenue",
     },
     {
@@ -249,7 +250,7 @@ const DashboardRestrOwner = () => {
                       />
                     ) : (
                       <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                        {data[card.dataKey]}
+                        {Math.round(data[card.dataKey])}
                       </Typography>
                     )}
                   </CardContent>
