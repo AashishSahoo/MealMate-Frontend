@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Paper,
@@ -12,48 +12,72 @@ import {
   InputLabel,
   CircularProgress,
   FormHelperText,
+  Grid,
 } from "@mui/material";
-import logo3 from "../assets/Applogo2.png";
-import Slideshow from "../component/Slideshow";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-import { login } from "../store/authslice";
 import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
+import { login } from "../store/authslice";
 import axios from "axios";
-import ErrorIcon from "@mui/icons-material/Error";
+import logo3 from "../assets/Applogo2.png";
+import { Icon } from "@iconify/react";
 
 const Login = () => {
-  const [openErrorMsg, setErrorMsg] = useState(false);
+  // Slideshow State
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const media = [
+    "../assets/slideshow/img19.jpg",
+    "../assets/slideshow/img20.jpg",
+    "../assets/slideshow/img21.jpg",
+    "../assets/slideshow/img23.jpg",
+    "../assets/slideshow/vdo4.mp4",
+    "../assets/slideshow/vdo5.mp4",
+    "../assets/slideshow/img5.jpg",
+    "../assets/slideshow/img6.jpg",
+    "../assets/slideshow/img7.jpg",
+    "../assets/slideshow/img8.jpg",
+    "../assets/slideshow/img9.jpg",
+  ];
 
-  const [loading, setLoading] = useState(false); // Loading state
+  // Login State
+  const [openErrorMsg, setErrorMsg] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    // email: "ashishsahoo0013@gmail.com",
-    // email: "admin@gmail.com",
     email: "mailtoashishsahoo@gmail.com",
     password: "Pass@123",
-    // roleType: "restro-owner",
-    // roleType: "admin",
     roleType: "customer",
-  }); // Fixed incorrect initialization of formData
+  });
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const authState = useSelector((state) => state.auth);
 
+  // Slideshow Effect
+  useEffect(() => {
+    const isVideo =
+      media[currentIndex].endsWith(".mp4") ||
+      media[currentIndex].endsWith(".webm");
+    const timer = setTimeout(
+      () => {
+        setCurrentIndex((prev) => (prev + 1) % media.length);
+      },
+      isVideo ? 6000 : 4000
+    );
+
+    return () => clearTimeout(timer);
+  }, [currentIndex, media.length]);
+
+  // Login Handler
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // Start loader
+    setLoading(true);
 
     try {
       const response = await axios.post(`/api/auth/login`, formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
 
       if (response?.data?.resultCode === 0) {
         const data = response.data.resultData;
-
         const userData = {
           user: data.user.roleType,
           token: data.token,
@@ -62,15 +86,7 @@ const Login = () => {
         };
 
         localStorage.setItem("userInfo", JSON.stringify(userData));
-
-        dispatch(
-          login({
-            user: data.user.roleType,
-            token: data.token,
-            email: data.user.email,
-            userId: data.user.userId,
-          })
-        );
+        dispatch(login(userData));
 
         const redirectTo =
           formData.roleType === "admin"
@@ -78,100 +94,96 @@ const Login = () => {
             : formData.roleType === "restro-owner"
               ? "/resto-owner"
               : "/customer";
-
         navigate(redirectTo);
-
-        //   Swal.fire({
-        //     title: "Login successful",
-        //     icon: "success",
-        //   });
-        // } else {
-        //   Swal.fire({
-        //     title: "Invalid Credentials",
-        //     icon: "error",
-        //   });
       }
 
-      if (response?.data?.resultCode === 71) {
-        setErrorMsg(true);
-      }
+      if (response?.data?.resultCode === 71) setErrorMsg(true);
     } catch (error) {
-      console.error("Error during login:", error);
       Swal.fire({
         title: "Network error",
         text: "Please try again later",
         icon: "error",
       });
     } finally {
-      setLoading(false); // Stop loader
+      setLoading(false);
     }
   };
-
-  useEffect(() => {
-    // console.log("Redux state after login:", authState);
-  }, [authState]);
 
   return (
     <Box
       sx={{
         display: "flex",
-        height: "96vh",
+        height: "97vh",
         width: "99vw",
         overflow: "hidden",
+        borderRadius: 2,
       }}
     >
-      {/* Left Side - Login Form */}
+      {/* Login Form - Left Side */}
       <Box
         sx={{
-          width: "30%",
+          width: { xs: "100%", md: "35%" },
+          minWidth: 400,
+          height: "100%",
           display: "flex",
-          justifyContent: "center",
           alignItems: "center",
-          backgroundColor: "#ffffffcc",
-          padding: "10px",
+          justifyContent: "center",
+          background: "linear-gradient(135deg, #f3e5f5 0%, #ede7f6 100%)",
+          // zIndex: 2,
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <Paper
-          elevation={6}
+        <Box
           sx={{
-            padding: "50px 40px",
-            maxWidth: "400px",
-            width: "100%",
-            textAlign: "center",
-            borderRadius: "12px",
-            minHeight: "88%",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
+            width: "80%",
+            maxWidth: 400,
+            padding: 4,
+            backgroundColor: "#fff",
+            borderRadius: 3,
+            boxShadow: "0 6px 20px rgba(103, 58, 183, 0.15)",
           }}
         >
-          <form onSubmit={handleSubmit}>
-            <Box
-              component="img"
+          <Box sx={{ textAlign: "center", mb: 4 }}>
+            <img
               src={logo3}
-              alt="Application Logo"
-              sx={{
-                width: "300px",
-                height: "300px",
-                marginBottom: "0px",
-                ml: "20px",
-              }}
+              alt="Logo"
+              style={{ width: 120, marginBottom: 16 }}
             />
-            <Typography variant="h4" gutterBottom>
-              Welcome Back
-            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Typography
+                variant="h5"
+                sx={{
+                  fontWeight: 700,
+                  color: "#512da8",
+                  letterSpacing: 0.5,
+                  mr: 1,
+                }}
+              >
+                Welcome Back{"   "}
+              </Typography>
+              <Icon
+                icon="icomoon-free:happy"
+                style={{ fontSize: "2rem", color: "#673ab7" }}
+              />
+            </Box>
+          </Box>
 
-            {/* Role Selection */}
-            <FormControl fullWidth sx={{ marginBottom: "15px" }}>
-              <InputLabel id="role-select-label">Select Role</InputLabel>
+          <form onSubmit={handleSubmit}>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Select Role</InputLabel>
               <Select
-                size="small"
-                labelId="role-select-label"
                 value={formData.roleType}
                 onChange={(e) =>
                   setFormData({ ...formData, roleType: e.target.value })
                 }
                 label="Select Role"
+                size="small"
               >
                 <MenuItem value="admin">Admin</MenuItem>
                 <MenuItem value="restro-owner">Restaurant Owner</MenuItem>
@@ -180,52 +192,51 @@ const Login = () => {
             </FormControl>
 
             <TextField
-              size="small"
-              label="Email Address"
-              variant="outlined"
               fullWidth
+              label="Email"
               margin="normal"
+              size="small"
               value={formData.email}
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
               }
-              sx={{ marginBottom: "15px" }}
             />
+
             <TextField
-              size="small"
-              label="Password"
-              variant="outlined"
-              type="password"
               fullWidth
-              autoComplete="current-password"
+              label="Password"
+              type="password"
               margin="normal"
+              size="small"
               value={formData.password}
               onChange={(e) =>
                 setFormData({ ...formData, password: e.target.value })
               }
-              sx={{ marginBottom: "13px" }}
             />
+
             {openErrorMsg && (
-              <FormHelperText
-                color="#E40006"
-                sx={{ mb: 0.5, color: "#E40006", textAlign: "center" }}
-              >
-                User not found{" "}
+              <FormHelperText error sx={{ textAlign: "center", mt: 1 }}>
+                Invalid credentials. Please try again.
               </FormHelperText>
             )}
+
             <Button
-              size="small"
-              variant="contained"
-              color="primary"
               fullWidth
+              variant="contained"
               sx={{
-                padding: "12px 0",
-                backgroundColor: "#673ab7",
-                fontSize: "16px",
-                fontWeight: "bold",
+                mt: 3,
+                py: 1.5,
+                borderRadius: 3,
+                background: "linear-gradient(to right, #7b1fa2, #512da8)",
+                fontWeight: 600,
+                letterSpacing: 1,
+                color: "#fff",
+                "&:hover": {
+                  background: "linear-gradient(to right, #6a1b9a, #4527a0)",
+                },
               }}
               type="submit"
-              disabled={loading} // Disable button while loading
+              disabled={loading}
             >
               {loading ? (
                 <CircularProgress size={24} color="inherit" />
@@ -233,112 +244,101 @@ const Login = () => {
                 "Sign In"
               )}
             </Button>
-            <Typography
-              variant="body2"
-              sx={{ color: "#673ab7", marginTop: "15px" }}
-            >
-              Forgot password?
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{ color: "#673ab7", marginTop: "15px" }}
-            >
-              {formData.roleType === "restro-owner" ? (
+
+            <Typography variant="body2" sx={{ mt: 3, textAlign: "center" }}>
+              {formData.roleType !== "admin" ? (
                 <Link
-                  sx={{ textDecoration: "none", color: "#673ab7" }}
-                  href="/register/resto-owner"
+                  href={`/register/${formData.roleType}`}
+                  sx={{
+                    cursor: "pointer",
+                    color: "#512da8",
+                    fontWeight: 500,
+                    textDecoration: "none",
+                    "&:hover": {
+                      textDecoration: "underline",
+                    },
+                  }}
                 >
-                  Don't have an account? Sign up here
+                  Don’t have an account? Sign Up
                 </Link>
-              ) : formData.roleType === "customer" ? (
-                <Link
-                  sx={{ textDecoration: "none", color: "#673ab7" }}
-                  href="/register/customer"
-                >
-                  Don't have an account? Sign up here
-                </Link>
-              ) : formData.roleType === "admin" ? (
-                <>
-                  {" "}
-                  <Link
-                    sx={{ textDecoration: "none", color: "#673ab7" }}
-                    href="/register/admin"
-                  >
-                    ADMIN REGISTRATION
-                  </Link>
-                </>
               ) : (
-                <span style={{ color: "red" }}> Please select a role</span>
+                <Link
+                  href="/register/admin"
+                  sx={{
+                    cursor: "pointer",
+                    color: "#512da8",
+                    fontWeight: 500,
+                    textDecoration: "none",
+                    "&:hover": {
+                      textDecoration: "underline",
+                    },
+                  }}
+                >
+                  Admin Registration
+                </Link>
               )}
             </Typography>
           </form>
-        </Paper>
+        </Box>
       </Box>
 
-      {/* Right Side - Custom Slideshow */}
+      {/* Slideshow - Right Side */}
       <Box
         sx={{
-          width: "70%",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
+          flex: 1,
+          height: "100%",
           position: "relative",
-          borderRadius: "12px",
+          display: { xs: "none", md: "block" },
         }}
       >
-        <Slideshow />
-      </Box>
-
-      {/* <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        PaperProps={{
-          sx: {
-            borderRadius: 2,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
-            maxWidth: "400px",
-            width: "100%",
-          },
-        }}
-      >
-        <Box sx={{ textAlign: "center", pt: 3, px: 3 }}>
-          <Avatar
-            sx={{
-              margin: "0 auto",
-              bgcolor: "#ffebee",
-              width: 60,
-              height: 60,
-              mb: 2,
-            }}
-          >
-            <ErrorIcon sx={{ color: "#d32f2f", fontSize: 40 }} />
-          </Avatar>
-          <DialogTitle sx={{ pb: 1, fontSize: "1.5rem", fontWeight: 600 }}>
-            User not found
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText sx={{ color: "#546e7a" }}>
-              Are you sure you want to delete this restaurant owner? This action
-              cannot be undone.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions sx={{ justifyContent: "center", pb: 3 }}>
-            <Button
-              onClick={handleCloseDialog}
-              variant="outlined"
+        {media.map((src, index) => {
+          const isVideo = src.endsWith(".mp4") || src.endsWith(".webm");
+          return (
+            <Box
+              key={index}
+              component={isVideo ? "video" : "img"}
+              src={src}
               sx={{
-                borderRadius: 2,
-                px: 3,
-                mr: 1,
-                textTransform: "none",
-                fontSize: "1rem",
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                opacity: currentIndex === index ? 1 : 0,
+                transition: "opacity 1s ease",
+                filter: "brightness(0.8)",
               }}
-            >
-              Close
-            </Button>
-          </DialogActions>
+              {...(isVideo && { autoPlay: true, muted: true, loop: true })}
+            />
+          );
+        })}
+
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: 40,
+            left: "50%",
+            transform: "translateX(-50%)",
+            display: "flex",
+            gap: 1,
+          }}
+        >
+          {media.map((_, index) => (
+            <Box
+              key={index}
+              sx={{
+                width: 12,
+                height: 12,
+                borderRadius: "50%",
+                bgcolor:
+                  currentIndex === index ? "#673ab7" : "rgba(255,255,255,0.4)",
+                cursor: "pointer",
+                transition: "background-color 0.3s",
+              }}
+              onClick={() => setCurrentIndex(index)}
+            />
+          ))}
         </Box>
-      </Dialog> */}
+      </Box>
     </Box>
   );
 };
