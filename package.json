@@ -12,6 +12,8 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@fontsource/poppins": "^5.2.5",
+    "@fontsource/space-grotesk": "^5.2.6",
     "@iconify/react": "^5.2.1",
     "@mui/icons-material": "^6.4.11",
     "@mui/material": "^6.4.11",

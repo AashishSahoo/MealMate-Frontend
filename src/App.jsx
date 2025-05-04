@@ -15,6 +15,7 @@ import AdminRegister from "./pages/AdminRegister";
 import HomeAdmin from "./pages/admin/HomeAdmin";
 import HomeRestroOwner from "./pages/restuarantowner/HomeRestroOwner";
 import Payment from "./pages/customer/Payment";
+import RegisterPage from "./pages/RegisterPage";
 
 function App() {
   return (
@@ -24,10 +25,13 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route
+          {/* <Route
             path="/register/resto-owner"
+            // element={<RegisterPage />}
             element={<RestroOwnerRegister />}
-          />
+          /> */}
+          <Route path="/register/restro-owner" element={<RegisterPage />} />
+
           <Route path="/register/customer" element={<CustomerRegister />} />
           <Route path="/register/admin" element={<AdminRegister />} />
 
