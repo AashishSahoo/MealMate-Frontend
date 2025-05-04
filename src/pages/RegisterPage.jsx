@@ -22,11 +22,6 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { Icon } from "@iconify/react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-// import filesUpload from "../../assets/restro-owner-register-page/files-upload.png";
-
-{
-  /* <img src={filesUpload} alt="Upload" />; */
-}
 
 // Elevate App Bar
 function ElevationScroll(props) {
