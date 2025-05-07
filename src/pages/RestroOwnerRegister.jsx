@@ -725,5 +725,4 @@ const RestroOwnerRegister = () => {
   );
 };
 
-// check
 export default RestroOwnerRegister;
