@@ -22,6 +22,7 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { Icon } from "@iconify/react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import RegistrationForm from "../component/restuarantowner/RegistrationForm";
 
 // Elevate App Bar
 function ElevationScroll(props) {
@@ -492,6 +493,23 @@ const RegisterPage = (props) => {
             </Accordion>
           </Grid>
         </Grid>
+      </Box>
+
+      <Box sx={{ bgcolor: "#f1fafe", px: 2, pt: 6, pb: 16, color: "#000" }}>
+        {/* <Divider
+          sx={{
+            mx: { xs: 2, md: 15 },
+            mb: 6,
+            borderBottomWidth: 3,
+            "&::before, &::after": { borderColor: "#000" },
+          }} */}
+        {/* > */}
+        <Typography textAlign="center" variant="h4" fontWeight={600}>
+          Registeration Form
+        </Typography>
+        {/* </Divider> */}
+
+        <RegistrationForm />
       </Box>
 
       {/* Back to Top Button */}

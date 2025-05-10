@@ -21,6 +21,7 @@ import Slideshow from "../component/Slideshow";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import ImageAspectRatioIcon from "@mui/icons-material/ImageAspectRatio";
+
 import CircularProgress from "@mui/material/CircularProgress";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -30,6 +31,7 @@ import ErrorIcon from "@mui/icons-material/Error";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import WarningIcon from "@mui/icons-material/Warning";
 import DinnerDiningIcon from "@mui/icons-material/DinnerDining";
+import RegistrationForm from "../component/restuarantowner/RegistrationForm";
 
 const RestroOwnerRegister = () => {
   const [loading, setLoading] = useState();
@@ -44,6 +46,7 @@ const RestroOwnerRegister = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [image, setImage] = useState(null);
   const [document, setDocument] = useState(null);
+
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: "",
@@ -668,6 +671,7 @@ const RestroOwnerRegister = () => {
                     </Button>
                   </label>
                 </Box>
+                
               </Box>
 
               {/* Submit Button */}
