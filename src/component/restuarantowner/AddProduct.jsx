@@ -47,6 +47,7 @@ const AddProduct = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    //
     // Prepare FormData object for file upload
     const payload = new FormData();
     formDataToSend.append("image", formData.image);
