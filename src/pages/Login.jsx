@@ -43,15 +43,15 @@ const Login = () => {
   const [openErrorMsg, setErrorMsg] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    // email: "mailtoashishsahoo@gmail.com",
-    email: "ashishsahoo0013@gmail.com",
+    email: "mailtoashishsahoo@gmail.com",
+    // email: "ashishsahoo0013@gmail.com",
 
     // email: "admin@gmail.com",
 
     password: "Pass@123",
-    // roleType: "customer",
+    roleType: "customer",
     // roleType: "admin",
-    roleType: "resto-owner",
+    // roleType: "resto-owner",
   });
 
   const navigate = useNavigate();
