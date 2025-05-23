@@ -377,6 +377,7 @@ const DashboardCustomer = () => {
           </>
         ) : (
           <>
+            {/* Left: Order Count */}
             <Grid item xs={12} md={6}>
               <StyledCard
                 sx={{ bgcolor: "#8A2BE2", color: "white", borderRadius: 3 }}
@@ -386,102 +387,75 @@ const DashboardCustomer = () => {
                   <Typography variant="h3" sx={{ my: 2 }}>
                     {orderCount}
                   </Typography>
-                  {orderCount <= 0 ? (
-                    <Typography variant="body2">
-                      No orders yet... Why not explore our menu and discover
-                      something delicious today?
-                    </Typography>
-                  ) : (
-                    <Typography variant="body2">
-                      Great going! Looks like you’re making today extra special
-                      with some amazing orders.
-                    </Typography>
-                  )}
+                  <Typography variant="body2">
+                    {orderCount <= 0
+                      ? "No orders yet... Why not explore our menu and discover something delicious today?"
+                      : "Great going! Looks like you’re making today extra special with some amazing orders."}
+                  </Typography>
                 </CardContent>
               </StyledCard>
             </Grid>
 
+            {/* Right: Current Order Status */}
             <Grid item xs={12} md={6}>
               <StyledCard sx={{ borderRadius: 3 }}>
                 <CardContent>
-                  <Typography variant="h6">Current Order Status</Typography>
-                  <Box sx={{ display: "flex", mt: 0 }}>
-                    <Box>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", mb: 1 }}
-                      >
-                        <Box>
-                          <Box>
-                            <Tooltip
-                              title={
-                                <Box>
-                                  {currentOrder?.items?.map((food, index) => (
-                                    <Typography
-                                      key={index}
-                                      variant="body2"
-                                      color="inherit"
-                                    >
-                                      {food.foodName}
-                                    </Typography>
-                                  ))}
-                                </Box>
-                              }
-                              arrow
-                            >
-                              <Box sx={{ cursor: "pointer" }}>
-                                {currentOrder?.items
-                                  ?.slice(0, 2)
-                                  .map((food, index) => (
-                                    <Typography
-                                      key={index}
-                                      variant="h6"
-                                      color="#8A2BE2"
-                                    >
-                                      {food.foodName}
-                                    </Typography>
-                                  ))}
-                                {currentOrder?.items?.length > 2 && (
-                                  <Typography variant="h6" color="#8A2BE2">
-                                    ...
-                                  </Typography>
-                                )}
-                              </Box>
-                            </Tooltip>
-                          </Box>
-                          {currentOrder.status === "completed" && (
-                            <>
-                              {" "}
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                              >
-                                Out for delivery - 15 mins away
-                              </Typography>
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                              ></Typography>
-                            </>
-                          )}
-                          {currentOrder.status === "processing" && (
-                            <>
-                              {" "}
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                              >
-                                Order Preparing - 45 mins away
-                              </Typography>
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                              ></Typography>
-                            </>
-                          )}
-                        </Box>
+                  <Typography variant="h6" gutterBottom>
+                    Current Order Status
+                  </Typography>
+
+                  <Box sx={{ display: "flex" }}>
+                    {/* Left: Order Info */}
+                    <Box sx={{ flex: 1 }}>
+                      <Box sx={{ mb: 1 }}>
+                        <Tooltip
+                          title={
+                            <Box>
+                              {currentOrder?.items?.map((food, index) => (
+                                <Typography key={index} variant="body2">
+                                  {food.foodName}
+                                </Typography>
+                              ))}
+                            </Box>
+                          }
+                          arrow
+                        >
+                          <Typography
+                            variant="h6"
+                            color="#8A2BE2"
+                            noWrap
+                            sx={{
+                              maxWidth: "100%", // let it adapt to container width
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                              cursor: "pointer",
+                            }}
+                          >
+                            {currentOrder?.items
+                              ?.map((food) => food.foodName)
+                              .slice(0, 2)
+                              .join(", ")}
+
+                            {currentOrder?.items?.length > 2 &&
+                              `, +${currentOrder.items.length - 2} more`}
+                          </Typography>
+                        </Tooltip>
                       </Box>
+
+                      {currentOrder?.status === "completed" && (
+                        <Typography variant="body2" color="text.secondary">
+                          Out for delivery - 15 mins away
+                        </Typography>
+                      )}
+                      {currentOrder?.status === "processing" && (
+                        <Typography variant="body2" color="text.secondary">
+                          Order Preparing - 45 mins away
+                        </Typography>
+                      )}
                     </Box>
 
+                    {/* Right: Delivery Image */}
                     <Box
                       sx={{
                         ml: "auto",

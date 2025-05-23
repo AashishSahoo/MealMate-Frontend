@@ -151,7 +151,7 @@ export default function MiniDrawer() {
     { text: "Order History", icon: <HistoryIcon />, path: "order-history" },
     {
       text: "AI Assistance",
-      icon: <Icon icon="ri:dvd-ai-fill" width="24" height="24" />,
+      icon: <Icon icon="hugeicons:ai-network" width="24" height="24" />,
       path: "chatbot",
     },
   ];

@@ -318,7 +318,7 @@ const TableBooking = () => {
           display: "flex",
           alignItems: "center",
           mb: 3,
-          borderBottom: 1,
+          // borderBottom: 1,
           borderColor: "divider",
         }}
       >
