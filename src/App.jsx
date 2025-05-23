@@ -16,6 +16,7 @@ import Payment from "./pages/customer/Payment";
 import RegisterPage from "./pages/RegisterPage";
 import AdminRoutes from "./routes/AdminRoutes";
 import CustomerRoutes from "./routes/CustomerRoutes";
+import RestroOwnerRoutes from "./routes/RestroOwnerRoutes";
 
 function App() {
   return (
@@ -68,13 +69,15 @@ function App() {
 
           {/* Restaurant Owner Routes */}
           <Route
-            path="/resto-owner"
+            path="/resto-owner/*"
             element={
               <ProtectedRoute allowedRoles={["restro-owner"]}>
                 <HomeRestroOwner />
               </ProtectedRoute>
             }
-          />
+          >
+            <Route path="*" element={<RestroOwnerRoutes />} />
+          </Route>
         </Routes>
       </Router>
     </Provider>

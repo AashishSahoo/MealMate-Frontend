@@ -1,7 +1,7 @@
 import * as React from "react";
 import { styled, useTheme } from "@mui/material/styles";
+import { useNavigate, useLocation, matchPath } from "react-router-dom";
 import Box from "@mui/material/Box";
-import { useState } from "react";
 import MuiDrawer from "@mui/material/Drawer";
 import MuiAppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
@@ -22,23 +22,13 @@ import { PiShoppingCartFill } from "react-icons/pi";
 import { MdProductionQuantityLimits, MdTableRestaurant } from "react-icons/md";
 import { FaHistory, FaChartBar } from "react-icons/fa";
 import { GiMeal } from "react-icons/gi";
-import Orderpage from "../../pages/restuarantowner/OrderPage";
-import DashboardRestrOwner from "../../pages/restuarantowner/DashboardRestrOwner";
-import TableBookingManagement from "../../pages/restuarantowner/TableBookingManagement";
-import Products from "../../pages/restuarantowner/Products";
-import OrderHistory from "../../pages/restuarantowner/OrderHistory";
-import { Avatar, Badge, Button, Collapse } from "@mui/material";
-import NotificationsIcon from "@mui/icons-material/Notifications";
+import { Avatar, Badge } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import SalesByCategoryChart from "../../pages/restuarantowner/SalesByCategoryChart";
-import SaleByMonth from "../../pages/restuarantowner/SaleByMonth";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import { BsGraphUp, BsCalendarMonth } from "react-icons/bs";
-import ProfilePage from "../../pages/restuarantowner/ProfilePage";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
-
-import { useNavigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
 const drawerWidth = 280;
 
@@ -127,54 +117,37 @@ const Drawer = styled(MuiDrawer, {
 
 export default function MiniDrawer() {
   const theme = useTheme();
-  const [open, setOpen] = useState(true);
-  const [menuData, setMenuData] = useState("Home");
-  const [salesOpen, setSalesOpen] = useState(false);
+  const [open, setOpen] = React.useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
+
   const handleLogout = () => {
     localStorage.clear();
-    navigate(`/login`);
+    navigate("/login");
   };
 
   const menuItems = [
-    { text: "Home", icon: <TbHomeFilled size={24} />, id: "Home" },
-    { text: "Orders", icon: <PiShoppingCartFill size={24} />, id: "Orders" },
+    { text: "Home", icon: <TbHomeFilled size={24} />, path: "dashboard" },
+    { text: "Orders", icon: <PiShoppingCartFill size={24} />, path: "orders" },
     {
       text: "Products",
       icon: <MdProductionQuantityLimits size={24} />,
-      id: "Products",
+      path: "products",
     },
     {
       text: "Table Booking",
       icon: <MdTableRestaurant size={24} />,
-      id: "Table Booking",
+      path: "table-booking",
     },
     {
       text: "Order History",
       icon: <FaHistory size={24} />,
-      id: "Order History",
+      path: "order-history",
     },
-    // {
-    //   text: "Sales Analytics",
-    //   icon: <FaChartBar size={24} />,
-    //   id: "Sales",
-    //   subItems: [
-    //     {
-    //       text: "By Category",
-    //       icon: <BsGraphUp size={20} />,
-    //       id: "SalesByCategory",
-    //     },
-    //     {
-    //       text: "By Month",
-    //       icon: <BsCalendarMonth size={20} />,
-    //       id: "SalesByMonth",
-    //     },
-    //   ],
-    // },
     {
       text: "Sales Analytics",
       icon: <FaChartBar size={24} />,
-      id: "SalesByMonth",
+      path: "sales-month",
     },
   ];
 
@@ -194,6 +167,13 @@ export default function MiniDrawer() {
         background: "rgba(255, 255, 255, 0.2)",
       },
     },
+  };
+
+  const isActive = (path) => {
+    return matchPath(
+      { path: `/${location.pathname.split("/")[1]}/${path}` },
+      location.pathname
+    );
   };
 
   return (
@@ -227,17 +207,14 @@ export default function MiniDrawer() {
           </Box>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            {/* <Badge badgeContent={4} color="error">
-              <NotificationsIcon />
-            </Badge> */}
             <Avatar
               sx={{
                 bgcolor: "#64b5f6",
-                cursor: "pointer", // Add pointer cursor
+                cursor: "pointer",
                 transition: "transform 0.2s",
                 "&:hover": { transform: "scale(1.1)" },
               }}
-              onClick={() => setMenuData("Profile")} // Add this
+              onClick={() => navigate("profile")}
             >
               <AccountCircleIcon />
             </Avatar>
@@ -266,48 +243,46 @@ export default function MiniDrawer() {
 
         <List sx={{ mt: 2 }}>
           {menuItems.map((item) => (
-            <React.Fragment key={item.text}>
-              <ListItem disablePadding sx={{ display: "block", mb: 1 }}>
-                <ListItemButton
+            <ListItem
+              key={item.path}
+              disablePadding
+              sx={{ display: "block", mb: 1 }}
+            >
+              <ListItemButton
+                sx={{
+                  minHeight: 48,
+                  px: 2.5,
+                  justifyContent: open ? "initial" : "center",
+                  ...menuItemStyle,
+                }}
+                onClick={() => navigate(item.path)}
+                selected={!!isActive(item.path)}
+              >
+                <ListItemIcon
                   sx={{
-                    minHeight: 48,
-                    px: 2.5,
-                    justifyContent: open ? "initial" : "center",
-                    ...menuItemStyle,
+                    minWidth: 0,
+                    mr: open ? 3 : "auto",
+                    justifyContent: "center",
+                    color: isActive(item.path) ? "#64b5f6" : "#ffffff",
                   }}
-                  onClick={() => {
-                    setMenuData(item.id);
-                  }}
-                  selected={!item.subItems && menuData === item.id}
                 >
-                  <ListItemIcon
-                    sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : "auto",
-                      justifyContent: "center",
-                      color: menuData === item.id ? "#64b5f6" : "#ffffff",
-                    }}
-                  >
-                    {item.icon}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={item.text}
-                    sx={{
-                      opacity: open ? 1 : 0,
-                      "& .MuiTypography-root": {
-                        fontWeight: 500,
-                        fontSize: "0.95rem",
-                      },
-                    }}
-                  />
-                  {item.subItems &&
-                    open &&
-                    (salesOpen ? <ExpandLess /> : <ExpandMore />)}
-                </ListItemButton>
-              </ListItem>
-            </React.Fragment>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={item.text}
+                  sx={{
+                    opacity: open ? 1 : 0,
+                    "& .MuiTypography-root": {
+                      fontWeight: 500,
+                      fontSize: "0.95rem",
+                    },
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
           ))}
         </List>
+
         <Box sx={{ marginTop: "auto" }}>
           <ListItem disablePadding>
             <ListItemButton
@@ -317,7 +292,7 @@ export default function MiniDrawer() {
                 justifyContent: open ? "initial" : "center",
                 ...menuItemStyle,
               }}
-              onClick={() => handleLogout()}
+              onClick={handleLogout}
             >
               <ListItemIcon
                 sx={{
@@ -342,7 +317,6 @@ export default function MiniDrawer() {
             </ListItemButton>
           </ListItem>
         </Box>
-        
       </Drawer>
 
       <Box
@@ -356,14 +330,7 @@ export default function MiniDrawer() {
           boxShadow: "0px 0px 20px rgba(0, 0, 0, 0.05)",
         }}
       >
-        {menuData === "Home" && <DashboardRestrOwner />}
-        {menuData === "Orders" && <Orderpage />}
-        {menuData === "Products" && <Products />}
-        {menuData === "Table Booking" && <TableBookingManagement />}
-        {menuData === "Order History" && <OrderHistory />}
-        {menuData === "SalesByCategory" && <SalesByCategoryChart />}
-        {menuData === "SalesByMonth" && <SaleByMonth />}
-        {menuData === "Profile" && <ProfilePage />}
+        <Outlet />
       </Box>
     </Box>
   );
