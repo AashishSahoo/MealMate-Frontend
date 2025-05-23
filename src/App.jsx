@@ -15,6 +15,7 @@ import HomeRestroOwner from "./pages/restuarantowner/HomeRestroOwner";
 import Payment from "./pages/customer/Payment";
 import RegisterPage from "./pages/RegisterPage";
 import AdminRoutes from "./routes/AdminRoutes";
+import CustomerRoutes from "./routes/CustomerRoutes";
 
 function App() {
   return (
@@ -42,6 +43,29 @@ function App() {
           >
             <Route path="*" element={<AdminRoutes />} />
           </Route>
+
+          {/* Customer Routes */}
+
+          <Route
+            path="/customer/*"
+            element={
+              <ProtectedRoute allowedRoles={["customer"]}>
+                <HomeCutomer />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="*" element={<CustomerRoutes />} />
+          </Route>
+
+          <Route
+            path="/payment"
+            element={
+              <ProtectedRoute allowedRoles={["customer"]}>
+                <Payment />
+              </ProtectedRoute>
+            }
+          ></Route>
+
           {/* Restaurant Owner Routes */}
           <Route
             path="/resto-owner"
@@ -51,27 +75,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
-          {/* Customer Routes */}
-
-          <Route
-            path="/customer"
-            element={
-              <ProtectedRoute allowedRoles={["customer"]}>
-                <HomeCutomer />
-              </ProtectedRoute>
-            }
-          >
-            <Route path="payment" element={<ReportsPage />} />
-          </Route>
-          <Route
-            path="/payment"
-            element={
-              <ProtectedRoute allowedRoles={["customer"]}>
-                <Payment />
-              </ProtectedRoute>
-            }
-          ></Route>
         </Routes>
       </Router>
     </Provider>
