@@ -4,18 +4,17 @@ import { Provider } from "react-redux";
 import store from "./store/store";
 import ProtectedRoute from "../src/component/ProtectedRoute";
 import HomeCutomer from "./pages/customer/HomeCustomer"; // Customer Home page
-// import OrdersPage from "./pages/customer/OrdersPage";
 import ReportsPage from "./pages/customer/ReportsPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import CustomerRegister from "./pages/CustomerRegister";
 import RestroOwnerRegister from "./pages/RestroOwnerRegister";
-// import RestuarantDashboard from "./restro-owner/RestuarantDashboard";
 import AdminRegister from "./pages/AdminRegister";
 import HomeAdmin from "./pages/admin/HomeAdmin";
 import HomeRestroOwner from "./pages/restuarantowner/HomeRestroOwner";
 import Payment from "./pages/customer/Payment";
 import RegisterPage from "./pages/RegisterPage";
+import AdminRoutes from "./routes/AdminRoutes";
 
 function App() {
   return (
@@ -25,26 +24,24 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          {/* <Route
-            path="/register/resto-owner"
-            // element={<RegisterPage />}
-            element={<RestroOwnerRegister />}
-          /> */}
+
           <Route path="/register/restro-owner" element={<RegisterPage />} />
 
           <Route path="/register/customer" element={<CustomerRegister />} />
           <Route path="/register/admin" element={<AdminRegister />} />
 
           {/* Admin Routes */}
+
           <Route
-            path="/admin"
+            path="/admin/*"
             element={
               <ProtectedRoute allowedRoles={["admin"]}>
                 <HomeAdmin />
               </ProtectedRoute>
             }
-          />
-
+          >
+            <Route path="*" element={<AdminRoutes />} />
+          </Route>
           {/* Restaurant Owner Routes */}
           <Route
             path="/resto-owner"
@@ -65,8 +62,6 @@ function App() {
               </ProtectedRoute>
             }
           >
-            {/* Nested Routes for Orders and Reports */}
-            {/* <Route path="orders" element={<OrdersPage />} /> */}
             <Route path="payment" element={<ReportsPage />} />
           </Route>
           <Route

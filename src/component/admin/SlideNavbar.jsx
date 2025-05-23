@@ -1,14 +1,13 @@
 import * as React from "react";
 import { styled, useTheme } from "@mui/material/styles";
+import { useNavigate, useLocation, matchPath } from "react-router-dom";
 import Box from "@mui/material/Box";
-import { useState } from "react";
 import MuiDrawer from "@mui/material/Drawer";
 import MuiAppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import List from "@mui/material/List";
 import CssBaseline from "@mui/material/CssBaseline";
 import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -23,26 +22,12 @@ import ListAltIcon from "@mui/icons-material/ListAlt";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import ControlPointDuplicateIcon from "@mui/icons-material/ControlPointDuplicate";
-import SsidChartIcon from "@mui/icons-material/SsidChart";
-import AlignVerticalBottomIcon from "@mui/icons-material/AlignVerticalBottom";
-import { Avatar, Badge, Collapse } from "@mui/material";
-import NotificationsIcon from "@mui/icons-material/Notifications";
+import { Avatar } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
-import DashboardAdmin from "../../pages/admin/DashboardAdmin";
-import OrderAdmin from "../../pages/admin/OrderAdmin";
-import Onboard from "../../pages/admin/Onboard";
-import UserList from "../../pages/admin/UserList";
-import RestroOwnerList from "../../pages/admin/RestroOwnerList";
-import RestrauntOwnerReport from "../../pages/admin/RestrauntOwnerReport";
-import UsersOrderHistory from "../../pages/admin/UsersOrderHistory";
-import Category from "../../pages/admin/Category";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
-import { useNavigate } from "react-router-dom";
-import OrderHeatmap from "../../pages/admin/OrderHeatmap";
-import ProfilePage from "../../pages/admin/ProfilePageAdmin";
 import Applogo from "../../assets/Applogo.png";
+import { Outlet } from "react-router-dom";
+import { Icon } from "@iconify/react";
 
 const drawerWidth = 280;
 
@@ -128,71 +113,61 @@ const Drawer = styled(MuiDrawer, {
   }),
 }));
 
-export default function MiniDrawer() {
+const menuItemStyle = {
+  margin: "4px 8px",
+  borderRadius: "10px",
+  "&:hover": {
+    background: "rgba(255, 255, 255, 0.1)",
+    backdropFilter: "blur(10px)",
+    transform: "translateX(5px)",
+    transition: "all 0.3s ease",
+  },
+  "&.Mui-selected": {
+    background: "rgba(255, 255, 255, 0.15)",
+    borderLeft: "4px solid #95A5A6",
+    "&:hover": {
+      background: "rgba(255, 255, 255, 0.2)",
+    },
+  },
+};
+
+export default function SlideNavbar() {
   const theme = useTheme();
-  const [open, setOpen] = useState(true);
-  const [menuData, setMenuData] = useState("Home");
-  const [reportOpen, setReportOpen] = useState(false);
-
-  const handleReportClick = () => {
-    setReportOpen(!reportOpen);
-  };
-
   const navigate = useNavigate();
+  const location = useLocation();
+  const [open, setOpen] = React.useState(true);
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate(`/login`);
+    navigate("/login");
   };
 
+  // Updated menuItems with correct paths
   const menuItems = [
-    { text: "Home", icon: <HomeIcon />, id: "Home" },
-    { text: "Onboard", icon: <ControlPointDuplicateIcon />, id: "Onboard" },
-    { text: "Order", icon: <ShoppingBagIcon />, id: "Order" },
-    { text: "UserList", icon: <ListAltIcon />, id: "UserList" },
-    { text: "RestroOwnerList", icon: <ListAltIcon />, id: "RestroOwnerList" },
-    { text: "Category", icon: <CategoryIcon />, id: "Category" },
-    // {
-    //   text: "Reports",
-    //   icon: <AssessmentIcon />,
-    //   id: "Reports",
-    //   subItems: [
-    //     {
-    //       text: "Users OrderHistory",
-    //       icon: <SsidChartIcon />,
-    //       id: "Users OrderHistory",
-    //     },
-    //     {
-    //       text: "Restraunt Owner Report",
-    //       icon: <AlignVerticalBottomIcon />,
-    //       id: "Restraunt Owner Report",
-    //     },
-    //   ],
-    // },
+    { text: "Home", icon: <HomeIcon />, path: "dashboard" },
+    { text: "Onboard", icon: <ControlPointDuplicateIcon />, path: "onboard" },
+    { text: "Orders", icon: <ShoppingBagIcon />, path: "orders" },
     {
-      text: "Reports",
-      icon: <AssessmentIcon />,
-      id: "Reports",
+      text: "Users",
+      icon: <Icon icon="icon-park-solid:user" width="24" height="24" />,
+      path: "users",
     },
-    // { text: "Logout", icon: <ExitToAppIcon />, id: "Logout" },
+    {
+      text: "Restaurants",
+      icon: <Icon icon="hugeicons:restaurant-01" width="24" height="24" />,
+      path: "restaurants",
+    },
+    { text: "Categories", icon: <CategoryIcon />, path: "categories" },
+    { text: "Analytics", icon: <AssessmentIcon />, path: "analytics" },
+    // { text: "Profile", icon: <AccountCircleIcon />, path: "profile" },
   ];
 
-  const menuItemStyle = {
-    margin: "4px 8px",
-    borderRadius: "10px",
-    "&:hover": {
-      background: "rgba(255, 255, 255, 0.1)",
-      backdropFilter: "blur(10px)",
-      transform: "translateX(5px)",
-      transition: "all 0.3s ease",
-    },
-    "&.Mui-selected": {
-      background: "rgba(255, 255, 255, 0.15)",
-      borderLeft: "4px solid #95A5A6",
-      "&:hover": {
-        background: "rgba(255, 255, 255, 0.2)",
-      },
-    },
+  // Function to check active route
+  const isActive = (path) => {
+    return matchPath(
+      { path: `/${location.pathname.split("/")[1]}/${path}` },
+      location.pathname
+    );
   };
 
   return (
@@ -204,20 +179,16 @@ export default function MiniDrawer() {
             {!open && (
               <IconButton
                 color="inherit"
-                aria-label="toggle drawer"
                 onClick={() => setOpen(!open)}
                 edge="start"
                 sx={{
                   marginRight: 2,
-                  "&:hover": {
-                    background: "rgba(255, 255, 255, 0.1)",
-                  },
+                  "&:hover": { background: "rgba(255, 255, 255, 0.1)" },
                 }}
               >
                 <MenuIcon />
               </IconButton>
             )}
-
             <Typography
               variant="h6"
               noWrap
@@ -227,12 +198,7 @@ export default function MiniDrawer() {
               MealMate Admin
             </Typography>
           </Box>
-
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            {/* <Badge badgeContent={4} color="error">
-              <NotificationsIcon />
-            </Badge>
-             */}
             <Avatar
               sx={{
                 bgcolor: "#95A5A6",
@@ -240,7 +206,7 @@ export default function MiniDrawer() {
                 transition: "transform 0.2s",
                 "&:hover": { transform: "scale(1.1)" },
               }}
-              onClick={() => setMenuData("Profile")}
+              onClick={() => navigate("profile")}
             >
               <AccountCircleIcon />
             </Avatar>
@@ -252,30 +218,19 @@ export default function MiniDrawer() {
         <DrawerHeader>
           {open && (
             <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                width: "100%",
-              }}
+              sx={{ display: "flex", justifyContent: "center", width: "100%" }}
             >
               <Box
                 component="img"
                 src={Applogo}
                 alt="App Logo"
-                sx={{
-                  height: "3.5rem",
-                  width: "auto",
-                  objectFit: "contain",
-                  marginLeft: open ? "0.5rem" : "0",
-                  transition: "all 0.3s ease",
-                }}
+                sx={{ height: "3.5rem", width: "auto", marginLeft: "0.5rem" }}
               />
             </Box>
           )}
           <IconButton
             onClick={() => setOpen(false)}
-            sx={{ color: "#ffffff", ml: "auto" }} // keeps button to the right side
+            sx={{ color: "#ffffff", ml: "auto" }}
           >
             {theme.direction === "rtl" ? (
               <ChevronRightIcon />
@@ -287,52 +242,40 @@ export default function MiniDrawer() {
 
         <List sx={{ mt: 2 }}>
           {menuItems.map((item) => (
-            <React.Fragment key={item.text}>
-              <ListItem disablePadding sx={{ display: "block", mb: 1 }}>
-                <ListItemButton
+            <ListItem
+              key={item.path}
+              disablePadding
+              sx={{ display: "block", mb: 1 }}
+            >
+              <ListItemButton
+                sx={{
+                  minHeight: 48,
+                  px: 2.5,
+                  justifyContent: open ? "initial" : "center",
+                  ...menuItemStyle,
+                }}
+                onClick={() => navigate(item.path)}
+                selected={!!isActive(item.path)}
+              >
+                <ListItemIcon
                   sx={{
-                    minHeight: 48,
-                    px: 2.5,
-                    justifyContent: open ? "initial" : "center",
-                    ...menuItemStyle,
+                    minWidth: 0,
+                    mr: open ? 3 : "auto",
+                    justifyContent: "center",
+                    color: isActive(item.path) ? "#95A5A6" : "#ffffff",
                   }}
-                  onClick={() => {
-                    if (item.subItems) {
-                      handleReportClick();
-                    } else {
-                      setMenuData(item.id);
-                    }
-                  }}
-                  selected={!item.subItems && menuData === item.id}
                 >
-                  <ListItemIcon
-                    sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : "auto",
-                      justifyContent: "center",
-                      color: menuData === item.id ? "#95A5A6" : "#ffffff",
-                    }}
-                  >
-                    {item.icon}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={item.text}
-                    sx={{
-                      opacity: open ? 1 : 0,
-                      "& .MuiTypography-root": {
-                        fontWeight: 500,
-                        fontSize: "0.95rem",
-                      },
-                    }}
-                  />
-                  {item.subItems &&
-                    open &&
-                    (reportOpen ? <ExpandLess /> : <ExpandMore />)}
-                </ListItemButton>
-              </ListItem>
-            </React.Fragment>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={item.text}
+                  sx={{ opacity: open ? 1 : 0 }}
+                />
+              </ListItemButton>
+            </ListItem>
           ))}
         </List>
+
         <Box sx={{ marginTop: "auto" }}>
           <ListItem disablePadding>
             <ListItemButton
@@ -342,7 +285,7 @@ export default function MiniDrawer() {
                 justifyContent: open ? "initial" : "center",
                 ...menuItemStyle,
               }}
-              onClick={() => handleLogout()}
+              onClick={handleLogout}
             >
               <ListItemIcon
                 sx={{
@@ -352,18 +295,9 @@ export default function MiniDrawer() {
                   color: "#ffffff",
                 }}
               >
-                <ExitToAppIcon />
+                <Icon icon="solar:logout-3-bold" width="24" height="24" />{" "}
               </ListItemIcon>
-              <ListItemText
-                primary="Logout"
-                sx={{
-                  opacity: open ? 1 : 0,
-                  "& .MuiTypography-root": {
-                    fontWeight: 500,
-                    fontSize: "0.95rem",
-                  },
-                }}
-              />
+              <ListItemText primary="Logout" sx={{ opacity: open ? 1 : 0 }} />
             </ListItemButton>
           </ListItem>
         </Box>
@@ -380,15 +314,7 @@ export default function MiniDrawer() {
           boxShadow: "0px 0px 20px rgba(0, 0, 0, 0.05)",
         }}
       >
-        {menuData === "Home" && <DashboardAdmin />}
-        {menuData === "Order" && <OrderAdmin />}
-        {menuData === "Onboard" && <Onboard />}
-        {menuData === "UserList" && <UserList />}
-        {menuData === "RestroOwnerList" && <RestroOwnerList />}
-        {menuData === "Reports" && <OrderHeatmap />}
-        {/* {menuData === "Restraunt Owner Report" && <RestrauntOwnerReport />} */}
-        {menuData === "Category" && <Category />}
-        {menuData === "Profile" && <ProfilePage />}
+        <Outlet />
       </Box>
     </Box>
   );

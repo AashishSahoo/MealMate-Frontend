@@ -44,8 +44,11 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "mailtoashishsahoo@gmail.com",
+    // email: "admin@gmail.com",
+
     password: "Pass@123",
     roleType: "customer",
+    // roleType: "admin",
   });
 
   const navigate = useNavigate();
@@ -262,20 +265,21 @@ const Login = () => {
                   Don’t have an account? Sign Up
                 </Link>
               ) : (
-                <Link
-                  href="/register/admin"
-                  sx={{
-                    cursor: "pointer",
-                    color: "#512da8",
-                    fontWeight: 500,
-                    textDecoration: "none",
-                    "&:hover": {
-                      textDecoration: "underline",
-                    },
-                  }}
-                >
-                  Admin Registration
-                </Link>
+                <></>
+                // <Link
+                //   href="/register/admin"
+                //   sx={{
+                //     cursor: "pointer",
+                //     color: "#512da8",
+                //     fontWeight: 500,
+                //     textDecoration: "none",
+                //     "&:hover": {
+                //       textDecoration: "underline",
+                //     },
+                //   }}
+                // >
+                //   Admin Registration
+                // </Link>
               )}
             </Typography>
           </form>
