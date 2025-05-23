@@ -29,6 +29,8 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import { BsGraphUp, BsCalendarMonth } from "react-icons/bs";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { Outlet } from "react-router-dom";
+import Applogo from "../../assets/Applogo.png";
+import { Icon } from "@iconify/react";
 
 const drawerWidth = 280;
 
@@ -128,15 +130,25 @@ export default function MiniDrawer() {
 
   const menuItems = [
     { text: "Home", icon: <TbHomeFilled size={24} />, path: "dashboard" },
-    { text: "Orders", icon: <PiShoppingCartFill size={24} />, path: "orders" },
+    {
+      text: "Orders",
+      icon: (
+        <Icon
+          icon="lsicon:work-order-appointment-filled"
+          width="24"
+          height="24"
+        />
+      ),
+      path: "orders",
+    },
     {
       text: "Products",
-      icon: <MdProductionQuantityLimits size={24} />,
+      icon: <Icon icon="material-symbols:fastfood" width="24" height="24" />,
       path: "products",
     },
     {
       text: "Table Booking",
-      icon: <MdTableRestaurant size={24} />,
+      icon: <Icon icon="mdi:table-chair" width="24" height="24" />,
       path: "table-booking",
     },
     {
@@ -146,7 +158,7 @@ export default function MiniDrawer() {
     },
     {
       text: "Sales Analytics",
-      icon: <FaChartBar size={24} />,
+      icon: <Icon icon="mdi:report-areaspline" width="24" height="24" />,
       path: "sales-month",
     },
   ];
@@ -225,11 +237,15 @@ export default function MiniDrawer() {
       <Drawer variant="permanent" open={open}>
         <DrawerHeader>
           {open && (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <GiMeal size={32} color="#64b5f6" />
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                Meal Mate
-              </Typography>
+            <Box
+              sx={{ display: "flex", justifyContent: "center", width: "100%" }}
+            >
+              <Box
+                component="img"
+                src={Applogo}
+                alt="App Logo"
+                sx={{ height: "3.5rem", width: "auto", marginLeft: "0.5rem" }}
+              />
             </Box>
           )}
           <IconButton onClick={() => setOpen(false)} sx={{ color: "#ffffff" }}>
@@ -302,7 +318,7 @@ export default function MiniDrawer() {
                   color: "#ffffff",
                 }}
               >
-                <ExitToAppIcon />
+                <Icon icon="solar:logout-3-bold" width="24" height="24" />
               </ListItemIcon>
               <ListItemText
                 primary="Logout"
