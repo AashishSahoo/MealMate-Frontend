@@ -25,6 +25,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import Applogo from "../../assets/Applogo.png";
 import { Outlet } from "react-router-dom";
 import { Icon } from "@iconify/react";
+import { Link } from "react-router-dom";
 
 const drawerWidth = 240;
 
@@ -191,18 +192,20 @@ export default function MiniDrawer() {
               MealMate Customer
             </Typography>
           </Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Avatar
-              sx={{
-                bgcolor: "#95A5A6",
-                cursor: "pointer",
-                transition: "transform 0.2s",
-                "&:hover": { transform: "scale(1.1)" },
-              }}
-              onClick={() => navigate("profile")}
-            >
-              <AccountCircleIcon />
-            </Avatar>
+          <Box
+            sx={{
+              display: "flex",
+              cursor: "pointer",
+              transition: "transform 0.2s",
+              "&:hover": { transform: "scale(1.1)" },
+            }}
+            onClick={() => navigate("/customer/profile")}
+          >
+            <Icon
+              icon="material-symbols:account-circle"
+              width="30"
+              height="30"
+            />
           </Box>
         </Toolbar>
       </AppBar>

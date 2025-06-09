@@ -31,23 +31,12 @@ import {
   CurrencyRupee,
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
-import img6 from "../../assets/img6.jpg";
-import img7 from "../../assets/img7.jpg";
-import img8 from "../../assets/img8.jpg";
-import img9 from "../../assets/img9.jpg";
-import img10 from "../../assets/img10.jpg";
-import img13 from "../../assets/img13.jpg";
-import img14 from "../../assets/img14.jpg";
-import img15 from "../../assets/img15.jpg";
-import img16 from "../../assets/img16.jpg";
-import img18 from "../../assets/img18.jpg";
-import img19 from "../../assets/img19.jpg";
-import img20 from "../../assets/img20.jpg";
 import axios from "axios";
 import CloseIcon from "@mui/icons-material/Close";
 import CircularProgress from "@mui/material/CircularProgress";
 import { AiFillAlert } from "react-icons/ai";
 import Skeleton from "@mui/material/Skeleton";
+import { useNavigate } from "react-router-dom";
 
 const StyledModal = styled(Modal)({
   display: "flex",
@@ -75,14 +64,7 @@ const Menu = () => {
   const email = userInfo.email;
   const token = userInfo.token;
 
-  const categories = [
-    "All",
-    "Breakfast",
-    "Lunch",
-    "Dinner",
-    "Snacks",
-    "Beverages",
-  ];
+  const navigate = useNavigate();
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
@@ -614,6 +596,7 @@ const Menu = () => {
               onClick={() => {
                 // Add cart clearing logic here
                 handleCloseDialog();
+                navigate("/customer/cart");
               }}
               variant="contained"
               color="error"

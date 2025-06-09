@@ -43,6 +43,7 @@ import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import Payment from "./Payment";
 import { TbRuler2 } from "react-icons/tb";
+import { Icon } from "@iconify/react";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   transition: "all 0.3s ease-in-out",
@@ -83,8 +84,6 @@ const Cart = () => {
 
   const goToOrderDetailsPage = () => {
     setShowPayment(true);
-
-    // your route path here
   };
 
   const handleCloseDialog = () => {
@@ -270,7 +269,6 @@ const Cart = () => {
 
   useEffect(() => {
     fetchCartItem();
-    // console.log("env :", process.env.VITE_RAZORPAY_KEY_ID);
   }, []);
 
   return (
@@ -352,18 +350,20 @@ const Cart = () => {
                   <Grid
                     item
                     xs={12}
-                    sx={{ textAlign: "center", py: 8, ml: 15 }}
+                    sx={{ textAlign: "center", py: 8, ml: 40 }}
                   >
-                    <Box sx={{ color: "#8A2BE2", fontSize: 96, mb: 2 }}>
-                      <ShoppingCart fontSize="inherit" />
+                    <Box sx={{ color: "#8A2BE2" }}>
+                      {/* <ShoppingCart fontSize="inherit" /> */}
+                      <Icon icon="mdi:cart-arrow-down" width="70" height="70" />
                     </Box>
                     <Typography variant="h6" sx={{ mb: 3, fontWeight: 700 }}>
                       Hungry? Let's Fix That!
                     </Typography>
                     <AnimatedButton
+                      size="small"
                       variant="contained"
-                      // href="/menu"
                       sx={{ px: 6, py: 2, fontSize: "1rem" }}
+                      onClick={() => navigate("/customer/menu")}
                     >
                       Start Ordering
                     </AnimatedButton>
@@ -548,7 +548,12 @@ const Cart = () => {
                               gap: 1,
                             }}
                           >
-                            <ReceiptIcon fontSize="large" /> Order Summary
+                            <Icon
+                              icon="streamline-freehand-color:mobile-shopping-cart"
+                              width="30"
+                              height="30"
+                            />{" "}
+                            Order Summary
                           </Typography>
                           <Box
                             sx={{ maxHeight: 250, overflowY: "auto", pr: 0 }}
