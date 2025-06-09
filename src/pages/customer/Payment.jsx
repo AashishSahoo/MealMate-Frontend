@@ -150,10 +150,7 @@ const Payment = () => {
           }}
         >
           <Box>
-            <Typography
-              variant="h4"
-              sx={{ fontWeight: 700, color: "primary.main" }}
-            >
+            <Typography variant="h4" sx={{ fontWeight: 700, color: "#34A853" }}>
               Order Confirmation
             </Typography>
             <Typography variant="subtitle1" color="text.secondary">

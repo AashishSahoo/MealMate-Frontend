@@ -1,107 +1,194 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Document,
   Page,
   Text,
   View,
   StyleSheet,
-  PDFDownloadLink,
   Image,
+  Font,
 } from "@react-pdf/renderer";
-import {
-  Container,
-  Paper,
-  Typography,
-  Grid,
-  List,
-  ListItem,
-  ListItemText,
-  Divider,
-  Box,
-  Button,
-  Tooltip,
-  CircularProgress,
-} from "@mui/material";
-import ArrowCircleDownIcon from "@mui/icons-material/ArrowCircleDown";
-import QRCode from "qrcode";
-import { useParams } from "react-router-dom";
-import axios from "axios";
+
+// Register fonts (you can use different fonts if needed)
+Font.register({
+  family: "Roboto",
+  fonts: [
+    {
+      src: "https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxP.ttf",
+      fontWeight: "normal",
+    },
+    {
+      src: "https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmEU9fBBc9.ttf",
+      fontWeight: "bold",
+    },
+  ],
+});
 
 const styles = StyleSheet.create({
   page: {
     padding: 40,
-    fontFamily: "Helvetica",
-    backgroundColor: "#F8F9FA",
+    fontFamily: "Roboto",
+    backgroundColor: "#FFFFFF",
   },
   header: {
-    fontSize: 19,
-    fontWeight: "bold",
-    color: "#2C3E50",
-    marginBottom: 8,
-    textAlign: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 30,
+    borderBottomWidth: 2,
+    borderBottomColor: "#34A853",
+    paddingBottom: 15,
   },
-  companyHeader: {
-    backgroundColor: "#FF6B6B",
+  logo: {
+    width: 120,
+    height: 40,
+  },
+  receiptTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#34A853",
+  },
+  receiptSubtitle: {
+    fontSize: 10,
+    color: "#666666",
+  },
+  statusBanner: {
+    backgroundColor: "#E8F5E9",
     padding: 10,
-    borderRadius: 12,
+    borderRadius: 5,
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 25,
-    textAlign: "center",
-    color: "white",
-    fontSize: 20,
-    fontWeight: "extrabold",
+  },
+  statusIcon: {
+    width: 16,
+    height: 16,
+    marginRight: 8,
+  },
+  statusText: {
+    fontSize: 12,
+    color: "#34A853",
+    fontWeight: "bold",
+  },
+  section: {
+    marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "bold",
-    color: "#2C3E50",
-    marginBottom: 12,
-    borderBottomWidth: 2,
-    borderBottomColor: "#FF6B6B",
-    paddingBottom: 4,
+    color: "#333333",
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#EEEEEE",
+    paddingBottom: 5,
   },
-  detailItem: {
+  gridContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 6,
-    fontSize: 16,
   },
-  label: {
-    color: "#585654",
-    fontWeight: "medium",
+  gridColumn: {
+    width: "48%",
   },
-  value: {
-    color: "#2C3E50",
-    fontWeight: "semibold",
-  },
-  itemRow: {
+  detailRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 8,
-    paddingVertical: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ECF0F1",
-    fontSize: 16,
   },
-  totalBox: {
-    backgroundColor: "#FF6B6B10",
+  detailLabel: {
+    fontSize: 10,
+    color: "#666666",
+    fontWeight: "bold",
+  },
+  detailValue: {
+    fontSize: 10,
+    color: "#333333",
+  },
+  itemsTable: {
+    width: "100%",
+    marginTop: 10,
+  },
+  tableHeader: {
+    flexDirection: "row",
+    backgroundColor: "#F5F5F5",
+    paddingVertical: 6,
+    paddingHorizontal: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: "#EEEEEE",
+  },
+  tableRow: {
+    flexDirection: "row",
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: "#EEEEEE",
+  },
+  colName: {
+    width: "50%",
+    fontSize: 10,
+  },
+  colPrice: {
+    width: "20%",
+    fontSize: 10,
+    textAlign: "right",
+  },
+  colQty: {
+    width: "15%",
+    fontSize: 10,
+    textAlign: "center",
+  },
+  colTotal: {
+    width: "15%",
+    fontSize: 10,
+    textAlign: "right",
+  },
+  summaryBox: {
+    backgroundColor: "#FAFAFA",
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 5,
     marginTop: 15,
+    borderWidth: 1,
+    borderColor: "#EEEEEE",
+  },
+  summaryRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  totalRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: "#DDDDDD",
+  },
+  qrContainer: {
+    alignItems: "center",
+    marginTop: 20,
   },
   qrCode: {
     width: 120,
     height: 120,
-    marginTop: 15,
-    alignSelf: "center",
+    borderWidth: 1,
+    borderColor: "#EEEEEE",
   },
   footer: {
     position: "absolute",
-    bottom: 40,
-    left: 0,
-    right: 0,
+    bottom: 30,
+    left: 40,
+    right: 40,
     textAlign: "center",
-    color: "#353432",
-    fontSize: 10,
+    fontSize: 8,
+    color: "#999999",
+    borderTopWidth: 1,
+    borderTopColor: "#EEEEEE",
+    paddingTop: 10,
+  },
+  restaurantDetails: {
+    backgroundColor: "#F5F5F5",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 15,
   },
 });
 
@@ -113,160 +200,231 @@ const PaymentReceiptPDF = ({
   timestamp,
   qrCodeDataUrl,
 }) => {
-  return (
-    <>
-      {" "}
-      <Document>
-        <Page size="A3" style={styles.page}>
-          {/* Company Header */}
-          <View style={styles.companyHeader}>
-            <Text>MealMate</Text>
-          </View>
+  // Format date and time
+  const formattedDate = new Date(payment.timestamp).toLocaleDateString(
+    "en-US",
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }
+  );
+  const formattedTime = new Date(payment.timestamp).toLocaleTimeString(
+    "en-US",
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+    }
+  );
 
-          {/* Transaction Overview */}
-          <View style={{ marginBottom: 25 }}>
-            <Text style={styles.header}>Payment Receipt</Text>
-            <Text style={{ textAlign: "center", color: "#7F8C8D" }}>
-              Transaction ID: {payment.razorpay?.payment_id}
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.receiptTitle}>PAYMENT RECEIPT</Text>
+            <Text style={styles.receiptSubtitle}>
+              MealMate - Food Delivery Service
             </Text>
           </View>
-
-          {/* Two Column Layout */}
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              marginBottom: 25,
-            }}
-          >
-            {/* Customer Details */}
-            <View style={{ width: "48%" }}>
-              <Text style={styles.sectionTitle}>Customer Information</Text>
-              <View style={styles.detailItem}>
-                <Text style={styles.label}>Name:</Text>
-                <Text style={styles.value}>{order?.user?.name || "N/A"}</Text>
-              </View>
-              <View style={styles.detailItem}>
-                <Text style={styles.label}>Email:</Text>
-                <Text style={styles.value}>{order?.user?.email || "N/A"}</Text>
-              </View>
-              <View style={styles.detailItem}>
-                <Text style={styles.label}>Phone:</Text>
-                <Text style={styles.value}>
-                  {order?.user?.contact || "N/A"}
-                </Text>
-              </View>
-            </View>
-
-            {/* Transaction Details */}
-            <View style={{ width: "48%" }}>
-              <Text style={styles.sectionTitle}>Transaction Details</Text>
-              <View style={styles.detailItem}>
-                <Text style={styles.label}>Date:</Text>
-                <Text style={styles.value}>
-                  {new Date(payment.timestamp).toLocaleDateString("en-IN")}
-                </Text>
-              </View>
-              <View style={styles.detailItem}>
-                <Text style={styles.label}>Status:</Text>
-                <Text style={[styles.value, { color: "#2ecc71" }]}>
-                  {payment.status.toUpperCase()}
-                </Text>
-              </View>
-              <View style={styles.detailItem}>
-                <Text style={styles.label}>Method:</Text>
-                <Text style={styles.value}>RAZORPAY</Text>
-              </View>
-            </View>
+          <View>
+            <Text style={{ fontSize: 10, textAlign: "right" }}>
+              Receipt #: {payment._id.slice(-8).toUpperCase()}
+            </Text>
+            <Text style={{ fontSize: 10, textAlign: "right" }}>
+              {formattedDate} at {formattedTime}
+            </Text>
           </View>
+        </View>
 
-          {/* Order Items */}
-          <Text style={styles.sectionTitle}>Order Items</Text>
-          {order.items.map((item, index) => (
-            <View key={index} style={styles.itemRow}>
-              <View style={{ flex: 2 }}>
-                <Text style={{ fontWeight: "semibold" }}>
-                  {item.food?.name || `Item ${index + 1}`}
-                </Text>
-                <Text style={{ fontSize: 10, color: "#7F8C8D" }}>
-                  {item.quantity} x ₹{(item.food?.price || 0).toFixed(2)} each
+        {/* Status Banner */}
+        <View style={styles.statusBanner}>
+          <Text style={styles.statusText}>
+            PAYMENT SUCCESSFUL • ORDER #{order._id.slice(-8).toUpperCase()}
+          </Text>
+          <Text
+            style={{ marginLeft: "auto", fontSize: 12, fontWeight: "bold" }}
+          >
+            ₹{order.totalAmount?.toFixed(2)}
+          </Text>
+        </View>
+
+        {/* Two Column Layout */}
+        <View style={styles.gridContainer}>
+          {/* Left Column */}
+          <View style={styles.gridColumn}>
+            {/* Customer Information */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>CUSTOMER INFORMATION</Text>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Name:</Text>
+                <Text style={styles.detailValue}>
+                  {order?.user?.firstName} {order?.user?.lastName}
                 </Text>
               </View>
-              <Text
-                style={{ flex: 1, textAlign: "right", fontWeight: "semibold" }}
-              >
-                ₹{((item.food?.price || 0) * item.quantity).toFixed(2)}
-              </Text>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Email:</Text>
+                <Text style={styles.detailValue}>{order?.user?.email}</Text>
+              </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Phone:</Text>
+                <Text style={styles.detailValue}>{order?.user?.mobileNo}</Text>
+              </View>
             </View>
-          ))}
-          {/* Payment Summary */}
-          <View style={styles.totalBox}>
-            <View style={[styles.detailItem, { marginBottom: 8 }]}>
-              <Text style={styles.label}>Subtotal:</Text>
-              <Text style={styles.value}>₹{subtotal.toFixed(2)}</Text>
+
+            {/* Restaurant Information */}
+            <View style={styles.restaurantDetails}>
+              <Text style={styles.sectionTitle}>RESTAURANT DETAILS</Text>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Name:</Text>
+                <Text style={styles.detailValue}>
+                  {order?.restaurant?.restaurantName}
+                </Text>
+              </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Email:</Text>
+                <Text style={styles.detailValue}>
+                  {order?.restaurant?.email}
+                </Text>
+              </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Phone:</Text>
+                <Text style={styles.detailValue}>
+                  {order?.restaurant?.mobileNo}
+                </Text>
+              </View>
             </View>
-            <View style={[styles.detailItem, { marginBottom: 8 }]}>
-              <Text style={styles.label}>GST (5%):</Text>
-              <Text style={styles.value}>₹{gst}</Text>
-            </View>
-            <View style={[styles.detailItem, { marginBottom: 12 }]}>
-              <Text style={styles.label}>Delivery Fee:</Text>
-              <Text style={styles.value}>₹0.00</Text>
-            </View>
-            <View
-              style={[
-                styles.detailItem,
-                { borderTopWidth: 1, borderTopColor: "#ECF0F1", paddingTop: 8 },
-              ]}
-            >
-              <Text style={[styles.label, { fontWeight: "bold" }]}>
-                Total Amount:
-              </Text>
-              <Text
-                style={[styles.value, { color: "#FF6B6B", fontWeight: "bold" }]}
-              >
-                ₹{order.totalAmount.toFixed(2)}
+
+            {/* Delivery Information */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>DELIVERY INFORMATION</Text>
+              <Text style={{ fontSize: 10, lineHeight: 1.5 }}>
+                {order.user?.address || "N/A"}
               </Text>
             </View>
           </View>
 
-          {/* Delivery & QR Code */}
-          <View
-            style={{
-              marginTop: 25,
-              flexDirection: "row",
-              justifyContent: "space-between",
-            }}
-          >
-            <View style={{ width: "48%" }}>
-              <Text style={styles.sectionTitle}>Delivery Address</Text>
-              <Text style={{ lineHeight: 1.5 }}>
-                {order.deliveryAddress || "N/A"}
-              </Text>
+          {/* Right Column */}
+          <View style={styles.gridColumn}>
+            {/* Payment Details */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>PAYMENT DETAILS</Text>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Payment ID:</Text>
+                <Text style={styles.detailValue}>{payment._id}</Text>
+              </View>
+
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Date:</Text>
+                <Text style={styles.detailValue}>
+                  {formattedDate} at {formattedTime}
+                </Text>
+              </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Payment Method:</Text>
+                <Text style={styles.detailValue}>Razorpay</Text>
+              </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Status:</Text>
+                <Text style={[styles.detailValue, { color: "#34A853" }]}>
+                  Completed
+                </Text>
+              </View>
             </View>
+
+            {/* QR Code */}
             {qrCodeDataUrl && (
-              <View style={{ width: "48%", alignItems: "center" }}>
-                <Text style={[styles.sectionTitle, { textAlign: "center" }]}>
-                  QR Code
-                </Text>
-                <Image src={qrCodeDataUrl} style={styles.qrCode} />
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>PAYMENT QR CODE</Text>
+                <View style={styles.qrContainer}>
+                  <Image src={qrCodeDataUrl} style={styles.qrCode} />
+                  <Text style={{ fontSize: 8, marginTop: 5 }}>
+                    Scan for payment reference
+                  </Text>
+                </View>
               </View>
             )}
           </View>
+        </View>
 
-          {/* Footer */}
-          <View style={styles.footer}>
-            <Text>Generated on: {timestamp.toLocaleString()}</Text>
-            <Text style={{ marginTop: 4 }}>
-              Thank you for choosing MealMate!
-            </Text>
-            <Text style={{ marginTop: 2 }}>
-              Contact: wrongright899@gmail.com | ☎️ 1800-123-4567
-            </Text>
+        {/* Order Items */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>ORDER ITEMS</Text>
+          <View style={styles.itemsTable}>
+            {/* Table Header */}
+            <View style={styles.tableHeader}>
+              <Text style={styles.colName}>ITEM</Text>
+              <Text style={styles.colPrice}>PRICE</Text>
+              <Text style={styles.colQty}>QTY</Text>
+              <Text style={styles.colTotal}>TOTAL</Text>
+            </View>
+            {/* Table Rows */}
+            {order.items.map((item, index) => (
+              <View key={index} style={styles.tableRow}>
+                <Text style={styles.colName}>{item.food?.name}</Text>
+                <Text style={styles.colPrice}>
+                  ₹{(item.food?.price || 0).toFixed(2)}
+                </Text>
+                <Text style={styles.colQty}>{item.quantity}</Text>
+                <Text style={styles.colTotal}>
+                  ₹{((item.food?.price || 0) * item.quantity).toFixed(2)}
+                </Text>
+              </View>
+            ))}
           </View>
-        </Page>
-      </Document>
-    </>
+        </View>
+
+        {/* Payment Summary */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>PAYMENT SUMMARY</Text>
+          <View style={styles.summaryBox}>
+            <View style={styles.summaryRow}>
+              <Text style={styles.detailLabel}>Subtotal:</Text>
+              <Text style={styles.detailValue}>₹{subtotal.toFixed(2)}</Text>
+            </View>
+            <View style={styles.summaryRow}>
+              <Text style={styles.detailLabel}>
+                GST ({gst > 0 ? "18%" : "0%"}):
+              </Text>
+              <Text style={styles.detailValue}>₹{gst}</Text>
+            </View>
+            <View style={styles.summaryRow}>
+              <Text style={styles.detailLabel}>Delivery Fee:</Text>
+              <Text style={styles.detailValue}>₹50.00</Text>
+            </View>
+            <View style={styles.totalRow}>
+              <Text style={[styles.detailLabel, { fontWeight: "bold" }]}>
+                TOTAL:
+              </Text>
+              <Text
+                style={[
+                  styles.detailValue,
+                  { fontWeight: "bold", color: "#34A853" },
+                ]}
+              >
+                ₹{order.totalAmount?.toFixed(2)}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <Text>
+            Order ID: {order._id} • Payment ID: {payment._id}
+          </Text>
+          <Text style={{ marginTop: 5 }}>
+            Need help? Contact us at wrongright899@gmail.com or call
+            8999-081-573
+          </Text>
+          <Text style={{ marginTop: 5 }}>
+            Thank you for choosing MealMate! • Generated on:{" "}
+            {timestamp.toLocaleString()}
+          </Text>
+        </View>
+      </Page>
+    </Document>
   );
 };
 
