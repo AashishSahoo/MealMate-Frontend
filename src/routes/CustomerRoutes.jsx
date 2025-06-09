@@ -6,6 +6,7 @@ import Menu from "../pages/customer/Menu";
 import OrderHistory from "../pages/customer/OrderHistory";
 import Cart from "../pages/customer/Cart";
 import ProfilePageCustomer from "../pages/customer/ProfilePageCustomer";
+import Payment from "../pages/customer/Payment";
 import Chatbot from "../pages/customer/Chatbot";
 import { Routes, Route } from "react-router-dom";
 
@@ -19,6 +20,7 @@ const CustomerRoutes = () => (
     <Route path="order-history" element={<OrderHistory />} />
     <Route path="profile" element={<ProfilePageCustomer />} />
     <Route path="chatbot" element={<Chatbot />} />{" "}
+    <Route path="payment/:orderId" element={<Payment />} />
   </Routes>
 );
 
