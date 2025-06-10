@@ -218,18 +218,20 @@ export default function MiniDrawer() {
             </Typography>
           </Box>
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Avatar
-              sx={{
-                bgcolor: "#64b5f6",
-                cursor: "pointer",
-                transition: "transform 0.2s",
-                "&:hover": { transform: "scale(1.1)" },
-              }}
-              onClick={() => navigate("profile")}
-            >
-              <AccountCircleIcon />
-            </Avatar>
+          <Box
+            sx={{
+              display: "flex",
+              cursor: "pointer",
+              transition: "transform 0.2s",
+              "&:hover": { transform: "scale(1.1)" },
+            }}
+            onClick={() => navigate("/resto-owner/profile")}
+          >
+            <Icon
+              icon="material-symbols:account-circle"
+              width="30"
+              height="30"
+            />
           </Box>
         </Toolbar>
       </AppBar>

@@ -190,6 +190,7 @@ export default function OrderHistoryTable() {
                 </TableRow>
               ) : (
                 filteredOrders
+                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((order) => (
                     <React.Fragment key={order._id}>

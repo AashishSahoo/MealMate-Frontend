@@ -101,6 +101,7 @@ const OrderHistory = () => {
           </TableHead>
           <TableBody>
             {orders
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((order, idx) => (
                 <React.Fragment key={order._id}>
@@ -163,7 +164,7 @@ const OrderHistory = () => {
                           >
                             Ordered Items{" "}
                             {order.status === "cancelled" && (
-                              <Typography variant="caption" color="error" >
+                              <Typography variant="caption" color="error">
                                 {" "}
                                 (Order is been rejected by Restaurant and your
                                 money will be refunded in 3-5 working days )

@@ -69,6 +69,7 @@ const Cart = () => {
 
   const userInfo = JSON.parse(localStorage.getItem("userInfo")) || {};
   const { email, token, userId } = userInfo;
+
   const navigate = useNavigate();
   const [showPayment, setShowPayment] = useState(false);
 

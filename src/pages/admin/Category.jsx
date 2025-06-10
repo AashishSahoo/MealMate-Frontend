@@ -195,6 +195,7 @@ export default function Category() {
               </TableHead>
               <TableBody>
                 {rows
+                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row, index) => (
                     <TableRow

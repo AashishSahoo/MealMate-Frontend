@@ -393,8 +393,8 @@ const TableBooking = () => {
                     }}
                   >
                     <motion.div
-                      whileHover={{ scale: 1.05 }} // Zoom-in effect on hover
-                      transition={{ type: "tween", stiffness: 300 }} // Smooth transition
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "tween", stiffness: 300 }}
                     >
                       <CardMedia
                         component="img"
@@ -402,7 +402,7 @@ const TableBooking = () => {
                         image={tablebooking}
                         alt="People enjoying food"
                         sx={{
-                          borderRadius: "1rem 1rem 0 0", // Rounded corners at the top
+                          borderRadius: "1rem 1rem 0 0",
                         }}
                       />
                     </motion.div>
@@ -410,7 +410,6 @@ const TableBooking = () => {
                 </motion.div>
               </Grid>
 
-              {/* Other Cards - Normal Details */}
               {filterTables.map((table, index) => (
                 <Grid item xs={12} md={3} key={table._id}>
                   <motion.div
@@ -435,7 +434,6 @@ const TableBooking = () => {
                       <CardContent>
                         <Typography variant="h6" gutterBottom>
                           {table.restaurantName}{" "}
-                          {/* Use mapped restaurant name */}
                         </Typography>
                         <Typography
                           variant="body1"
@@ -450,7 +448,6 @@ const TableBooking = () => {
                             }}
                           />
                           Table {table.tableNumber}{" "}
-                          {/* Use mapped table number */}
                         </Typography>
                         <Typography
                           variant="body1"
@@ -465,7 +462,6 @@ const TableBooking = () => {
                             }}
                           />
                           Capacity: {table.capacity} Persons{" "}
-                          {/* Use mapped capacity */}
                         </Typography>
                         <Typography
                           variant="body1"
@@ -479,7 +475,7 @@ const TableBooking = () => {
                               color: "#9370DB",
                             }}
                           />
-                          Price: {table.bookingCharges} {/* Use mapped price */}
+                          Price: {table.bookingCharges}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                           <HourglassBottomIcon
@@ -536,6 +532,7 @@ const TableBooking = () => {
               </TableHead>
               <TableBody>
                 {rows
+                  .sort((a, b) => new Date(b.bookedAt) - new Date(a.bookedAt))
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((booking) => (
                     <TableRow key={booking._id}>

@@ -64,9 +64,9 @@ const OrderPage = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response?.data?.resultCode === 0) {
-        setOrders(response.data.resultData);
+        setOrders(response.data.resultData || []);
         const newButtonState = {};
-        response.data.resultData.forEach((order) => {
+        (response.data.resultData || []).forEach((order) => {
           newButtonState[order._id] = {
             acceptLoading: false,
             rejectLoading: false,
@@ -77,12 +77,13 @@ const OrderPage = () => {
       }
     } catch (error) {
       console.error("Error fetching incoming orders:", error);
+      setOrders([]);
+      setButtonState({});
     } finally {
       setLoading(false);
     }
   };
 
-  
   useEffect(() => {
     fetchAllIncomingOrders();
   }, []);
@@ -97,7 +98,7 @@ const OrderPage = () => {
       await axios.patch(`/api/orders/${orderId}/complete`, null, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      await fetchAllIncomingOrders(); // Refresh data after success
+      await fetchAllIncomingOrders();
     } catch (error) {
       console.error("Error accepting order:", error);
     } finally {
@@ -118,7 +119,7 @@ const OrderPage = () => {
       await axios.patch(`/api/orders/${orderId}/cancelled`, null, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      await fetchAllIncomingOrders(); // Refresh data after success
+      await fetchAllIncomingOrders();
     } catch (error) {
       console.error("Error rejecting order:", error);
     } finally {
@@ -128,6 +129,12 @@ const OrderPage = () => {
       }));
     }
   };
+
+  useEffect(() => {
+    if (orders.length <= page * rowsPerPage && page > 0) {
+      setPage(0);
+    }
+  }, [orders, page, rowsPerPage]);
 
   const handleChangePage = (event, newPage) => setPage(newPage);
 
