@@ -1,732 +1,1134 @@
-import React, { useState } from "react";
+// import React, { useState, useEffect } from "react";
+// import {
+//   AppBar,
+//   Box,
+//   Typography,
+//   Button,
+//   Grid,
+//   Paper,
+//   Toolbar,
+//   Fab,
+//   useScrollTrigger,
+//   Zoom,
+//   Chip,
+//   Divider,
+//   Accordion,
+//   AccordionSummary,
+//   AccordionDetails,
+// } from "@mui/material";
+// import { Card, CardMedia, Fade } from "@mui/material";
+
+// import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+// import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+// import { Icon } from "@iconify/react";
+// import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+// import RegistrationForm from "../component/restuarantowner/RegistrationForm";
+
+// // Elevate App Bar
+// function ElevationScroll(props) {
+//   const { children, window } = props;
+//   const trigger = useScrollTrigger({
+//     disableHysteresis: true,
+//     threshold: 0,
+//     target: window ? window() : undefined,
+//   });
+
+//   return React.cloneElement(children, {
+//     elevation: trigger ? 4 : 0,
+//   });
+// }
+
+// // Back to Top
+// function ScrollTop(props) {
+//   const { children, window } = props;
+//   const trigger = useScrollTrigger({
+//     target: window ? window() : undefined,
+//     disableHysteresis: true,
+//     threshold: 100,
+//   });
+
+//   const handleClick = (event) => {
+//     const anchor = (event.target.ownerDocument || document).querySelector(
+//       "#back-to-top-anchor"
+//     );
+
+//     if (anchor) {
+//       anchor.scrollIntoView({
+//         block: "center",
+//       });
+//     }
+//   };
+
+//   return (
+//     <Zoom in={trigger}>
+//       <Box
+//         onClick={handleClick}
+//         role="presentation"
+//         sx={{ position: "fixed", bottom: 16, right: 16 }}
+//       >
+//         {children}
+//       </Box>
+//     </Zoom>
+//   );
+// }
+
+// const images = [
+//   "/assets/restro-owner-register-page/steps.jpeg",
+//   "/assets/restro-owner-register-page/fillform.jpeg",
+//   "/assets/restro-owner-register-page/upload.jpeg",
+//   "/assets/restro-owner-register-page/analysis.jpeg",
+
+//   "/assets/restro-owner-register-page/verified.jpeg",
+// ];
+
+// const RegisterPage = (props) => {
+//   const [currentIndex, setCurrentIndex] = useState(0);
+//   const [fade, setFade] = useState(true);
+
+//   useEffect(() => {
+//     const interval = setInterval(() => {
+//       setFade(false);
+//       setTimeout(() => {
+//         setCurrentIndex((prev) => (prev + 1) % images.length);
+//         setFade(true);
+//       }, 500); // Fade out before changing image
+//     }, 3000); // Change image every 3 seconds
+
+//     return () => clearInterval(interval); // Cleanup
+//   }, []);
+
+//   return (
+//     <Box
+//       sx={{
+//         width: "100%",
+//         height: "100%",
+//         bgcolor: "#74CEF7",
+//         color: "#2c003e",
+//       }}
+//     >
+//       {/* App Bar */}
+//       <ElevationScroll {...props}>
+//         <AppBar sx={{ bgcolor: "#04304f" }}>
+//           <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+//             <Typography variant="h6" component="div">
+//               MealMate Partner
+//             </Typography>
+//             <Chip
+//               icon={
+//                 <Icon icon="ant-design:login-outlined" width={20} height={20} />
+//               }
+//               label="Login"
+//               variant="filled"
+//               sx={{
+//                 bgcolor: "#9EDDF9",
+//                 color: "#000",
+//                 fontWeight: 500,
+//                 "& .MuiChip-icon": { color: "#000" },
+//                 "&:hover": { bgcolor: "#5DA5C6" },
+//                 cursor: "pointer",
+//               }}
+//               onClick={() => console.log("Login clicked")}
+//             />
+//           </Toolbar>
+//         </AppBar>
+//       </ElevationScroll>
+//       <Toolbar id="back-to-top-anchor" />
+
+//       {/* Hero Section */}
+//       <Box
+//         sx={{
+//           backgroundImage: `url('../assets/restro-owner-register-page/background1.jpg')`,
+//           backgroundSize: "cover",
+//           backgroundPosition: "center",
+//           display: "flex",
+//           flexDirection: "column",
+//           alignItems: "flex-end",
+//           justifyContent: "center",
+//           textAlign: "right",
+//           px: 2,
+//           pt: 12,
+//           pb: 16,
+//           color: "#fff",
+//         }}
+//       >
+//         <Typography variant="h3" fontWeight={600} gutterBottom>
+//           Partner with MealMate <br /> and grow your business
+//         </Typography>
+//         <Typography variant="body1" sx={{ color: "#ffecff" }} gutterBottom>
+//           <strong style={{ color: "#D5F0FD" }}>
+//             0% commission for 1st month!
+//           </strong>
+//         </Typography>
+//         <Typography variant="body1" sx={{ color: "#ffecff" }}>
+//           Valid for new restaurant partners in select cities
+//         </Typography>
+//         <Button
+//           variant="contained"
+//           sx={{
+//             mt: 3,
+//             px: 4,
+//             py: 1.5,
+//             borderRadius: 2,
+//             backgroundColor: "#9EDDF9",
+//             color: "#000",
+//             "&:hover": { backgroundColor: "#5DA5C6" },
+//           }}
+//         >
+//           Register your restaurant
+//         </Button>
+//       </Box>
+
+//       {/* Info Section */}
+//       <Box
+//         sx={{
+//           px: 2,
+//           mt: -10,
+//           mb: 6,
+//           backgroundImage: `url('../assets/restro-owner-register-page/background.jpg')`,
+//           backgroundSize: "cover",
+//           display: "flex",
+//           justifyContent: "center",
+//         }}
+//       >
+//         <Paper
+//           elevation={3}
+//           sx={{
+//             borderRadius: 3,
+//             p: 4,
+//             maxWidth: 1000,
+//             mx: "auto",
+//             position: "absolute",
+//             bgcolor: "#F1FAFE",
+//             color: "#2c003e",
+//           }}
+//         >
+//           <Grid container spacing={5}>
+//             <Grid item xs={12} md={7}>
+//               <Typography variant="h6" fontWeight={700} gutterBottom>
+//                 Get Started - It only takes 10 minutes
+//               </Typography>
+//               <Typography variant="body2" sx={{ color: "#6e4c7b" }}>
+//                 Please keep these documents and details ready for a smooth
+//                 sign-up
+//               </Typography>
+
+//               <Grid container spacing={2} sx={{ mt: 2 }}>
+//                 {[
+//                   "PAN card",
+//                   "FSSAI license",
+//                   "Bank account details",
+//                   "Menu & profile food image",
+//                 ].map((item, i) => (
+//                   <Grid item xs={12} sm={6} key={i}>
+//                     <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+//                       <CheckCircleIcon sx={{ mr: 1, color: "#2DE200" }} />
+//                       <Typography variant="body2">{item}</Typography>
+//                     </Box>
+//                   </Grid>
+//                 ))}
+//                 <Grid item xs={12} sx={{ pl: 4 }}>
+//                   <Typography variant="caption" sx={{ color: "#6e4c7b" }}>
+//                     Don't have a FSSAI license? <a href="#">Apply here</a>
+//                   </Typography>
+//                 </Grid>
+//               </Grid>
+//             </Grid>
+
+//             {/* Image Card Section */}
+//             <Grid item xs={12} md={5}>
+//               <Box
+//                 sx={{
+//                   position: "relative",
+//                   height: 200,
+//                   borderRadius: 2,
+//                   overflow: "hidden",
+//                   boxShadow: "none",
+//                   backgroundColor: "#f1fafe",
+//                 }}
+//               >
+//                 <Card
+//                   sx={{
+//                     width: "100%",
+//                     height: 200,
+//                     margin: "auto",
+//                     mt: 0,
+//                     backgroundColor: "#f1fafe",
+//                   }}
+//                 >
+//                   <Fade in={fade} timeout={500}>
+//                     <CardMedia
+//                       component="img"
+//                       image={images[currentIndex]}
+//                       alt={`Slide ${currentIndex + 1}`}
+//                       sx={{
+//                         width: "100%",
+//                         height: "100%",
+//                         objectFit: "contain",
+//                         backgroundColor: "#f1fafe",
+//                       }}
+//                     />
+//                   </Fade>
+//                 </Card>
+//               </Box>
+//             </Grid>
+//           </Grid>
+//         </Paper>
+//       </Box>
+
+//       {/* Why Partner Section */}
+//       <Box
+//         sx={{
+//           backgroundImage: `url('../assets/restro-owner-register-page/BlueAbstractWallpaper.png')`,
+//           backgroundSize: "cover",
+//           px: 2,
+//           pt: 12,
+//           pb: 16,
+//           color: "#fff",
+//           height: "70vh",
+//         }}
+//       >
+//         <Divider
+//           sx={{
+//             mx: { xs: 2, md: 15 },
+//             mt: { xs: 10, md: 35 },
+//             mb: 6,
+//             borderBottomWidth: 3,
+//             "&::before, &::after": { borderColor: "#000" },
+//           }}
+//         >
+//           <Typography
+//             variant="h3"
+//             sx={{ fontFamily: "Space Grotesk", color: "#000", m: 0 }}
+//           >
+//             Why partner with MealMate?
+//           </Typography>
+//         </Divider>
+
+//         <Grid container spacing={4} justifyContent="center" sx={{ px: 2 }}>
+//           {[
+//             {
+//               icon: "fluent:people-community-32-filled",
+//               title: "Attract Customers",
+//               color: "#1976d2",
+//               text: ["Reach millions of people", "ordering daily on MealMate"],
+//             },
+//             {
+//               icon: "fluent-mdl2:onboarding",
+//               title: "Onboarding Support",
+//               color: "#388e3c",
+//               text: ["Dedicated support team", "ashishsahoo0013@gmail.com"],
+//             },
+//             {
+//               icon: "game-icons:take-my-money",
+//               title: "No Setup Fee",
+//               color: "#f57c00",
+//               text: ["Zero upfront cost", "Start without initial charges"],
+//             },
+//           ].map((card, i) => (
+//             <Grid item xs={12} sm={6} md={4} key={i}>
+//               <Paper
+//                 sx={{
+//                   p: 3,
+//                   height: 200,
+//                   display: "flex",
+//                   flexDirection: "column",
+//                   justifyContent: "center",
+//                   background: "rgba(255, 255, 255, 0.1)", // More transparent background
+//                   backdropFilter: "blur(12px)", // Increased blur
+//                   border: "1px solid rgba(255, 255, 255, 0.1)", // Subtle border for depth
+//                   boxShadow: "none", // Remove default shadow
+//                   transition: "transform 0.5s ease, background 0.3s ease",
+//                   transform: "scale(1)", // default scale
+//                   "&:hover": {
+//                     transform: "scale(1.05)", // Zoom-in effect
+//                     background: "rgba(255, 255, 255, 0.15)", // Slight hover effect
+//                   },
+//                 }}
+//               >
+//                 <Box textAlign="center">
+//                   <Icon
+//                     icon={card.icon}
+//                     height={70}
+//                     width={70}
+//                     style={{ color: card.color, marginBottom: 16 }}
+//                   />
+//                   <Typography variant="h6" fontWeight={600} gutterBottom>
+//                     {card.title}
+//                   </Typography>
+//                   {card.text.map((line, idx) => (
+//                     <Typography key={idx} variant="body2">
+//                       {line}
+//                     </Typography>
+//                   ))}
+//                 </Box>
+//               </Paper>
+//             </Grid>
+//           ))}
+//         </Grid>
+//       </Box>
+
+//       {/* FAQ Section */}
+//       <Box sx={{ bgcolor: "#fff", px: 2, pt: 12, pb: 16, color: "#000" }}>
+//         <Divider
+//           sx={{
+//             mx: { xs: 2, md: 15 },
+//             mb: 6,
+//             borderBottomWidth: 3,
+//             "&::before, &::after": { borderColor: "#000" },
+//           }}
+//         >
+//           <Typography variant="h4" fontWeight={600}>
+//             Frequently Asked Questions
+//           </Typography>
+//         </Divider>
+
+//         <Grid container justifyContent="center">
+//           <Grid item xs={12} md={8}>
+//             <Accordion sx={{ mb: 2 }}>
+//               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+//                 <Typography variant="h6">
+//                   What documents are required to start deliveries?
+//                 </Typography>
+//               </AccordionSummary>
+//               <AccordionDetails>
+//                 <Typography>
+//                   <strong>Mandatory documents:</strong>
+//                   <ul>
+//                     <li>PAN Card</li>
+//                     <li>FSSAI License</li>
+//                     <li>Bank Details</li>
+//                     {/* <li>Restaurant Menu</li> */}
+//                     <li>Food Cover Image</li>
+//                   </ul>
+//                 </Typography>
+//               </AccordionDetails>
+//             </Accordion>
+//             <Accordion sx={{ mb: 2 }}>
+//               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+//                 <Typography variant="h6">
+//                   How long will it take for a restaurant to go live on MealMate
+//                   after submitting the documents?
+//                 </Typography>
+//               </AccordionSummary>
+//               <AccordionDetails>
+//                 <Typography>
+//                   <span>
+//                     Once all mandatory documents are uploaded and the contract
+//                     is accepted, our team typically takes around 24 hours to
+//                     verify the documents and build your menu.
+//                   </span>
+//                   <ul>
+//                     <li>
+//                       If all documents are correct, your restaurant will be
+//                       ready to accept orders within 48 hours.
+//                     </li>
+//                     <li>
+//                       If any document is rejected, the go-live process will be
+//                       delayed until you resubmit the correct documents.
+//                     </li>
+//                   </ul>
+//                 </Typography>
+//               </AccordionDetails>
+//             </Accordion>
+//             <Accordion sx={{ mb: 2 }}>
+//               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+//                 <Typography variant="h6">
+//                   How can I get help and support from MealMate if I get stuck?
+//                 </Typography>
+//               </AccordionSummary>
+//               <AccordionDetails>
+//                 <Typography>
+//                   <span>
+//                     The MealMate team is here to help! Email us at
+//                     ashishsahoo0013@gmail.com with your restaurant ID, and we’ll
+//                     resolve your query within 24 hours.
+//                   </span>
+//                 </Typography>
+//               </AccordionDetails>
+//             </Accordion>{" "}
+//             <Accordion sx={{ mb: 2 }}>
+//               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+//                 <Typography variant="h6">
+//                   Who developed this application?
+//                 </Typography>
+//               </AccordionSummary>
+//               <AccordionDetails>
+//                 <Typography>
+//                   <strong>Ashish Sahoo</strong>
+//                   <ul>
+//                     <li>
+//                       Greeting of the day, I’m Ashish Sahoo, a Frontend
+//                       Developer Intern with 7 months of experience building
+//                       responsive, user-friendly interfaces using React,
+//                       JavaScript, TypeScript, Next.js, and Material UI. Beyond
+//                       frontend work, I’ve also developed a full-stack MERN-based
+//                       Online Food Ordering App from scratch, implementing
+//                       features like role-based modules, admin analytics, and API
+//                       integration. This project has deepened my understanding of
+//                       backend development and full-stack architecture. I’m
+//                       actively seeking opportunities as a Frontend Developer or
+//                       MERN Stack Developer—whichever best fits the team’s needs.
+//                       I’m eager to keep learning, contribute to impactful
+//                       projects, and grow with a collaborative development team.
+//                     </li>
+//                     <li>
+//                       Github :{" "}
+//                       <a href="https://github.com/AashishSahoo">Link</a>
+//                     </li>
+//                     <li>
+//                       LinkedIn :{" "}
+//                       <a href="https://www.linkedin.com/in/ashishsahoo899/">
+//                         Link
+//                       </a>
+//                     </li>
+//                     <li>
+//                       Portfolio :{" "}
+//                       <a href="https://portfolio-seven-tan-71.vercel.app/">
+//                         Link
+//                       </a>
+//                     </li>
+//                   </ul>
+//                 </Typography>
+//               </AccordionDetails>
+//             </Accordion>
+//           </Grid>
+//         </Grid>
+//       </Box>
+
+//       <Box sx={{ bgcolor: "#f1fafe", px: 2, pt: 6, pb: 16, color: "#000" }}>
+//         {/* <Divider
+//           sx={{
+//             mx: { xs: 2, md: 15 },
+//             mb: 6,
+//             borderBottomWidth: 3,
+//             "&::before, &::after": { borderColor: "#000" },
+//           }} */}
+//         {/* > */}
+//         <Typography textAlign="center" variant="h4" fontWeight={600}>
+//           Registeration Form
+//         </Typography>
+//         {/* </Divider> */}
+
+//         <RegistrationForm />
+//       </Box>
+
+//       {/* Back to Top Button */}
+//       <ScrollTop {...props}>
+//         <Fab size="small" sx={{ bgcolor: "#8e24aa", color: "#fff" }}>
+//           <KeyboardArrowUpIcon />
+//         </Fab>
+//       </ScrollTop>
+//     </Box>
+//   );
+// };
+
+// export default RegisterPage;
+
+import React, { useState, useEffect, useRef } from "react";
 import {
+  AppBar,
   Box,
   Typography,
-  TextField,
   Button,
+  Grid,
+  Paper,
+  Toolbar,
+  Fab,
+  useScrollTrigger,
+  Zoom,
+  Chip,
+  Divider,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Container,
   Link,
   IconButton,
-  InputAdornment,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
 } from "@mui/material";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
-import Slideshow from "../component/Slideshow";
-import PhotoCamera from "@mui/icons-material/PhotoCamera";
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
-import ImageAspectRatioIcon from "@mui/icons-material/ImageAspectRatio";
-
-import CircularProgress from "@mui/material/CircularProgress";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import bcrypt from "bcryptjs";
-
-import ErrorIcon from "@mui/icons-material/Error";
+import { Card, CardMedia, Fade } from "@mui/material";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import WarningIcon from "@mui/icons-material/Warning";
-import DinnerDiningIcon from "@mui/icons-material/DinnerDining";
+import { Icon } from "@iconify/react";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import RegistrationForm from "../component/restuarantowner/RegistrationForm";
+import Footer from "../component/restuarantowner/Footer"; // You'll need to create this component
+import { useNavigate } from "react-router-dom";
 
-const RestroOwnerRegister = () => {
-  const [loading, setLoading] = useState();
-  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
-  const [successDialogOpen, setSuccessDialogOpen] = useState(false);
-  const [dialogConfig, setDialogConfig] = useState({
-    title: "",
-    message: "",
+// Elevate App Bar
+function ElevationScroll(props) {
+  const { children, window } = props;
+  const trigger = useScrollTrigger({
+    disableHysteresis: true,
+    threshold: 0,
+    target: window ? window() : undefined,
   });
 
-  const [phone, setPhone] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [image, setImage] = useState(null);
-  const [document, setDocument] = useState(null);
+  return React.cloneElement(children, {
+    elevation: trigger ? 4 : 0,
+  });
+}
 
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    mobileNo: "",
-    restaurantName: "",
-    address: "",
-    password: "",
-    confirmPassword: "",
-    appLogo: image,
-    document: document,
-    roleType: "restro-owner",
+// Back to Top
+function ScrollTop(props) {
+  const { children, window } = props;
+  const trigger = useScrollTrigger({
+    target: window ? window() : undefined,
+    disableHysteresis: true,
+    threshold: 100,
   });
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const handleClick = (event) => {
+    const anchor = (event.target.ownerDocument || document).querySelector(
+      "#back-to-top-anchor"
+    );
 
-  const validatePassword = (password) => {
-    const passwordRegex =
-      /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,20}$/;
-    return passwordRegex.test(password);
-  };
-
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const handleTogglePassword = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const handleMouseDownPassword = (event) => {
-    event.preventDefault();
-  };
-
-  const showDialog = (title, message, isSuccess = false) => {
-    setDialogConfig({ title, message });
-    if (isSuccess) {
-      setSuccessDialogOpen(true);
-    } else {
-      setErrorDialogOpen(true);
+    if (anchor) {
+      anchor.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
     }
   };
 
-  const handleCloseErrorDialog = () => {
-    setErrorDialogOpen(false);
-  };
+  return (
+    <Zoom in={trigger}>
+      <Box
+        onClick={handleClick}
+        role="presentation"
+        sx={{ position: "fixed", bottom: 16, right: 16 }}
+      >
+        {children}
+      </Box>
+    </Zoom>
+  );
+}
 
-  const handleCloseSuccessDialog = () => {
-    setSuccessDialogOpen(false);
-    navigate("/login");
-  };
+const images = [
+  "/assets/restro-owner-register-page/steps.jpeg",
+  "/assets/restro-owner-register-page/fillform.jpeg",
+  "/assets/restro-owner-register-page/upload.jpeg",
+  "/assets/restro-owner-register-page/analysis.jpeg",
+  "/assets/restro-owner-register-page/verified.jpeg",
+];
 
-  const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 300 * 1024) {
-        showDialog(
-          "File Size Warning",
-          "The selected file exceeds the maximum allowed size of 300KB. Please choose a smaller file."
-        );
-        return;
-      }
-      const imageUrl = URL.createObjectURL(file);
-      setImage(file);
-      setFormData((prev) => ({ ...prev, appLogo: file }));
-    }
-  };
+const RegisterPage = (props) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [fade, setFade] = useState(true);
+  const registrationRef = useRef(null);
+  const navigation = useNavigate();
 
-  const handleDocumentChange = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 300 * 1024) {
-        showDialog(
-          "File Size Warning",
-          "The selected file exceeds the maximum allowed size of 300KB. Please choose a smaller file."
-        );
-        return;
-      }
-      const imageUrl = URL.createObjectURL(file);
-      setDocument(file);
-      setFormData((prev) => ({ ...prev, document: file }));
-    }
-  };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFade(false);
+      setTimeout(() => {
+        setCurrentIndex((prev) => (prev + 1) % images.length);
+        setFade(true);
+      }, 500);
+    }, 3000);
 
-  const handleDeleteDocument = () => {
-    setDocument(null);
-  };
+    return () => clearInterval(interval);
+  }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!formData.appLogo) {
-      showDialog("Missing Logo", "Please upload a logo image.");
-      return;
-    }
-
-    if (!formData.document) {
-      showDialog("Missing Document", "Please upload a document.");
-      return;
-    }
-
-    if (!validateEmail(formData.email)) {
-      showDialog("Invalid Email", "Please enter a valid email address!");
-      return;
-    }
-
-    if (!validatePassword(formData.password)) {
-      showDialog(
-        "Password Requirements",
-        "Password must be 6-20 characters long and include a combination of letters, numbers, and special characters."
-      );
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      showDialog("Password Mismatch", "Passwords do not match!");
-      return;
-    }
-
-    const formDataToSend = new FormData();
-    formDataToSend.append("firstName", formData.firstName);
-    formDataToSend.append("lastName", formData.lastName);
-    formDataToSend.append("email", formData.email);
-    formDataToSend.append("mobileNo", formData.mobileNo);
-    formDataToSend.append("restaurantName", formData.restaurantName);
-    formDataToSend.append("address", formData.address);
-    formDataToSend.append("password", formData.password);
-    formDataToSend.append("confirmPassword", formData.confirmPassword);
-    formDataToSend.append("roleType", formData.roleType);
-    formDataToSend.append("appLogo", image);
-    formDataToSend.append("document", document);
-
-    setLoading(true);
-
-    try {
-      const response = await axios.post(
-        `/api/auth/register/restaurant-owner`,
-        formDataToSend,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      // const { data } = response;
-      console.log(response, "hi");
-
-      if (response?.data?.resultCode === 0) {
-        showDialog(
-          "Registration Successful",
-          "Your account has been created successfully!",
-          true
-        );
-      } else {
-        console.log(resultMessage, "hi");
-        showDialog(
-          "Registration Failed",
-          data.resultMessage || "An error occurred during registration"
-        );
-      }
-    } catch (error) {
-      console.error("Error during registration:", error);
-      // const errorMessage =
-      //   error.response?.data?.resultMessage || "Please try again later";
-      // showDialog(errorMessage);
-      const errorMessage =
-        error.response?.data?.resultMessage || "Please try again later";
-      showDialog("Registration Failed", errorMessage);
-    } finally {
-      setLoading(false);
-    }
+  const scrollToRegistration = () => {
+    registrationRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
   };
 
   return (
     <Box
       sx={{
+        width: "100%",
+        minHeight: "100vh",
         display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "97vh",
-        width: "99vw",
-        overflow: "hidden",
+        flexDirection: "column",
+        bgcolor: "#f8f9fa",
       }}
     >
-      {/* Error Dialog */}
-      <Dialog
-        open={errorDialogOpen}
-        onClose={handleCloseErrorDialog}
-        PaperProps={{
-          sx: {
-            minWidth: "400px",
-            maxWidth: "500px",
-            textAlign: "center",
-            padding: "20px",
-            borderRadius: "10px",
-          },
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 2,
-          }}
-        >
-          <Box sx={{ mt: 2 }}>
-            <ErrorIcon color="error" style={{ fontSize: "4rem" }} />
-          </Box>
-
-          <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-            Error
-          </Typography>
-
-          <DialogContent sx={{ py: 1 }}>
-            <DialogContentText sx={{ mb: 1 }}>
-              {dialogConfig.message}
-            </DialogContentText>
-          </DialogContent>
-
-          <DialogActions
-            sx={{ width: "100%", justifyContent: "center", pb: 3 }}
-          >
-            <Button
-              onClick={handleCloseErrorDialog}
-              variant="contained"
-              sx={{
-                minWidth: "120px",
-                background: "linear-gradient(135deg, #1a237e 0%, #0d47a1 100%)",
-                color: "white",
-                "&:hover": {
-                  background:
-                    "linear-gradient(135deg, #0d47a1 0%, #1a237e 100%)",
-                },
-              }}
-            >
-              OK
-            </Button>
-          </DialogActions>
-        </Box>
-      </Dialog>
-
-      {/* Success Dialog */}
-      <Dialog
-        open={successDialogOpen}
-        onClose={handleCloseSuccessDialog}
-        PaperProps={{
-          sx: {
-            minWidth: "400px",
-            maxWidth: "500px",
-            textAlign: "center",
-            padding: "20px",
-            borderRadius: "10px",
-          },
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 2,
-          }}
-        >
-          <Box sx={{ mt: 2 }}>
-            <CheckCircleIcon color="success" style={{ fontSize: "4rem" }} />
-          </Box>
-
-          <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-            Success
-          </Typography>
-
-          <DialogContent sx={{ py: 1 }}>
-            <DialogContentText sx={{ mb: 1 }}>
-              {dialogConfig.message}
-            </DialogContentText>
-          </DialogContent>
-
-          <DialogActions
-            sx={{ width: "100%", justifyContent: "center", pb: 3 }}
-          >
-            <Button
-              onClick={handleCloseSuccessDialog}
-              variant="contained"
-              sx={{
-                minWidth: "120px",
-                background: "linear-gradient(135deg, #1a237e 0%, #0d47a1 100%)",
-                color: "white",
-                "&:hover": {
-                  background:
-                    "linear-gradient(135deg, #0d47a1 0%, #1a237e 100%)",
-                },
-              }}
-            >
-              Continue
-            </Button>
-          </DialogActions>
-        </Box>
-      </Dialog>
-
-      {loading ? (
-        <CircularProgress size={60} sx={{ color: "#1a237e" }} />
-      ) : (
-        <>
-          <Box
-            sx={{
-              width: "40%",
-              display: "flex",
-              height: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-              position: "relative",
-              borderRadius: "12px",
-              backgroundColor: "lightgray",
-            }}
-          >
-            <Slideshow />
-          </Box>
-
-          <Box
-            sx={{
-              width: "70%",
-              backgroundColor: "white",
-              borderRadius: "10px",
-              padding: "40px",
-              height: "90vh",
-            }}
-          >
-            <Typography
-              variant="h4"
-              sx={{ textAlign: "center", marginBottom: "20px" }}
-            >
-              {" "}
-              <Box component="span" sx={{ color: "#0d47a1" }}>
-                {/* <DinnerDiningIcon sx={{ fontSize: "2.5rem" }} /> */}
-              </Box>
-              Welcome to MealMate!{" "}
+      {/* App Bar */}
+      <ElevationScroll {...props}>
+        <AppBar sx={{ bgcolor: "#04304f" }}>
+          <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
+              MealMate Partner
             </Typography>
-            <Typography
-              sx={{ textAlign: "center", marginBottom: "20px" }}
-              variant="subtitle1"
-            >
-              Register Your Restaurant Today
-            </Typography>
-            <form onSubmit={handleSubmit}>
-              {/* First Name and Last Name */}
-              <Box sx={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
-                <TextField
-                  fullWidth
-                  required
-                  label="First Name"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, firstName: e.target.value })
-                  }
-                />
-                <TextField
-                  fullWidth
-                  required
-                  label="Last Name"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, lastName: e.target.value })
-                  }
-                />
-              </Box>
-
-              {/* Email */}
-              <Box sx={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
-                <TextField
-                  fullWidth
-                  required
-                  label="Email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                />
-                <PhoneInput
-                  country={"in"}
-                  required
-                  value={formData.mobileNo}
-                  onChange={(value) =>
-                    setFormData({ ...formData, mobileNo: value })
-                  }
-                  inputStyle={{
-                    width: "100%",
-                    height: "56px",
-                    borderRadius: "4px",
-                    border: "1px solid rgba(0, 0, 0, 0.23)",
-                    paddingLeft: "48px", // To adjust for country code prefix
-                  }}
-                />
-              </Box>
-
-              {/* Restaurant Name */}
-              <Box sx={{ marginBottom: "20px" }}>
-                <TextField
-                  fullWidth
-                  required
-                  label="Restaurant Name"
-                  name="restaurantName"
-                  value={formData.restaurantName}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      restaurantName: e.target.value,
-                    })
-                  }
-                />
-              </Box>
-
-              {/* Address */}
-              <Box sx={{ marginBottom: "20px" }}>
-                <TextField
-                  fullWidth
-                  label="Address"
-                  name="address"
-                  value={formData.address}
-                  onChange={(e) =>
-                    setFormData({ ...formData, address: e.target.value })
-                  }
-                />
-              </Box>
-
-              {/* Password and Confirm Password */}
-              <Box sx={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
-                <TextField
-                  fullWidth
-                  label="Password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  required
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={handleTogglePassword}
-                          onMouseDown={handleMouseDownPassword}
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-                <TextField
-                  fullWidth
-                  label="Confirm Password"
-                  name="confirmPassword"
-                  type={showPassword ? "text" : "password"}
-                  required
-                  value={formData.confirmPassword}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      confirmPassword: e.target.value,
-                    })
-                  }
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={handleTogglePassword}
-                          onMouseDown={handleMouseDownPassword}
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Box>
-
-              {/* Logo Upload */}
-              <Box
-                sx={{
-                  display: "flex",
-                  gap: "10rem",
-                  marginBottom: "20px",
-                  ml: "7rem",
-                }}
+            <Box>
+              <Button
+                color="inherit"
+                sx={{ mr: 2, fontWeight: 500 }}
+                onClick={() => navigation("/login")}
+                startIcon={<Icon icon="ant-design:login-outlined" />}
               >
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  {image ? (
-                    <img
-                      src={URL.createObjectURL(image)}
-                      alt="logo"
-                      style={{
-                        width: "6rem",
-                        height: "6rem",
-                        objectFit: "scale-down",
-                        borderRadius: "0.5rem",
-                        padding: "0.1rem",
-                        border: "1px solid #6c757d",
-                      }}
-                    />
-                  ) : (
-                    <ImageAspectRatioIcon
-                      style={{
-                        fontSize: "4rem",
-                        opacity: "0.7",
-                      }}
-                    />
-                  )}
-                  <label htmlFor="icon-button-file">
-                    <input
-                      accept="image/*"
-                      style={{ display: "none" }}
-                      name="appLogo"
-                      onChange={handleImageChange}
-                      id="icon-button-file"
-                      type="file"
-                    />
-                    <Button
-                      variant="outlined"
-                      color="#0d47a1"
-                      startIcon={<PhotoCamera />}
-                      component="span"
-                      sx={{
-                        marginLeft: "10px",
-                        color: "#0d47a1",
-                        borderColor: "#0d47a1",
-                      }}
-                    >
-                      Upload Logo
-                    </Button>
-                  </label>
-                </Box>
+                Login
+              </Button>
+              <Button
+                variant="contained"
+                color="secondary"
+                sx={{
+                  backgroundColor: "#9EDDF9",
+                  color: "#000",
+                  fontWeight: 500,
+                  "&:hover": { backgroundColor: "#5DA5C6" },
+                }}
+                onClick={scrollToRegistration}
+              >
+                Register Now
+              </Button>
+            </Box>
+          </Toolbar>
+        </AppBar>
+      </ElevationScroll>
+      <Toolbar id="back-to-top-anchor" />
 
-                {/* Document Upload */}
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  {document ? (
+      {/* Hero Section */}
+      <Box
+        sx={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)), url('../assets/restro-owner-register-page/background1.jpg')`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "flex-end",
+          textAlign: "right",
+          px: { xs: 2, md: 6 },
+          pt: { xs: 8, md: 12 },
+          pb: { xs: 12, md: 16 },
+          color: "#fff",
+          minHeight: "80vh",
+        }}
+      >
+        <Container
+          maxWidth={false}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            textAlign: "right",
+            px: { xs: 2, md: 6 },
+          }}
+        >
+          <Typography variant="h2" fontWeight={700} gutterBottom>
+            Partner with MealMate
+          </Typography>
+          <Typography variant="h2" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
+            {" "}
+            Grow Your Business
+          </Typography>
+          <Typography variant="h5" sx={{ color: "#ffecff" }}>
+            <Box component="span" sx={{ color: "#D5F0FD", fontWeight: 600 }}>
+              0% commission for 1st month!
+            </Box>{" "}
+          </Typography>
+          <Typography variant="h5" sx={{ color: "#ffecff", mb: 4 }}>
+            Valid for new restaurant partners in select cities
+          </Typography>
+          <Button
+            variant="contained"
+            size="large"
+            sx={{
+              px: 6,
+              py: 1.5,
+              borderRadius: 2,
+              backgroundColor: "#9EDDF9",
+              color: "#000",
+              fontWeight: 600,
+              fontSize: "1.1rem",
+              "&:hover": { backgroundColor: "#5DA5C6" },
+            }}
+            onClick={scrollToRegistration}
+          >
+            Register Your Restaurant
+          </Button>
+        </Container>
+      </Box>
+
+      {/* Info Section */}
+      <Box
+        sx={{
+          px: 2,
+          mt: -10,
+          mb: 6,
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        <Paper
+          elevation={6}
+          sx={{
+            borderRadius: 3,
+            p: { xs: 3, md: 4 },
+            maxWidth: 1200,
+            width: "100%",
+            mx: "auto",
+            bgcolor: "#F1FAFE",
+            color: "#2c003e",
+            boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          <Grid container spacing={5} alignItems="center">
+            <Grid item xs={12} md={7}>
+              <Typography variant="h4" fontWeight={700} gutterBottom>
+                Get Started - It Only Takes 10 Minutes
+              </Typography>
+              <Typography variant="subtitle1" sx={{ color: "#6e4c7b", mb: 3 }}>
+                Please keep these documents and details ready for a smooth
+                sign-up
+              </Typography>
+
+              <Grid container spacing={2}>
+                {[
+                  "PAN card",
+                  "FSSAI license",
+                  "Bank account details",
+                  "Menu & profile food image",
+                ].map((item, i) => (
+                  <Grid item xs={12} sm={6} key={i}>
                     <Box
                       sx={{
                         display: "flex",
-                        flexDirection: "row",
                         alignItems: "center",
-                        gap: "10px",
-                        marginRight: "10px",
+                        mb: 1.5,
+                        p: 1.5,
+                        borderRadius: 1,
+                        "&:hover": {
+                          bgcolor: "rgba(46, 125, 50, 0.1)",
+                        },
                       }}
                     >
-                      {/* Document Preview */}
-                      {document &&
-                      document.type &&
-                      document.type.startsWith("image") ? (
-                        <img
-                          src={URL.createObjectURL(document)}
-                          alt="Document Preview"
-                          style={{
-                            width: "6rem",
-                            height: "6rem",
-                            objectFit: "cover",
-                            borderRadius: "0.5rem",
-                            padding: "0.1rem",
-                            border: "1px solid #6c757d",
-                          }}
-                        />
-                      ) : document.type === "application/pdf" ? (
-                        <InsertDriveFileIcon
-                          style={{ fontSize: "4rem", color: "#0d47a1" }}
-                        />
-                      ) : (
-                        <InsertDriveFileIcon
-                          style={{ fontSize: "4rem", color: "#0d47a1" }}
-                        />
-                      )}
-
-                      {/* Document Delete Button */}
-                      {/* <IconButton onClick={handleDeleteDocument} color="error">
-                    Delete Document Image
-                  </IconButton> */}
+                      <CheckCircleIcon
+                        sx={{ mr: 2, color: "#2DE200", fontSize: "1.5rem" }}
+                      />
+                      <Typography variant="body1" fontWeight={500}>
+                        {item}
+                      </Typography>
                     </Box>
-                  ) : (
-                    <InsertDriveFileIcon
-                      style={{ fontSize: "4rem", opacity: "0.7" }}
-                    />
-                  )}
-                  <label htmlFor="document-upload">
-                    <input
-                      accept="image/*,.pdf"
-                      type="file"
-                      name="document"
-                      onChange={handleDocumentChange}
-                      style={{ display: "none" }}
-                      id="document-upload"
-                    />
-                    <Button
-                      variant="outlined"
-                      color="#0d47a1"
-                      startIcon={<InsertDriveFileIcon />}
-                      component="span"
-                      sx={{ color: "#0d47a1", borderColor: "#0d47a1" }}
-                    >
-                      Upload Id proof
-                    </Button>
-                  </label>
-                </Box>
-                
-              </Box>
+                  </Grid>
+                ))}
+                <Grid item xs={12} sx={{ pl: 4, mt: 1 }}>
+                  <Typography variant="body2" sx={{ color: "#6e4c7b" }}>
+                    Don't have a FSSAI license?{" "}
+                    <Link href="#" color="primary" fontWeight={600}>
+                      Apply here
+                    </Link>
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Grid>
 
-              {/* Submit Button */}
+            {/* Image Card Section */}
+            <Grid item xs={12} md={5}>
               <Box
                 sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  width: "100%",
-                  mt: "20px",
+                  position: "relative",
+                  height: 250,
+                  borderRadius: 2,
+                  overflow: "hidden",
+                  boxShadow: 3,
                 }}
               >
-                <Button
-                  variant="contained"
-                  fullWidth
-                  type="submit"
+                <Card
                   sx={{
-                    padding: "15px 30px",
-                    background:
-                      "linear-gradient(135deg, #1a237e 0%, #0d47a1 100%)",
-                    fontSize: "16px",
-                    fontWeight: "bold",
+                    width: "100%",
+                    height: "100%",
+                    backgroundColor: "#f1fafe",
+                  }}
+                >
+                  <Fade in={fade} timeout={500}>
+                    <CardMedia
+                      component="img"
+                      image={images[currentIndex]}
+                      alt={`Slide ${currentIndex + 1}`}
+                      sx={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                      }}
+                    />
+                  </Fade>
+                </Card>
+              </Box>
+            </Grid>
+          </Grid>
+        </Paper>
+      </Box>
+
+      {/* Why Partner Section */}
+      <Box
+        sx={{
+          backgroundImage: `linear-gradient(135deg, #04304f 0%, #1976d2 100%)`,
+          px: 2,
+          pt: 12,
+          pb: 16,
+          color: "#fff",
+        }}
+      >
+        <Container maxWidth="lg">
+          <Typography
+            variant="h2"
+            align="center"
+            fontWeight={700}
+            sx={{ mb: 8 }}
+          >
+            Why Partner With MealMate?
+          </Typography>
+
+          <Grid container spacing={4} justifyContent="center">
+            {[
+              {
+                icon: "fluent:people-community-32-filled",
+                title: "Attract Customers",
+                color: "#4fc3f7",
+                text: [
+                  "Reach millions of people",
+                  "ordering daily on MealMate",
+                ],
+              },
+              {
+                icon: "fluent-mdl2:onboarding",
+                title: "Onboarding Support",
+                color: "#81c784",
+                text: ["Dedicated support team", "ashishsahoo0013@gmail.com"],
+              },
+              {
+                icon: "game-icons:take-my-money",
+                title: "No Setup Fee",
+                color: "#ffb74d",
+                text: ["Zero upfront cost", "Start without initial charges"],
+              },
+            ].map((card, i) => (
+              <Grid item xs={12} sm={6} md={4} key={i}>
+                <Paper
+                  sx={{
+                    p: 3,
+                    height: "100%",
+                    minHeight: 250,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    background: "rgba(255, 255, 255, 0.1)",
+                    backdropFilter: "blur(12px)",
+                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                    transition: "all 0.3s ease",
                     "&:hover": {
-                      background:
-                        "linear-gradient(135deg, #0d47a1 0%, #1a237e 100%)",
+                      transform: "translateY(-5px)",
+                      boxShadow: "0 10px 20px rgba(0,0,0,0.2)",
                     },
                   }}
-                  disabled={loading}
                 >
-                  {loading ? "Processing ..." : "Register"}
-                </Button>
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  mt: "10px",
-                }}
+                  <Box textAlign="center">
+                    <Icon
+                      icon={card.icon}
+                      height={60}
+                      width={60}
+                      style={{ color: card.color, marginBottom: 16 }}
+                    />
+                    <Typography
+                      variant="h5"
+                      fontWeight={600}
+                      gutterBottom
+                      sx={{ color: "#fff" }}
+                    >
+                      {card.title}
+                    </Typography>
+                    {card.text.map((line, idx) => (
+                      <Typography
+                        key={idx}
+                        variant="body1"
+                        sx={{ color: "rgba(255, 255, 255, 0.9)", mb: 1 }}
+                      >
+                        {line}
+                      </Typography>
+                    ))}
+                  </Box>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* FAQ Section */}
+      <Box sx={{ bgcolor: "#fff", py: 12 }}>
+        <Container maxWidth="lg">
+          <Typography
+            variant="h2"
+            align="center"
+            fontWeight={700}
+            sx={{ mb: 8 }}
+          >
+            Frequently Asked Questions
+          </Typography>
+
+          <Box sx={{ maxWidth: 800, mx: "auto" }}>
+            <Accordion sx={{ mb: 2 }}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                sx={{ bgcolor: "#f8f9fa" }}
               >
-                <Typography>
-                  <Link
-                    sx={{ textDecoration: "none", color: "#0d47a1" }}
-                    href="/login"
-                  >
-                    Already have an account? Log in
-                  </Link>
+                <Typography variant="h6" fontWeight={600}>
+                  What documents are required to start deliveries?
                 </Typography>
-              </Box>
-            </form>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography>
+                  <strong>Mandatory documents:</strong>
+                  <ul>
+                    <li>PAN Card</li>
+                    <li>FSSAI License</li>
+                    <li>Bank Details</li>
+                    <li>Food Cover Image</li>
+                  </ul>
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion sx={{ mb: 2 }}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                sx={{ bgcolor: "#f8f9fa" }}
+              >
+                <Typography variant="h6" fontWeight={600}>
+                  How long will it take for a restaurant to go live on MealMate?
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography>
+                  Once all mandatory documents are uploaded and the contract is
+                  accepted, our team typically takes around 24 hours to verify
+                  the documents and build your menu.
+                  <Box component="ul" sx={{ mt: 1 }}>
+                    <Box component="li" sx={{ mb: 1 }}>
+                      If all documents are correct, your restaurant will be
+                      ready to accept orders within 48 hours.
+                    </Box>
+                    <Box component="li">
+                      If any document is rejected, the go-live process will be
+                      delayed until you resubmit the correct documents.
+                    </Box>
+                  </Box>
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion sx={{ mb: 2 }}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                sx={{ bgcolor: "#f8f9fa" }}
+              >
+                <Typography variant="h6" fontWeight={600}>
+                  How can I get help and support from MealMate?
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography>
+                  The MealMate team is here to help! Email us at
+                  ashishsahoo0013@gmail.com with your restaurant ID, and we'll
+                  resolve your query within 24 hours.
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion sx={{ mb: 2 }}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                sx={{ bgcolor: "#f8f9fa" }}
+              >
+                <Typography variant="h6" fontWeight={600}>
+                  Who developed this application?
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography>
+                  <strong>Ashish Sahoo</strong>
+                  <Box component="ul" sx={{ mt: 1 }}>
+                    <Box component="li" sx={{ mb: 1 }}>
+                      Greeting of the day, I'm Ashish Sahoo, a Frontend
+                      Developer Intern with 7 months of experience building
+                      responsive, user-friendly interfaces using React,
+                      JavaScript, TypeScript, Next.js, and Material UI.
+                    </Box>
+                    <Box component="li" sx={{ mb: 1 }}>
+                      Beyond frontend work, I've also developed a full-stack
+                      MERN-based Online Food Ordering App from scratch,
+                      implementing features like role-based modules, admin
+                      analytics, and API integration.
+                    </Box>
+                    <Box component="li" sx={{ mb: 1 }}>
+                      <Link
+                        href="https://github.com/AashishSahoo"
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        GitHub Profile
+                      </Link>
+                    </Box>
+                    <Box component="li" sx={{ mb: 1 }}>
+                      <Link
+                        href="https://www.linkedin.com/in/ashishsahoo899/"
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        LinkedIn Profile
+                      </Link>
+                    </Box>
+                    <Box component="li">
+                      <Link
+                        href="https://portfolio-seven-tan-71.vercel.app/"
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        Portfolio Website
+                      </Link>
+                    </Box>
+                  </Box>
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
           </Box>
-        </>
-      )}
+        </Container>
+      </Box>
+
+      {/* Registration Form Section */}
+      <Box
+        ref={registrationRef}
+        sx={{
+          bgcolor: "#f1fafe",
+          py: 12,
+          borderTop: "1px solid #e0e0e0",
+          borderBottom: "1px solid #e0e0e0",
+        }}
+      >
+        <Container maxWidth="md">
+          <Typography
+            variant="h2"
+            align="center"
+            fontWeight={700}
+            sx={{ mb: 6 }}
+          >
+            Registration Form
+          </Typography>
+          <RegistrationForm />
+        </Container>
+      </Box>
+
+      {/* Footer */}
+      <Footer />
+
+      {/* Back to Top Button */}
+      <ScrollTop {...props}>
+        <Fab
+          size="medium"
+          sx={{
+            bgcolor: "#1976d2",
+            color: "#fff",
+            "&:hover": { bgcolor: "#1565c0" },
+          }}
+        >
+          <KeyboardArrowUpIcon />
+        </Fab>
+      </ScrollTop>
     </Box>
   );
 };
 
-export default RestroOwnerRegister;
+export default RegisterPage;

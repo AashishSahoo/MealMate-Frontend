@@ -800,7 +800,6 @@ export default function RegistrationForm() {
           </Button>
         </DialogActions>
       </Dialog>
-
     </Box>
   );
 }
