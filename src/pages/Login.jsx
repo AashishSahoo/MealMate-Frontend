@@ -21,6 +21,7 @@ import { login } from "../store/authslice";
 import axios from "axios";
 import logo3 from "../assets/Applogo2.png";
 import { Icon } from "@iconify/react";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Login = () => {
   // Slideshow State
@@ -78,7 +79,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(`/api/auth/login`, formData, {
+      const response = await axios.post(`${BASE_URL}/auth/login`, formData, {
         headers: { "Content-Type": "application/json" },
       });
 

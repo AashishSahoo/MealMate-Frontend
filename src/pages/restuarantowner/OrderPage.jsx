@@ -32,6 +32,7 @@ import {
   ShoppingBasket,
 } from "@mui/icons-material";
 import axios from "axios";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const columns = [
   { id: "userName", label: "Customer Name", minWidth: 150 },
@@ -60,7 +61,7 @@ const OrderPage = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `/api/orders/getAllIncomingOrdersByRestaurant/${email}`,
+        `${BASE_URL}/orders/getAllIncomingOrdersByRestaurant/${email}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response?.data?.resultCode === 0) {
@@ -95,7 +96,7 @@ const OrderPage = () => {
     }));
 
     try {
-      await axios.patch(`/api/orders/${orderId}/complete`, null, {
+      await axios.patch(`${BASE_URL}/orders/${orderId}/complete`, null, {
         headers: { Authorization: `Bearer ${token}` },
       });
       await fetchAllIncomingOrders();
@@ -116,7 +117,7 @@ const OrderPage = () => {
     }));
 
     try {
-      await axios.patch(`/api/orders/${orderId}/cancelled`, null, {
+      await axios.patch(`${BASE_URL}/orders/${orderId}/cancelled`, null, {
         headers: { Authorization: `Bearer ${token}` },
       });
       await fetchAllIncomingOrders();

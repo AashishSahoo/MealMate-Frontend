@@ -40,6 +40,7 @@ import { CgClose } from "react-icons/cg";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import customerImage from "../../assets/customer.png";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Enhanced Animations
 const glow = keyframes`
@@ -98,9 +99,12 @@ const ProfilePageCustomer = () => {
 
   const fetchUserProfileDetails = async () => {
     try {
-      const response = await axios.get(`/api/users/user-profile/${email}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        `${BASE_URL}/users/user-profile/${email}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (response?.data?.resultCode === 0) {
         const details = response?.data?.resultData;

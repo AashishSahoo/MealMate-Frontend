@@ -37,6 +37,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { AiFillAlert } from "react-icons/ai";
 import Skeleton from "@mui/material/Skeleton";
 import { useNavigate } from "react-router-dom";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const StyledModal = styled(Modal)({
   display: "flex",

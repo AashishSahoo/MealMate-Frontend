@@ -36,6 +36,8 @@ import { CgClose } from "react-icons/cg";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 // Enhanced Animations
 const glow = keyframes`
   0% { box-shadow: 0 0 10px rgba(33, 150, 243, 0.4); }
@@ -98,9 +100,12 @@ const ProfilePage = () => {
 
   const fetchUserProfileDetails = async () => {
     try {
-      const response = await axios.get(`/api/users/user-profile/${email}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        `${BASE_URL}/users/user-profile/${email}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (response?.data?.resultCode === 0) {
         const details = response?.data?.resultData;

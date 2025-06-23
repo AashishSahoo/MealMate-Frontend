@@ -31,6 +31,8 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import Groups3Icon from "@mui/icons-material/Groups3";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 // Columns definition
 const columns = [
   { id: "firstName", label: "First Name", minWidth: 150 },
@@ -87,9 +89,12 @@ export default function UserList() {
 
   const deleteUser = async (id) => {
     try {
-      const response = await axios.delete(`/api/users/delete-customer/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.delete(
+        `${BASE_URL}/users/delete-customer/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       if (response.data.resultCode === 0) {
         setOpenSuccessDialog(true);
         await fetchAllRestroOwnerList();
@@ -101,7 +106,7 @@ export default function UserList() {
 
   const fetchUserList = async () => {
     try {
-      const response = await axios.get(`/api/users/customers`, {
+      const response = await axios.get(`${BASE_URL}/users/customers`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

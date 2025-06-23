@@ -4,6 +4,7 @@ import axios from "axios";
 import { startOfYear, endOfYear, format, eachDayOfInterval } from "date-fns";
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const OrderHeatmap = () => {
   const [heatmapData, setHeatmapData] = useState([]);
@@ -15,7 +16,7 @@ const OrderHeatmap = () => {
 
   const fetchOrderData = async () => {
     try {
-      const response = await axios.get("/api/orders/day-wise", {
+      const response = await axios.get(`${BASE_URL}/orders/day-wise`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

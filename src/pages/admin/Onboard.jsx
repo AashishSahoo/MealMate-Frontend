@@ -51,6 +51,8 @@ import { HiUserGroup } from "react-icons/hi2";
 import EventIcon from "@mui/icons-material/Event";
 import { styled, keyframes } from "@mui/material/styles";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const columns = [
   { id: "firstName", label: "First Name", minWidth: 100 },
   { id: "lastName", label: "Last Name", minWidth: 100 },
@@ -148,7 +150,7 @@ export default function RestaurantOwnerManagement() {
   const handleApprove = async (id, e) => {
     try {
       const response = await axios.put(
-        `/api/restaurantStatus/approve/${id}`,
+        `${BASE_URL}/restaurantStatus/approve/${id}`,
         null, // Empty request body
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -179,7 +181,7 @@ export default function RestaurantOwnerManagement() {
   const handleDecline = async (id, e) => {
     try {
       const response = await axios.put(
-        `/api/restaurantStatus/decline/${id}`,
+        `${BASE_URL}/restaurantStatus/decline/${id}`,
         { feedback },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -241,7 +243,7 @@ export default function RestaurantOwnerManagement() {
 
   const fetchRestroOwnerList = async () => {
     try {
-      const response = await axios.get(`/api/users/restaurant-owners`, {
+      const response = await axios.get(`${BASE_URL}/users/restaurant-owners`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

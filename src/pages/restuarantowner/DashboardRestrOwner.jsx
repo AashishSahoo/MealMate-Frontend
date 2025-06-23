@@ -26,6 +26,7 @@ import axios from "axios";
 import { CardSkeleton } from "../../component/CardSkeleton";
 import { Skeleton } from "@mui/material";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const DashboardRestrOwner = () => {
   const [orders, setOrders] = useState([]);
@@ -102,7 +103,7 @@ const DashboardRestrOwner = () => {
     console.log("userID : ", userId);
     try {
       const response = await axios.get(
-        `/api/tables/get-all-bookings-restuarant/${userId}`,
+        `${BASE_URL}/tables/get-all-bookings-restuarant/${userId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -117,11 +118,14 @@ const DashboardRestrOwner = () => {
   const fetchAllDetails = async (req, res) => {
     setLoading(true);
     try {
-      const response = await axios.get(`api/orders/dashboardStat/${email}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        `${BASE_URL}/orders/dashboardStat/${email}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response?.data?.resultCode === 0) {
         const resp = response?.data?.resultData;
@@ -146,7 +150,7 @@ const DashboardRestrOwner = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `/api/orders/getAllIncomingOrdersByRestaurant/${email}`,
+        `${BASE_URL}/orders/getAllIncomingOrdersByRestaurant/${email}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response?.data?.resultCode === 0) {

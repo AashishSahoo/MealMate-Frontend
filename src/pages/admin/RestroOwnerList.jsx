@@ -13,7 +13,6 @@ import {
   IconButton,
   Fade,
   Tooltip,
-  
   Dialog,
   DialogTitle,
   DialogContent,
@@ -32,6 +31,8 @@ import {
 import axios from "axios";
 import { useSelector } from "react-redux";
 import Groups2Icon from "@mui/icons-material/Groups2";
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Columns definition
 const columns = [
@@ -87,7 +88,7 @@ export default function RestroOwnerList() {
   const deleteRestrOwner = async (id) => {
     try {
       const response = await axios.delete(
-        `/api/users/delete-restaurant-owners/${id}`,
+        `${BASE_URL}/users/delete-restaurant-owners/${id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -103,7 +104,7 @@ export default function RestroOwnerList() {
 
   const fetchAllRestroOwnerList = async () => {
     try {
-      const response = await axios.get(`/api/users/restaurant-owners`, {
+      const response = await axios.get(`${BASE_URL}/users/restaurant-owners`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

@@ -35,6 +35,7 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import moment from "moment";
 import { RiAlarmWarningFill } from "react-icons/ri";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function Category() {
   const [page, setPage] = useState(0);
@@ -65,7 +66,7 @@ export default function Category() {
   const handleConfirmDelete = async () => {
     try {
       const response = await axios.delete(
-        `/api/categories/${categoryToDelete}`,
+        `${BASE_URL}/categories/${categoryToDelete}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -84,7 +85,7 @@ export default function Category() {
   const handleAddCategory = async () => {
     try {
       const response = await axios.post(
-        `/api/categories/create`,
+        `${BASE_URL}/categories/create`,
         { name: newCategory },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -108,7 +109,7 @@ export default function Category() {
 
   const fetchCategoryList = async (req, res) => {
     try {
-      const response = await axios.get(`/api/categories`, {
+      const response = await axios.get(`${BASE_URL}/categories`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

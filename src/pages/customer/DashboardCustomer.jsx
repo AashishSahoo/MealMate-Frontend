@@ -32,6 +32,8 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import Delivery from "../../assets/delivery.png";
 dayjs.extend(relativeTime);
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const StyledCard = styled(Card)(({ theme }) => ({
   transition: "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out",
   "&:hover": {
@@ -60,9 +62,12 @@ const DashboardCustomer = () => {
 
   const fetchOrdersStats = async () => {
     try {
-      const response = await axios.get(`/api/orders/user-dashboard/${email}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        `${BASE_URL}/orders/user-dashboard/${email}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       if (response?.data?.resultCode === 0) {
         const data = response.data.resultData;
 
@@ -78,9 +83,12 @@ const DashboardCustomer = () => {
 
   const fetchUserProfileDetails = async () => {
     try {
-      const response = await axios.get(`/api/users/user-profile/${email}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        `${BASE_URL}/users/user-profile/${email}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (response?.data?.resultCode === 0) {
         const details = response?.data?.resultData;
@@ -95,7 +103,7 @@ const DashboardCustomer = () => {
 
   const fetchTodaysPick = async () => {
     try {
-      const response = await axios.get(`/api/food/random`, {
+      const response = await axios.get(`${BASE_URL}/food/random`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response?.data?.resultCode === 0) {
@@ -112,7 +120,7 @@ const DashboardCustomer = () => {
   const fetchAllOrderHistory = async () => {
     try {
       const response = await axios.get(
-        `/api/orders/getAllOrdersByUser/${email}`,
+        `${BASE_URL}/orders/getAllOrdersByUser/${email}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

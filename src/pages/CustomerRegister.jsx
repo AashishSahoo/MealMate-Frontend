@@ -33,6 +33,8 @@ import appLogo from "../assets/Applogo2.png";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { Icon } from "@iconify/react";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const CustomerRegister = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -101,7 +103,7 @@ const CustomerRegister = () => {
 
     try {
       const response = await axios.post(
-        `/api/auth/register/customer`,
+        `${BASE_URL}/auth/register/customer`,
         formData,
         {
           headers: {

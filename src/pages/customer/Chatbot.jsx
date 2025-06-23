@@ -20,6 +20,7 @@ import EmojiObjectsIcon from "@mui/icons-material/EmojiObjects";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import { Icon } from "@iconify/react";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const cards = [
   { id: 1, description: "🍽️ What's today's special food item?" },
@@ -46,7 +47,7 @@ export default function Chatbot() {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await axios.get(`/api/chatbot/data/${email}`, {
+      const response = await axios.get(`${BASE_URL}/chatbot/data/${email}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response?.data?.resultCode === 0) {
@@ -84,7 +85,7 @@ export default function Chatbot() {
       setError(null);
       setMessages((prev) => [...prev, { type: "user", content: message }]);
       const response = await axios.post(
-        `/api/chatbot/ask`,
+        `${BASE_URL}/chatbot/ask`,
         { message, userData: { dataForAi } },
         { headers: { Authorization: `Bearer ${token}` } }
       );

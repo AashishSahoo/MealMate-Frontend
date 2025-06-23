@@ -37,6 +37,7 @@ import QRCode from "qrcode";
 import PaymentReceiptPDF from "../../component/customer/PaymentReceiptPDF";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { Icon } from "@iconify/react";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Payment = () => {
   const { orderId } = useParams();
@@ -83,7 +84,7 @@ const Payment = () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `/api/payments/getPaymentDetails/${orderId}`,
+          `${BASE_URL}/payments/getPaymentDetails/${orderId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

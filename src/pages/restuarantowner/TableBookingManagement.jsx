@@ -50,6 +50,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import Skeleton from "@mui/material/Skeleton";
 import moment from "moment";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const StyledTab = styled(Tab)(({ theme }) => ({
   fontWeight: 600,
@@ -187,7 +188,7 @@ function TableBookingManagement() {
         if (editingTable !== null) {
           // Update existing table
           const response = await axios.put(
-            `/api/tables/updateTable/${editingTable}`,
+            `${BASE_URL}/tables/updateTable/${editingTable}`,
             data,
             {
               headers: { Authorization: `Bearer ${token}` },
@@ -214,9 +215,13 @@ function TableBookingManagement() {
         } else {
           // Add new table
           if (tables.length < MAX_TABLES) {
-            const response = await axios.post(`/api/tables/addTable`, data, {
-              headers: { Authorization: `Bearer ${token}` },
-            });
+            const response = await axios.post(
+              `${BASE_URL}/tables/addTable`,
+              data,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            );
 
             if (response?.data?.resultCode === 0) {
               setOpenSuccessDialog(true);
@@ -270,7 +275,7 @@ function TableBookingManagement() {
   const handleDelete = async () => {
     try {
       const response = await axios.delete(
-        `/api/tables/deleteTable/${tableToDelete}`,
+        `${BASE_URL}/tables/deleteTable/${tableToDelete}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -303,7 +308,7 @@ function TableBookingManagement() {
     try {
       console.log("Fetching bookings...");
       const response = await axios.get(
-        `/api/tables/get-all-bookings-restuarant/${userId}`,
+        `${BASE_URL}/tables/get-all-bookings-restuarant/${userId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
           params: { email: email }, // Pass the user's email as a query parameter
@@ -324,7 +329,7 @@ function TableBookingManagement() {
   const fetchBookingsHistory = async () => {
     try {
       const response = await axios.get(
-        `/api/tables/get-restaurant-tables/history`,
+        `${BASE_URL}/tables/get-restaurant-tables/history`,
         {
           headers: { Authorization: `Bearer ${token}` },
           params: { email: email },
@@ -343,7 +348,7 @@ function TableBookingManagement() {
   const fetchAllTablesDetails = async () => {
     try {
       const response = await axios.get(
-        `/api/tables/get-restaurant-tables`,
+        `${BASE_URL}/tables/get-restaurant-tables`,
         // email,
         {
           headers: { Authorization: `Bearer ${token}` },

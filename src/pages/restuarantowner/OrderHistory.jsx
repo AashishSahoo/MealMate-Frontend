@@ -36,6 +36,7 @@ import {
 } from "@mui/icons-material";
 import axios from "axios";
 import { Icon } from "@iconify/react";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const columns = [
   { id: "userName", label: "Customer Name", minWidth: 150 },
@@ -142,7 +143,7 @@ const OrderHistory = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `/api/orders/getAllOrdersByRestaurant/${email}`,
+        `${BASE_URL}/orders/getAllOrdersByRestaurant/${email}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

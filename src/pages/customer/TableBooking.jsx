@@ -46,6 +46,7 @@ import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import axios from "axios";
 import tablebooking from "../../assets/tablebooking.png";
 import moment from "moment";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const TableBooking = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -221,9 +222,13 @@ const TableBooking = () => {
       tableId: selectedBooking._id,
     };
     try {
-      const response = await axios.post(`/api/tables/book-table`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.post(
+        `${BASE_URL}/tables/book-table`,
+        payload,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (response?.data?.resultCode === 0) {
         setOpenSuccessDialog(true);
@@ -239,7 +244,7 @@ const TableBooking = () => {
 
   const fetchAllBookings = async () => {
     try {
-      const response = await axios.get(`/api/tables/get-all-bookings`, {
+      const response = await axios.get(`${BASE_URL}/tables/get-all-bookings`, {
         headers: { Authorization: `Bearer ${token}` },
         params: { email: email },
       });
@@ -255,7 +260,7 @@ const TableBooking = () => {
 
   const fetchRestroOwners = async () => {
     try {
-      const response = await axios.get("/api/users/restro-owners-list", {
+      const response = await axios.get(`${BASE_URL}/users/restro-owners-list`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response?.data?.resultCode === 0) {
@@ -271,7 +276,7 @@ const TableBooking = () => {
   const fetchAllTablesDetails = async () => {
     try {
       const response = await axios.get(
-        `/api/tables/get-available-tables`,
+        `${BASE_URL}/tables/get-available-tables`,
         // email,
         {
           headers: { Authorization: `Bearer ${token}` },

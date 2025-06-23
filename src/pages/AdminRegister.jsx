@@ -18,6 +18,7 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import axios from "axios";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const AdminRegister = () => {
   const [loading, setLoading] = useState();
@@ -78,11 +79,15 @@ const AdminRegister = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post("/api/auth/register/admin", formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await axios.post(
+        `${BASE_URL}/auth/register/admin`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       // const data = await response.json();
 
       if (response?.data?.resultCode === 0) {

@@ -18,6 +18,8 @@ import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 import RestaurantIcon from "@mui/icons-material/Restaurant";
 import axios from "axios";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
   const [openOrderId, setOpenOrderId] = useState(null);
@@ -31,7 +33,7 @@ const OrderHistory = () => {
   const fetchAllOrderHistory = async () => {
     try {
       const response = await axios.get(
-        `/api/orders/getAllOrdersByUser/${email}`,
+        `${BASE_URL}/orders/getAllOrdersByUser/${email}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

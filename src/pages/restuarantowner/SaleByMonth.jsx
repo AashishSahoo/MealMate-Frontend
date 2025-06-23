@@ -12,6 +12,7 @@ import {
   Legend,
 } from "chart.js";
 import axios from "axios";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 ChartJS.register(
   CategoryScale,
@@ -105,7 +106,7 @@ const SaleByMonth = () => {
   const fetchAllDetails = async () => {
     try {
       const response = await axios.get(
-        `/api/report/monthlyProductSales/${email}`,
+        `${BASE_URL}/report/monthlyProductSales/${email}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

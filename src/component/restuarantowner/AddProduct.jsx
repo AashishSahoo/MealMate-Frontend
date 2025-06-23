@@ -15,6 +15,7 @@ import { PhotoCamera } from "@mui/icons-material";
 import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
 import { useSelector } from "react-redux";
 import axios from "axios";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const AddProduct = () => {
   const [formData, setFormData] = useState({
@@ -56,8 +57,10 @@ const AddProduct = () => {
     formDataToSend.append("category", formData.category);
     formDataToSend.append("email", email);
 
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
     try {
-      const response = await axios.post(`/api/food/addItem`, payload, {
+      const response = await axios.post(`${BASE_URL}/food/addItem`, payload, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",

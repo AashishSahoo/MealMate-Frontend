@@ -21,6 +21,7 @@ import {
 } from "@mui/material";
 import breakfast from "../../assets/breakfast.png";
 import axios from "axios";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const columns = [
   { id: "userName", label: "Username", minWidth: 150 },
@@ -75,7 +76,7 @@ export default function OrderHistoryTable() {
 
   const fetchAllOrders = async () => {
     try {
-      const response = await axios.get(`/api/orders/getAllOrders`, {
+      const response = await axios.get(`${BASE_URL}/orders/getAllOrders`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

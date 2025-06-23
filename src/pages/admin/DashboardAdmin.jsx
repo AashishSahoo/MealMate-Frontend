@@ -22,6 +22,7 @@ import Groups2Icon from "@mui/icons-material/Groups2";
 import GroupsIcon from "@mui/icons-material/Groups";
 import CategoryIcon from "@mui/icons-material/Category";
 import Skeleton from "@mui/material/Skeleton";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const StatCard = ({
   title,
@@ -119,7 +120,7 @@ const DashboardAdmin = () => {
 
   const fetchUserCount = async () => {
     try {
-      const response = await axios.get(`/api/users/customers`, {
+      const response = await axios.get(`${BASE_URL}/users/customers`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -137,7 +138,7 @@ const DashboardAdmin = () => {
 
   const fetchRestroOwnerCount = async () => {
     try {
-      const response = await axios.get(`/api/users/restaurant-owners`, {
+      const response = await axios.get(`${BASE_URL}/users/restaurant-owners`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -153,9 +154,12 @@ const DashboardAdmin = () => {
 
   const fetchAllAnalysisStats = async () => {
     try {
-      const response = await axios.get(`/api/orders/dashboard-overview`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        `${BASE_URL}/orders/dashboard-overview`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (response?.data?.resultCode === 0) {
         const data = response?.data?.resultData;
@@ -173,7 +177,7 @@ const DashboardAdmin = () => {
 
   const fetchCategoryList = async (req, res) => {
     try {
-      const response = await axios.get(`/api/categories`, {
+      const response = await axios.get(`${BASE_URL}/categories`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

@@ -38,6 +38,8 @@ import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
 import Payment from "./Payment";
 import { Icon } from "@iconify/react";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const StyledCard = styled(Card)(({ theme }) => ({
   transition: "all 0.3s ease-in-out",
   "&:hover": {
@@ -87,7 +89,7 @@ const Cart = () => {
   const fetchCartItem = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/cart/getCart`, {
+      const response = await axios.get(`${BASE_URL}/cart/getCart`, {
         headers: { Authorization: `Bearer ${token}` },
         params: { email },
       });
@@ -123,7 +125,7 @@ const Cart = () => {
       const newQuantity = Math.max(1, item.quantity + change);
 
       const response = await axios.post(
-        `/api/cart/updateCartItem`,
+        `${BASE_URL}/cart/updateCartItem`,
         { quantity: newQuantity },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -156,7 +158,7 @@ const Cart = () => {
     try {
       setActionLoading((prev) => ({ ...prev, delete: foodId }));
 
-      const response = await axios.delete(`/api/cart/removeCartItem`, {
+      const response = await axios.delete(`${BASE_URL}/cart/removeCartItem`, {
         headers: { Authorization: `Bearer ${token}` },
         params: {
           userId: userInfo.userId,
@@ -209,7 +211,7 @@ const Cart = () => {
 
       // 2. Create Order & Razorpay Order
       const response = await axios.post(
-        "/api/payments/createOrder",
+        `${BASE_URL}/payments/createOrder`,
         orderData,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -229,7 +231,7 @@ const Cart = () => {
           try {
             // 4. Verify Payment
             const verifyResponse = await axios.post(
-              "/api/payments/verifyPayment",
+              `${BASE_URL}/payments/verifyPayment`,
               {
                 razorpay_payment_id: paymentResponse.razorpay_payment_id,
                 razorpay_order_id: paymentResponse.razorpay_order_id,

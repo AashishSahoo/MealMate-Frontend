@@ -21,6 +21,8 @@ import "react-phone-input-2/lib/style.css";
 import { FormHelperText, CircularProgress } from "@mui/material";
 import Stack from "@mui/material/Stack";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const steps = [
   "Entry profile information",
   "Upload documents",
@@ -145,9 +147,12 @@ export default function RegistrationForm() {
 
     try {
       setOtpLoading(true);
-      const response = await axios.post("/api/auth/request-verification", {
-        email: formData.email,
-      });
+      const response = await axios.post(
+        `${BASE_URL}/auth/request-verification`,
+        {
+          email: formData.email,
+        }
+      );
 
       if (response?.data?.resultCode === 0) {
         setResendCounter((prev) => prev + 1);
@@ -205,9 +210,12 @@ export default function RegistrationForm() {
       setLoading(true);
 
       // First, send OTP to user's email
-      const otpResponse = await axios.post("/api/auth/request-verification", {
-        email: formData.email,
-      });
+      const otpResponse = await axios.post(
+        `${BASE_URL}/auth/request-verification`,
+        {
+          email: formData.email,
+        }
+      );
 
       if (otpResponse?.data?.resultCode !== 0) {
         showDialog("Failed to Send OTP", otpResponse.data.resultMessage);
@@ -238,7 +246,7 @@ export default function RegistrationForm() {
 
     try {
       setVerifyLoading(true);
-      const response = await axios.post("/api/auth/verify-otp", {
+      const response = await axios.post(`${BASE_URL}/auth/verify-otp`, {
         email: formData.email,
         otp: otpValue,
       });
@@ -276,7 +284,7 @@ export default function RegistrationForm() {
       });
 
       const response = await axios.post(
-        "/api/auth/register/restaurant-owner",
+        `${BASE_URL}/auth/register/restaurant-owner`,
         formDataToSend,
         { headers: { "Content-Type": "multipart/form-data" } }
       );

@@ -63,6 +63,7 @@ import { CgUnavailable } from "react-icons/cg";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import Chip from "@mui/material/Chip";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function Products() {
   const [loading, setLoading] = useState(true);
@@ -118,7 +119,7 @@ function Products() {
     payload.append("email", email);
 
     try {
-      const response = await axios.post(`/api/food/addItem`, payload, {
+      const response = await axios.post(`${BASE_URL}/food/addItem`, payload, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -143,7 +144,7 @@ function Products() {
 
   const fetchAllCategory = async () => {
     try {
-      const response = await axios.get(`/api/categories`, {
+      const response = await axios.get(`${BASE_URL}/categories`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -190,7 +191,7 @@ function Products() {
   const handleConfirmDelete = async () => {
     try {
       const response = await axios.delete(
-        `/api/food/deleteItem/${selectedProduct._id}`,
+        `${BASE_URL}/food/deleteItem/${selectedProduct._id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -219,7 +220,7 @@ function Products() {
 
     try {
       const response = await axios.put(
-        `/api/food/updateItem/${selectedProduct._id}`,
+        `${BASE_URL}/food/updateItem/${selectedProduct._id}`,
         payload,
         {
           headers: { Authorization: `Bearer ${token}` },
