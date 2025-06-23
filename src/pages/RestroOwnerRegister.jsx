@@ -551,7 +551,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { Icon } from "@iconify/react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import RegistrationForm from "../component/restuarantowner/RegistrationForm";
-import Footer from "../component/restuarantowner/Footer"; // You'll need to create this component
+import Footer from "../component/restuarantowner/Footer"; 
 import { useNavigate } from "react-router-dom";
 
 // Elevate App Bar
